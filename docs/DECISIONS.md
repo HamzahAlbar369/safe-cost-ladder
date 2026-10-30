@@ -487,3 +487,9 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   budget); any cell still without a response makes the command exit non-zero and is retried by resuming.
 - Pilot: 40 dev tickets stratified by task x level (about 30% Arabic per stratum), fixed seed 20261030.
 - `shifted` is refused until Phase 4; `heldout` cannot be loaded at all.
+
+### D2.5 · Correction: commit cc9dcab was labelled "engine check green" but its replay-integrity step had crashed
+- `engine check` raised `KeyError: 'request_hash'` on the probe run's log (rows wrapped as `{"call": ...}`); my
+  command piped the output through `tail`, which hid the non-zero exit. The check now reads both row shapes
+  (`src/engine/check.py`). Re-run with the real exit code: all four steps PASS (109 cassettes, 109 recorded calls
+  referenced; smoke replay exact). From now on the exit code is read directly, not through a pipe.

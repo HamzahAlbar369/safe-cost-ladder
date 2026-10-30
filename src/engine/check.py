@@ -52,6 +52,7 @@ def replay_integrity() -> Result:
     for log in [*runs.glob("*/calls.jsonl"), *runs.glob("*/jev.jsonl")]:
         for line in log.read_text(encoding="utf-8").splitlines():
             row = json.loads(line)
+            row = row.get("call", row)  # probe logs wrap each ModelCall as {"call": {...}, ...}
             h = row["request_hash"]
             if row.get("error"):
                 continue  # failed API calls return nothing to record

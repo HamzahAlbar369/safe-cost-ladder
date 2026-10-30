@@ -115,7 +115,19 @@ def families(lang: str, held_back: bool) -> list[Family]:
 _AR_DIGITS = str.maketrans("0123456789,", "٠١٢٣٤٥٦٧٨٩٬")
 
 
+NUMERIC_DATE_FORMATS = ("dmy", "dmy_dash", "iso", "ymd_slash")
+
+
 def fmt_date(d: date, fam: Family) -> str:
+    """Numeric formats are used only when the day is above 12, so day and month can never be confused
+    (D1.12); otherwise the month is written as a word ("12 Mar 2026", "12 مارس 2026")."""
+    if fam.date_fmt in NUMERIC_DATE_FORMATS and d.day <= 12:
+        s = (
+            f"{d.day} {AR_MONTHS[d.month - 1]} {d.year}"
+            if fam.lang == "ar"
+            else d.strftime("%d %b %Y").lstrip("0")
+        )
+        return s.translate(_AR_DIGITS) if fam.arabic_digits else s
     s = {
         "long": f"{d.day} {EN_MONTHS[d.month - 1].capitalize()} {d.year}",
         "long_ar": f"{d.day} {AR_MONTHS[d.month - 1]} {d.year}",
@@ -175,6 +187,8 @@ def _frame(fam: Family, rng: random.Random, slots: dict[str, Any]) -> tuple[list
     heads, tails = frames[fam.frame]
     head = _fill(rng.choice(heads), slots)
     tail = _fill(rng.choice(tails), slots)
+    if fam.lang == "ar" and slots.get("name") in FEMALE_NAMES_AR:  # closing agrees with the signer (D1.12)
+        tail = tail.replace("شاكرًا لكم", "شاكرةً لكم")
     return [head] if head else [], [tail] if tail else []
 
 
@@ -229,6 +243,9 @@ NAMES_EN = [
     "Haya",
     "Bandar",
 ]
+FEMALE_NAMES_AR = frozenset({"نورة", "سارة", "ريم", "حصة", "لمى", "عبير", "مها", "دانة", "هيا"})
+# distractor lines about the other driver's behaviour; never used when there is no known other driver
+OTHER_DRIVER_LINES = frozenset({EN.DISTRACT[6], AR.DISTRACT["msa"][6], AR.DISTRACT["saudi"][6]})
 NAMES_AR = [
     "فيصل",
     "عبدالله",
@@ -417,8 +434,12 @@ def render_claim(view: ClaimView, fam: Family, p: dict[str, Any], rng: random.Ra
             s.append(say(key))
         if c.late_justification:
             s.append(say(f"late_{c.late_justification}"))
-        renewed_later = c.licence_renewal_date is not None and c.licence_renewal_date > c.report_date
-        s.append(say("reported_past" if renewed_later else "reported"))  # keep the timeline coherent
+        if c.submitted_on is not None and c.submitted_on > c.report_date:  # a later update (D1.12)
+            s.append(say("reported_past"))
+            s.append(say("today_line", today=fmt_date(c.submitted_on, fam)))
+            facts.append(c.submitted_on.isoformat())
+        else:
+            s.append(say("reported"))
         facts.append(c.report_date.isoformat())
         if c.documents:
             s.append(say("docs", docs=_doc_list(fam, c.documents, src, rng, not od)))
@@ -431,8 +452,12 @@ def render_claim(view: ClaimView, fam: Family, p: dict[str, Any], rng: random.Ra
             s.append(say("reported"))
     data = _lang_data(fam)
     dis = data.DISTRACT if fam.lang == "en" else data.DISTRACT[fam.register]
+    no_other_driver = c.other_party in ("unknown", "none")  # hit-and-run / single vehicle (D1.12)
     for i in view.distractors:
-        s.append(_fill(dis[i % len(dis)], slots))
+        line = dis[i % len(dis)]
+        if no_other_driver and line in OTHER_DRIVER_LINES:
+            continue
+        s.append(_fill(line, slots))
     if view.ramble:
         ram = data.RAMBLE if fam.lang == "en" else data.RAMBLE[fam.register]
         s += ram[: view.ramble]

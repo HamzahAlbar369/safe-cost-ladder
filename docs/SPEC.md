@@ -172,6 +172,7 @@ non-insurance questions (`faq` → `out_of_scope`, `intent` → `other`); garble
 | No ticket has the customer claiming from the other party's insurer; no mangled mixed-script tokens (D1.10) | 0 |
 | Fact consistency: no ticket states two fault shares or policy numbers, or an amount/date outside its case (D1.11) | 0 |
 | Policy documents (v1/v2, EN/AR, SOURCES.md): unresolved `{…}` placeholders (D1.11) | 0 |
+| Text defects (D1.12): ambiguous numeric dates, "revised" assessment wording, other-driver lines without an other driver, dates after the ticket date, Arabic/English without a space, signer-gender mismatch, English code-switch fillers, EN/AR pairs spanning splits | 0 each |
 | Exact duplicates across splits | 0 |
 | Near-duplicates across splits (char 5-gram Jaccard ≥ 0.8) | 0 |
 | Composition vs §4.3 | within ±3 pts |
@@ -221,6 +222,8 @@ All JSONL; one record per line; never mutate a committed run file (write a new r
 - `system` = one static block: role + all four task instructions + full policy document (identical across tasks so
   every task shares one cached prefix per config). Marked with `cache_control` (5-minute TTL).
 - `user` = task type + ticket text only. Nothing dynamic (ids, timestamps) in the static block.
+- Extract instructions (D1.12): every field absent from the ticket is `null`; a vague relative date ("a few days
+  ago", "قبل أيام") means `accident_date` is `null`.
 - Output caps: strict JSON schema in the prompt and a per-task `max_tokens` (set from Phase 0 measurements with
   headroom for thinking; truncation = failure, logged).
 - Caches are per model: §2.3 check 5 (run `smoke-20261030T130454Z`, DECISIONS D0.6) showed an effort change does not

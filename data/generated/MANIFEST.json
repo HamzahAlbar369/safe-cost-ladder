@@ -1,27 +1,27 @@
 {
   "fiction": "FICTIONAL insurer; synthetic tickets. Rules follow SAMA-issued instruments (see data/rules/SOURCES.md).",
   "seed": 20261030,
-  "generator_git_sha": "4fcfc775a389075aa0f231ba1f624cea8d9b32c1",
+  "generator_git_sha": "d8643a761d48ca4e1ab96e17221ecd22b1e10362-dirty",
   "rules_sha256": {
     "rules.yaml": "afbd64a57ef353ee84b1810736bc761adeb4461a8d8ebd7af207aa084e67bca6",
     "rules_v2.yaml": "52276a85241b538722a2273bcb60306e9beda6a1bc9327b85cfe346db916d5f8"
   },
   "files": {
     "dev.jsonl": {
-      "sha256": "d99f41abcf3df7a859b2421084f6ee9eb3868467f4daa4ae2442951531d9d488",
+      "sha256": "f02178d0c4e1df6e97d6b66fa50ba4352895a839c4924496a9f9cc49040c4360",
       "n": 400
     },
     "heldout.jsonl": {
-      "sha256": "6819435b9b6443d2800598aac62edf1c1f7f0bebf0c1bf078dbc6913d29cd757",
+      "sha256": "d70ac30175c8006adb1afc5cf42273c620b14510946eb911fd1ce796b5e0879e",
       "n": 400
     },
     "shifted.jsonl": {
-      "sha256": "be227b884a65b5e29be2f9ef2f2c655766fcbc0b91c848277e2639b7c6b26d6a",
+      "sha256": "c39becb17765ad3247a81b779c54029bf7309c6cfd171de9a7ef5bd127ec21eb",
       "n": 200
     }
   },
   "heldout_sealed": {
-    "sha256": "6819435b9b6443d2800598aac62edf1c1f7f0bebf0c1bf078dbc6913d29cd757",
+    "sha256": "d70ac30175c8006adb1afc5cf42273c620b14510946eb911fd1ce796b5e0879e",
     "note": "never read by a person or an LLM; only `engine final` (freeze-* tag) loads it"
   },
   "composition": {
@@ -161,8 +161,8 @@
         }
       },
       "arabic_dialects": {
-        "msa": 95,
-        "saudi": 25
+        "saudi": 26,
+        "msa": 94
       }
     },
     "shifted": {
@@ -319,7 +319,7 @@
     },
     "fact_preservation": {
       "pass": true,
-      "value": "3426/3426 facts present",
+      "value": "3449/3449 facts present",
       "threshold": "100%"
     },
     "template_leak": {
@@ -328,9 +328,9 @@
       "threshold": "<= majority-class rate + 5 pts",
       "detail": {
         "adjudicate": {
-          "family_loo_acc": 0.2356,
+          "family_loo_acc": 0.2267,
           "majority_rate": 0.3467,
-          "gap_pts": -11.11
+          "gap_pts": -12.0
         },
         "intent": {
           "family_loo_acc": 0.12,
@@ -362,6 +362,20 @@
       "pass": true,
       "value": "1000/1000 tickets consistent",
       "threshold": "0 tickets with two fault shares, two policy numbers, or an amount/date outside the case"
+    },
+    "text_defects": {
+      "pass": true,
+      "value": {
+        "ambiguous_numeric_dates": 0,
+        "revised_assessment_wording": 0,
+        "other_driver_line_without_other_driver": 0,
+        "dates_after_ticket_date": 0,
+        "arabic_english_without_space": 0,
+        "signer_gender_mismatch": 0,
+        "english_codeswitch_fillers": 0,
+        "parallel_pairs_spanning_splits": 0
+      },
+      "threshold": "every count 0 (D1.12)"
     },
     "policy_documents_no_placeholders": {
       "pass": true,

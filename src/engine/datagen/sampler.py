@@ -216,7 +216,15 @@ def tp_licence_grace(rng, rules):
     gap = rng.choice([rng.randrange(1, g + 1), rng.randrange(g + 1, g + 25)])
     c["licence_renewal_date"] = c["accident_date"] + timedelta(days=gap)
     c["licence_expiry_date"] = c["accident_date"] - timedelta(days=rng.randrange(3, 60))
+    _submitted_after_renewal(c, rng)
     return _d("tp_licence_grace", ("R5", "R4"), "approve" if fault == 100 else "partial", c)
+
+
+def _submitted_after_renewal(c: dict[str, Any], rng: random.Random) -> None:
+    """No date in a ticket may be later than the ticket itself (D1.12): if the licence was renewed after the
+    claim was reported, the ticket is a later update written on or after the renewal date."""
+    if c["licence_renewal_date"] > c["report_date"]:
+        c["submitted_on"] = c["licence_renewal_date"] + timedelta(days=rng.randrange(0, 6))
 
 
 def od_licence_grace_business(rng, rules):
@@ -227,6 +235,7 @@ def od_licence_grace_business(rng, rules):
     c["licence_renewal_date"] = renew
     ok = renew <= business_day_deadline(c["accident_date"], v.od_licence_grace_business_days, v.business_days)
     c["licence_expiry_date"] = c["accident_date"] - timedelta(days=rng.randrange(3, 60))
+    _submitted_after_renewal(c, rng)
     return _d("od_licence_grace_business", ("R5", "R3"), "approve" if ok else "deny", c)
 
 

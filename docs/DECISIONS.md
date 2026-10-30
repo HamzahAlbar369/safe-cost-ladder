@@ -355,7 +355,7 @@ precedence step, so changing one is a one-line edit plus `engine policy`.
   re-exported. The new review set covers L3/L4/L5 and all four decisions, including 14 third-party claims and 1
   garage-quote-only item.
 
-### Phase 1 gate walk (2026-10-30) — PENDING Hamzah's sign-off
+### Phase 1 gate walk (2026-10-30) — sign-off recorded below (Phase 1 closed)
 SPEC §10 row "1 Data", item by item:
 - **rules.yaml reviewed by Hamzah:** Stage A approved with grounding changes (D1.8) and source corrections (D1.8
   update). Evidence: `data/rules/rules.yaml`, generated `data/rules/SOURCES.md`.
@@ -378,3 +378,41 @@ SPEC §10 row "1 Data", item by item:
 - **No paid calls in Phase 1** (D1.2); ledger unchanged.
 - **Waived Target items:** none. Note: CLAUDE.md refers to SPEC §11.9 for human checks, but SPEC has no §11.9;
   the human checks used here are the §10 gate row and the §4.4 manual-review row.
+
+### D1.12 · Checker text defects fixed, each with a permanent QA scan (2026-10-30)
+Checker result before these fixes: 50/50 blind agreement with gold, 0 label errors. The QA check
+`text_defects` holds one counter per item; on the previous data it found every class, so the scans are live
+(dev / held-out / shifted):
+- **Ambiguous numeric dates** (day and month both ≤ 12): 94 / 112 / 61 tickets. Numeric formats are now used only
+  when the day is above 12; otherwise the month is a word ("5 Mar 2026", "5 مارس 2026").
+- **"Revised" assessment wording**: 4 / 2 / 0. Now "another assessment report gives a different figure"
+  (EN; MSA "تقرير تقييم آخر يعطي رقمًا مختلفًا").
+- **Other-driver lines on hit-and-run or single-vehicle tickets** (other party unknown/none): 9 / 1 / 0. Suppressed.
+- **Dates after the ticket's own date**: 10 / 9 / 4 (licence renewed after the claim was reported). Such tickets
+  are now a later update with an explicit date (`Case.submitted_on`, text only, on or after the renewal), and no
+  date other than the policy end may be later than it.
+- **Arabic/English without a space**: 6 / 2 / 7. Code-switching now inserts whole English words ("claim", not
+  "الclaim"); the scan flags any Arabic letter touching a Latin letter.
+- **Signer gender**: 14 / 4 / 0 female signers under "شاكرًا لكم". The closing now follows the name (شاكرًا /
+  شاكرةً), and first-person Arabic phrases that were masculine-only were made gender-neutral (e.g. "بسبب تنويمي",
+  "سافرت", "وثيقتي لديكم رقمها", "مكالمة من {name}").
+- **EN/AR parallel pairs spanning splits**: 0 before and after (pairs exist only in dev by construction); now
+  scanned permanently.
+- **Optional polish done**: "wallah", "yalla" and "you know" removed from English prose (21 / 18 / 54 tickets
+  previously); "inshallah" and "ya akhi" remain as English code-switching.
+- **Labels:** 0 gold labels changed, and no task type changed, in any split (compared by id, which per-slot RNG now
+  keeps stable). Texts changed: dev 186/400, held-out 185/400, shifted 123/200 (mostly date formats). The 50
+  review items are the same ids in the same order; 29 changed text only (dev-0345, dev-0241, dev-0290, dev-0019,
+  dev-0355, dev-0127, dev-0098, dev-0262, dev-0100, dev-0263, dev-0092, dev-0050, dev-0087, dev-0399, dev-0361,
+  dev-0313, dev-0379, dev-0177, dev-0331, dev-0227, dev-0292, dev-0077, dev-0168, dev-0120, dev-0068, dev-0243,
+  dev-0030, dev-0106, dev-0033), 0 changed label. Review file and batches re-exported. Held-out re-sealed (new hash;
+  never used for evaluation).
+- **Recorded for Phase 2 (SPEC §6.2):** the extract prompt must state that any absent field is null, and that a vague
+  relative date ("a few days ago", "قبل أيام") means `accident_date` is null.
+
+### Phase 1 closed (2026-10-30, Hamzah's sign-off)
+- **Human review passed:** independent blind review of the 50 dev items (5 batches): 50/50 agreement with gold,
+  0 label errors. The checker log is expected under `data/review/` (to be added by Hamzah; not generated here).
+- **Gate (SPEC §10 row 1):** rules.yaml reviewed and sourced (D1.5, D1.8, D1.10, D1.11); rules-engine tests pass; all
+  §4.4 checks pass plus the D1.10–D1.12 scans (MANIFEST `qa`); MANIFEST committed with a clean generator SHA;
+  held-out sealed with its hash recorded. No paid calls in Phase 1.

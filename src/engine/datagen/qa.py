@@ -10,7 +10,7 @@ from typing import Any
 
 from engine.contracts import AdjudicateGold, ExtractGold, FaqGold, IntentGold, Ticket
 from engine.datagen import gen as G
-from engine.datagen.normalize import fact_present, normalise
+from engine.datagen.normalize import ascii_digits, fact_present, normalise
 from engine.datagen.rules import load_version
 from engine.datagen.rules_engine import adjudicate
 from engine.datagen.sampler import faq_answer
@@ -30,15 +30,12 @@ OTHER_INSURER_PATTERNS = (
     re.compile(r"شركة تأمين(ه|ها| الطرف)"),
     re.compile(r"تأمين الطرف (الآخر|الثاني)"),
 )
-# D1.10: code-switching may only produce whole English words or "ال" + English word; nothing mangled
-_MIXED = re.compile(r"[A-Za-z]")
-_ARABIC = re.compile(r"[؀-ۿ]")
-_OK_MIXED = re.compile(r"ال[A-Za-z]+")
+# D1.10/D1.12: an English word inside Arabic text is always separated by a space (no "الclaim", "reportا")
+_GLUED = re.compile(r"[؀-ۿ][A-Za-z]|[A-Za-z][؀-ۿ]")
 
 
 def mangled_tokens(text: str) -> list[str]:
-    cores = (w.strip(".,;:!?()،؟[]/-") for w in text.split())
-    return [w for w in cores if _MIXED.search(w) and _ARABIC.search(w) and not _OK_MIXED.fullmatch(w)]
+    return [m.group(0) for m in _GLUED.finditer(text)]
 
 
 def _check(passed: bool, value: Any, threshold: str, detail: Any = None) -> dict[str, Any]:
@@ -323,6 +320,7 @@ def fact_conflicts(t: Ticket) -> list[str]:
             c.report_date,
             c.licence_expiry_date,
             c.licence_renewal_date,
+            c.submitted_on,
         }
         known_iso = {d.isoformat() for d in known if d is not None}
         if dates - known_iso:
@@ -356,6 +354,80 @@ def policy_documents() -> dict[str, Any]:
     )
 
 
+# --- D1.12 text-defect scans --------------------------------------------------------------------------
+
+_NUMERIC_DATE = re.compile(
+    r"(?<![\d/.-])(?:(?P<y1>\d{4})[-/.](?P<m1>\d{1,2})[-/.](?P<d1>\d{1,2})"
+    r"|(?P<d2>\d{1,2})[-/.](?P<m2>\d{1,2})[-/.](?P<y2>\d{4}))(?![\d/.-])"
+)
+_REVISED = re.compile(r"\brevised\b|معدَّل|معدّل|معدل", re.I)
+_EN_FILLERS = re.compile(r"\b(wallah|yalla|you know)\b", re.I)
+_CLOSING = re.compile(r"(شاكرًا|شاكرةً) لكم،\n(\S+)\s*$")
+
+
+def ambiguous_dates(text: str) -> list[str]:
+    """Numeric dates where day and month are both <= 12 (day/month could be swapped)."""
+    out = []
+    for m in _NUMERIC_DATE.finditer(ascii_digits(text)):
+        d, mo = (m["d1"], m["m1"]) if m["y1"] else (m["d2"], m["m2"])
+        if int(d) <= 12 and int(mo) <= 12:
+            out.append(m.group(0))
+    return out
+
+
+def late_dates(t: Ticket) -> list[str]:
+    """Dates (other than the policy end date) later than the ticket's own date."""
+    c = t.meta.case
+    if c is None:
+        return []
+    written = max(d for d in (c.report_date, c.submitted_on) if d is not None)
+    return [
+        d
+        for d in _ISO.findall(normalise(t.text))
+        if d != c.policy_end_date.isoformat() and d > written.isoformat()
+    ]
+
+
+def signer_gender_mismatch(t: Ticket) -> bool:
+    from engine.datagen.templates.render import FEMALE_NAMES_AR
+
+    m = _CLOSING.search(t.text)
+    if not m:
+        return False
+    return (m.group(1) == "شاكرةً") != (m.group(2) in FEMALE_NAMES_AR)
+
+
+def text_defects(splits: dict[str, list[Ticket]]) -> dict[str, Any]:
+    from engine.datagen.templates.render import OTHER_DRIVER_LINES
+
+    every = [t for ts in splits.values() for t in ts]
+    counts = {
+        "ambiguous_numeric_dates": sum(bool(ambiguous_dates(t.text)) for t in every),
+        "revised_assessment_wording": sum(bool(_REVISED.search(t.text)) for t in every),
+        "other_driver_line_without_other_driver": sum(
+            1
+            for t in every
+            if t.meta.case is not None
+            and t.meta.case.other_party in ("unknown", "none")
+            and any(line in t.text for line in OTHER_DRIVER_LINES)
+        ),
+        "dates_after_ticket_date": sum(bool(late_dates(t)) for t in every),
+        "arabic_english_without_space": sum(
+            bool(mangled_tokens(t.text)) for t in every if t.language == "ar"
+        ),
+        "signer_gender_mismatch": sum(signer_gender_mismatch(t) for t in every if t.language == "ar"),
+        "english_codeswitch_fillers": sum(
+            bool(_EN_FILLERS.search(t.text)) for t in every if t.language == "en"
+        ),
+    }
+    pairs: dict[str, set[str]] = defaultdict(set)
+    for t in every:
+        if t.parallel_pair_id:
+            pairs[t.parallel_pair_id].add(t.split)
+    counts["parallel_pairs_spanning_splits"] = sum(len(s) > 1 for s in pairs.values())
+    return _check(not any(counts.values()), counts, "every count 0 (D1.12)")
+
+
 def run_all(splits: dict[str, list[Ticket]]) -> dict[str, Any]:
     exact, near = duplicates(splits)
     comp, table = composition(splits)
@@ -369,6 +441,7 @@ def run_all(splits: dict[str, list[Ticket]]) -> dict[str, Any]:
         "template_leak": template_leak(splits),
         "structure": structure(splits),
         "fact_consistency": fact_consistency(splits),
+        "text_defects": text_defects(splits),
         "policy_documents_no_placeholders": policy_documents(),
         "decision_distribution": decision_distribution(splits),
         "_composition_table": table,

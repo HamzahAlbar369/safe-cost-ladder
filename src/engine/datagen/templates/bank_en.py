@@ -85,6 +85,11 @@ S: dict[str, list[str]] = {
         "I'm filing the claim today, {rep}.",
         "filing it today {rep}",
     ],
+    "today_line": [
+        "I'm writing on {today} with an update on my claim.",
+        "Today is {today}; here is an update on the claim.",
+        "update today {today}",
+    ],
     "reported_past": [
         "I first reported this claim to you on {rep}.",
         "The claim was filed with you on {rep}.",
@@ -101,7 +106,7 @@ S: dict[str, list[str]] = {
         "still waiting on {missing}",
     ],
     "conflict": [
-        "The damage assessment report says {amt}, but a revised assessment report says {conf}.",
+        "The damage assessment report says {amt}, but another assessment report gives a different figure: {conf}.",
         "I received two damage assessment reports: one says {amt} and the other says {conf}; I'm not sure which is right.",
         "the assessment says {amt} but the second assessment says {conf}",
     ],
@@ -374,7 +379,7 @@ FRAMES = {
     "form": (["[Online claim form]", "[Web form submission]"], ["", ""]),
 }
 
-FILLER = ["honestly,", "so", "um,", "basically,", "like,", "you know,", "anyway,"]
+FILLER = ["honestly,", "so", "um,", "basically,", "like,", "anyway,"]
 CODESWITCH = {
     "thanks": "shukran",
     "hello": "salam",
@@ -382,7 +387,7 @@ CODESWITCH = {
     "okay": "tayyib",
     "really": "wallah",
 }
-CODESWITCH_APPEND = ["inshallah", "yalla", "wallah", "ya akhi"]
+CODESWITCH_APPEND = ["inshallah", "ya akhi"]
 
 DISTRACT = [
     "My car is a {car}.",

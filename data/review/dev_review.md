@@ -11,7 +11,7 @@ Design: `faq:replacement_car_in_base_policy`
 
 ```text
 Here is my situation.
-I'm a customer in Riyadh. I'm thinking about my cover before a trip to Riyadh. anyway, my name is Lama and I drive a Hyundai Sonata 2020. Is a rental car included in the base policy?
+I'm a customer in Riyadh. I'm thinking about my cover before a trip to Riyadh. um, my name is Lama and I drive a Hyundai Sonata 2020. Is a rental car included in the base policy?
 What happens now?
 ```
 
@@ -41,7 +41,7 @@ Design: `faq:required_documents_count`
 ```text
 Call note: customer Maha phoned the claims line.
 I'm thinking about my cover before a trip to Tabuk.
-What is the number of required documents for a claim, wallah?
+What is the number of required documents for a claim, ya akhi?
 ```
 
 **Gold:** `{"answer":5}`
@@ -199,12 +199,12 @@ Call note: customer Majed phoned the claims line.
 - Policy: OMI-8534970
 - Cover: comprehensive
 - Policy end: 22/02/2027
-- Accident date: 05/08/2026
+- Accident date: 5 Aug 2026
 - Report by: Najm
 - Report no.: NJ-51216883
 - Assessed repair cost: SAR 10,800
-- Claim filed: 06/08/2026
-- Customer says: On 05/08/2026 I was in a collision with another vehicle in Jeddah. My phone number is 0577797027. The other driver was polite about the whole thing.
+- Claim filed: 6 Aug 2026
+- Customer says: On 5 Aug 2026 I was in a collision with another vehicle in Jeddah. My phone number is 0577797027. The other driver was polite about the whole thing.
 ```
 
 **Gold:** `{"policy_number":"OMI-8534970","accident_date":"2026-08-05","report_number":"NJ-51216883","damage_amount_sar":10800,"fault_share":null}`
@@ -243,7 +243,7 @@ Design: `late_and_missing` · rules exercised: R6, R7
 
 ```text
 Hello,
-My policy number is OMI-2206849 and I have comprehensive cover, valid until 28 November 2026. On 12 May 2026 I was involved in an accident in Hail and the other party, Omar, has filed a claim against me. Najm attended and issued report NJ-39266495, which puts me at 25% fault. The damage assessment report for the other car comes to SAR 52,800. I am reporting this claim to you on 26 June 2026. I have attached the Najm report, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car, wallah. I don't have the claimant's vehicle registration yet.
+My policy number is OMI-2206849 and I have comprehensive cover, valid until 28 November 2026. On 12 May 2026 I was involved in an accident in Hail and the other party, Omar, has filed a claim against me. Najm attended and issued report NJ-39266495, which puts me at 25% fault. The damage assessment report for the other car comes to SAR 52,800. I am reporting this claim to you on 26 June 2026. I have attached the Najm report, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car, ya akhi. I don't have the claimant's vehicle registration yet.
 Kind regards,
 Turki
 ```
@@ -266,7 +266,7 @@ Design: `missing_doc` · rules exercised: R7
 ```text
 hello there
 My policy number is OMI-4904733 and I have comprehensive (COMP) cover, valid until 23/12/2026.
-On 10/03/2026 I was in a collision with another vehicle in Tabuk.
+On 10 Mar 2026 I was in a collision with another vehicle in Tabuk.
 The Najm report number is NJ-64765359 and it gives me 100% of the liability.
 The Taqdeer assessment values the repairs to my car at 39700 riyals.
 My car is insured for 86000 riyals.
@@ -303,13 +303,13 @@ Cover type: comprehensive (COMP)
 Expiry date: 2026-10-17
 Claim type: third-party claim against me
 Other party: identified, insured
-Date of accident: 2026-02-06
+Date of accident: 6 Feb 2026
 Reporting authority: Najm
 Accident report number: NJ-08095920
 My fault share: 75%
 Other party's damage per assessment report: 37,500 SAR
 Date submitted: 2026-02-19
-Description: On 2026-02-06 I hit another car in Dammam. The other driver, Nasser, is claiming against my policy. The driver's licence expired on 2025-12-30 and was renewed on 2026-04-03. I have attached the Najm report, the claimant's vehicle registration, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car. My phone number is 0579978763. The other driver was polite about the whole thing.
+Description: On 6 Feb 2026 I hit another car in Dammam. The other driver, Nasser, is claiming against my policy. The driver's licence expired on 2025-12-30 and was renewed on 3 Apr 2026. I'm writing on 8 Apr 2026 with an update on my claim. I have attached the Najm report, the claimant's vehicle registration, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car. My phone number is 0579978763. The other driver was polite about the whole thing.
 ```
 
 **Gold:** `{"decision":"partial","payout_sar":28125,"reasons":["R4_THIRD_PARTY","RECOVERY_RIGHT"],"inputs":{"claim_type":"third_party_claim","cover":"COMP","accident_date":"2026-02-06","other_party":"insured","fault_share":75,"damage_amount_sar":37500,"recovery_cases":["invalid_licence"]}}`
@@ -334,7 +334,7 @@ Design: `od_comp_hit_and_run` · rules exercised: R3, R8
 
 ```text
 I need to tell you what happened.
-My policy number is OMI-1704830 and I have comprehensive cover, valid until 10 February 2027. On 28 July 2026 someone hit my parked car in Buraidah and drove off. It was a hit-and-run. The accident was reported to the traffic police; the report number is TP-66480101. The Taqdeer assessment values the repairs to my car at 17,600 SAR. The sum insured on my schedule is 190,000 SAR. I am reporting this claim to you on 3 August 2026. Attached are the traffic police accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment. The other driver was polite about the whole thing.
+My policy number is OMI-1704830 and I have comprehensive cover, valid until 10 February 2027. On 28 July 2026 someone hit my parked car in Buraidah and drove off. It was a hit-and-run. The accident was reported to the traffic police; the report number is TP-66480101. The Taqdeer assessment values the repairs to my car at 17,600 SAR. The sum insured on my schedule is 190,000 SAR. I am reporting this claim to you on 3 August 2026. Attached are the traffic police accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment.
 What happens now?
 ```
 
@@ -393,7 +393,7 @@ Design: `missing_doc` · rules exercised: R7
 
 ```text
 Claim:
-My policy number is OMI-2208536 and I have comprehensive cover, valid until 2026-10-23. On 2026-07-10 I was involved in an accident in Hail and the other party, Noura, has filed a claim against me. The traffic police attended and issued report TP-32778737, which puts me at 50% fault. The damage assessment report for the other car comes to SR 54,800. I'm filing the claim today, 2026-07-13. Attached are the traffic police accident report, the at-fault driver's licence copy, photos of the damage to the other car and the Taqdeer assessment of the other car. the claimant's vehicle registration is still not ready.
+My policy number is OMI-2208536 and I have comprehensive cover, valid until 2026-10-23. On 10 Jul 2026 I was involved in an accident in Hail and the other party, Noura, has filed a claim against me. The traffic police attended and issued report TP-32778737, which puts me at 50% fault. The damage assessment report for the other car comes to SR 54,800. I'm filing the claim today, 2026-07-13. Attached are the traffic police accident report, the at-fault driver's licence copy, photos of the damage to the other car and the Taqdeer assessment of the other car. the claimant's vehicle registration is still not ready.
 ```
 
 **Gold:** `{"decision":"need_info","payout_sar":0,"reasons":["R7_MISSING_registration"],"inputs":{"claim_type":"third_party_claim","cover":"COMP","accident_date":"2026-07-10","other_party":"insured","fault_share":50,"damage_amount_sar":54800}}`
@@ -416,7 +416,7 @@ Design: `tp_partial_fault` · rules exercised: R4, R2
 Call note: customer Yousef phoned the claims line.
 - Policy: OMI-7445130
 - Cover: TPL
-- Policy end: 12/12/2026
+- Policy end: 12 Dec 2026
 - Claim type: third-party claim against me
 - Other party: identified, insured
 - Accident date: 29/06/2026
@@ -424,8 +424,8 @@ Call note: customer Yousef phoned the claims line.
 - Report no.: NJ-93784644
 - Fault share: 75%
 - Third-party damage (assessed): SAR 3,600
-- Claim filed: 10/07/2026
-- Customer says: On 29/06/2026 I was involved in an accident in Hail and the other party, Hessa, has filed a claim against me. I was driving the car myself. Attached are the Najm report, the claimant's vehicle registration, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car. My car is a Hyundai Sonata 2020, wallah.
+- Claim filed: 10 Jul 2026
+- Customer says: On 29/06/2026 I was involved in an accident in Hail and the other party, Hessa, has filed a claim against me. I was driving the car myself. Attached are the Najm report, the claimant's vehicle registration, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car. My car is a Hyundai Sonata 2020, ya akhi.
 ```
 
 **Gold:** `{"decision":"partial","payout_sar":2700,"reasons":["R4_THIRD_PARTY"],"inputs":{"claim_type":"third_party_claim","cover":"TPL","accident_date":"2026-06-29","other_party":"insured","fault_share":75,"damage_amount_sar":3600,"recovery_cases":[]}}`
@@ -450,7 +450,7 @@ Design: `od_comp_repair` · rules exercised: R3
 
 ```text
 Hi -
-My policy number is OMI-5862528 and I have comprehensive (COMP) cover, valid until 2027-01-26. On 2026-08-11 another car hit mine in Taif. The traffic police attended and issued report TP-74383419, which puts me at 25% fault. like, the Taqdeer assessment values the repairs to my car at SR 40,300. like, my car is insured for SR 103,000. I was driving the car myself. I am reporting this claim to you on 2026-08-12. I have attached the traffic police report, the vehicle registration, a copy of the driving licence, photos of the damage and the damage assessment report.
+My policy number is OMI-5862528 and I have comprehensive (COMP) cover, valid until 2027-01-26. On 11 Aug 2026 another car hit mine in Taif. The traffic police attended and issued report TP-74383419, which puts me at 25% fault. like, the Taqdeer assessment values the repairs to my car at SR 40,300. like, my car is insured for SR 103,000. I was driving the car myself. I am reporting this claim to you on 12 Aug 2026. I have attached the traffic police report, the vehicle registration, a copy of the driving licence, photos of the damage and the damage assessment report.
 ```
 
 **Gold:** `{"decision":"approve","payout_sar":40050,"reasons":["R3_OWN_DAMAGE","SUBROGATION"],"inputs":{"claim_type":"own_damage","cover":"COMP","accident_date":"2026-08-11","other_party":"insured","fault_share":25,"damage_amount_sar":40300,"sum_insured_sar":103000,"base_sar":40300,"deductible_applied_sar":250,"total_loss":false}}`
@@ -500,7 +500,7 @@ Design: `conflict_amount` · rules exercised: R7
 
 ```text
 Good morning,
-My policy number is OMI-9058938 and I have comprehensive (COMP) cover, valid until 18 March 2027. anyway, najm attended and issued report NJ-24052588, which puts me at 100% fault, inshallah. On 26 August 2026 another car hit mine in Riyadh. like, I am reporting this claim to you on 2 September 2026. The damage assessment report says SAR 44,500, but a revised assessment report says SAR 43,500. I have attached the Najm accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment. so my car is insured for SAR 185,000. My car is a Toyota Camry 2021.
+My policy number is OMI-9058938 and I have comprehensive (COMP) cover, valid until 18 March 2027. um, najm attended and issued report NJ-24052588, which puts me at 100% fault, inshallah. On 26 August 2026 another car hit mine in Riyadh. I am reporting this claim to you on 2 September 2026. The damage assessment report says SAR 44,500, but another assessment report gives a different figure: SAR 43,500. honestly, I have attached the Najm accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment. My car is insured for SAR 185,000. My car is a Toyota Camry 2021.
 Thank you,
 Abdullah
 ```
@@ -526,7 +526,7 @@ Design: `tp_partial_fault` · rules exercised: R4, R2
 
 ```text
 Claim:
-My policy number is OMI-7880312 and I have comprehensive cover, valid until 2026-11-07. On 2026-08-20 I was involved in an accident in Madinah and the other party, Sara, has filed a claim against me. Najm attended and issued report NJ-92110797, which puts me at 25% fault. The damage assessment report for the other car comes to SR 28,900. I am reporting this claim to you on 2026-08-23. Attached are the Najm accident report, the other car's registration (istimara), the at-fault driver's licence copy, photos of the damage to the other car and the Taqdeer assessment of the other car.
+My policy number is OMI-7880312 and I have comprehensive cover, valid until 7 Nov 2026. On 2026-08-20 I was involved in an accident in Madinah and the other party, Sara, has filed a claim against me. Najm attended and issued report NJ-92110797, which puts me at 25% fault. The damage assessment report for the other car comes to SR 28,900. I am reporting this claim to you on 2026-08-23. Attached are the Najm accident report, the other car's registration (istimara), the at-fault driver's licence copy, photos of the damage to the other car and the Taqdeer assessment of the other car.
 ```
 
 **Gold:** `{"decision":"partial","payout_sar":7225,"reasons":["R4_THIRD_PARTY"],"inputs":{"claim_type":"third_party_claim","cover":"COMP","accident_date":"2026-08-20","other_party":"insured","fault_share":25,"damage_amount_sar":28900,"recovery_cases":[]}}`
@@ -551,7 +551,7 @@ Design: `od_comp_repair` · rules exercised: R3
 
 ```text
 Good morning,
-My policy number is OMI-7531033 and I have comprehensive cover, valid until 25 May 2027. On 16 September 2026 another car hit mine in Taif, and it turned out the other driver had no insurance. The Najm report number is NJ-73635351 and it gives me 25% of the liability. you know, the damage assessment report puts the repair cost for my car at SAR 41,000. The sum insured on my schedule is SAR 176,000. I was the one driving. I am reporting this claim to you on 16 September 2026. I have attached the Najm accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment. My claim reference from the app is CLM-91772.
+My policy number is OMI-7531033 and I have comprehensive cover, valid until 25 May 2027. On 16 September 2026 another car hit mine in Taif, and it turned out the other driver had no insurance. The Najm report number is NJ-73635351 and it gives me 25% of the liability. anyway, the damage assessment report puts the repair cost for my car at SAR 41,000. The sum insured on my schedule is SAR 176,000. I was the one driving. I am reporting this claim to you on 16 September 2026. I have attached the Najm accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment. My claim reference from the app is CLM-91772.
 Thank you,
 Dana
 ```
@@ -581,7 +581,7 @@ Design: `tp_no_fault` · rules exercised: R4, R2
 
 ```text
 salam, hi
-My policy number is OMI-6281483 and I have third-party (TPL) cover, valid until 05/12/2026.
+My policy number is OMI-6281483 and I have third-party (TPL) cover, valid until 5 Dec 2026.
 I have attached the Najm report, the claimant's vehicle registration, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car.
 On 21/04/2026 I was involved in an accident in Buraidah and the other party, Mohammed, has filed a claim against me.
 I have been your customer for 5 years.
@@ -612,7 +612,7 @@ Design: `missing_doc` · rules exercised: R7
 
 ```text
 Hi -
-My policy number is OMI-7282179 and I have comprehensive (COMP) cover, valid until 2027-02-04. On 2026-08-19 anohter car hit mine in Madinah. you know, najm attended and issued report NJ-07469054, which puts me at 25% fault. The damage assessment report puts the repair cost for my car at SR 3,600. My car is insured for SR 53,000. I am reporting this claim to you on 2026-08-27. I have attached the Najm report, the vehicle registration, photos of the damage and the damage assessment report. I don't have the licence copy yet. It was raining a little that evening.
+My policy number is OMI-7282179 and I have comprehensive (COMP) cover, valid until 4 Feb 2027. On 2026-08-19 anohter car hit mine in Madinah. anyway, najm attended and issued report NJ-07469054, which puts me at 25% fault. The damage assessment report puts the repair cost for my car at SR 3,600. My car is insured for SR 53,000. I am reporting this claim to you on 2026-08-27. I have attached the Najm report, the vehicle registration, photos of the damage and the damage assessment report. I don't have the licence copy yet. It was raining a little that evening.
 ```
 
 **Gold:** `{"decision":"need_info","payout_sar":0,"reasons":["R7_MISSING_licence_copy"],"inputs":{"claim_type":"own_damage","cover":"COMP","accident_date":"2026-08-19","other_party":"insured","fault_share":25,"damage_amount_sar":3600}}`
@@ -663,14 +663,13 @@ Design: `od_comp_hit_and_run` · rules exercised: R3, R8
 
 ```text
 hello there
-I'm insured with you under policy OMI-0145159 (comprehensive (COMP)), which runs until 12/03/2026.
-On 02/02/2026 my car was struck in Abha by a driver who fled; we never found out who it was.
+I'm insured with you under policy OMI-0145159 (comprehensive (COMP)), which runs until 12 Mar 2026.
+On 2 Feb 2026 my car was struck in Abha by a driver who fled; we never found out who it was.
 The traffic police attended and issued report TP-99902291.
 The Taqdeer assessment values the repairs to my car at 42200 riyals.
 The sum insured on my schedule is 131000 riyals.
-I'm filing the claim today, 08/02/2026.
-Attached are the traffic police accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment.
-The other driver was polite about the whole thing, yalla.
+I'm filing the claim today, 8 Feb 2026.
+Attached are the traffic police accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment, ya akhi.
 pls help
 ```
 
@@ -768,7 +767,7 @@ Design: `intent:complaint`
 
 ```text
 أود أن أشرح ما حدث.
-الوثيقة OMI-1227387. اسمي تركي. أقود سيارة Lexus ES 2022. أنا مستاء جدًا من تعامل مظوفيكم معي في الفرع وأريد تسجيل شكوى.
+الوثيقة OMI-1227387. اسمي تركي. أقود سيارة Lexus ES 2022. أشعر بساتياء شديد من تعامل موظفيكم معي في الفرع وأريد تسجيل شكوى.
 ما الإجراء التالي؟
 ```
 
@@ -782,7 +781,7 @@ Design: `extract`
 
 ```text
 تحية طيبة وبعد،
-عمومًا، رقم وثيقتي OMI-8596031 ونوع التغطية تأمين شامل (COMP)، وهي سارية حتى 16 أكتوبر 2026. قبل أيام تعرضتُ لحادث تصادم مع مركبة أخرى في بريدة. أُبلغ نجم بالحادث، ورقم التقرير NJ-91103513. قدّر تقرير تقييم الأضرار تكلفة إصلاح سيارتي بمبلغ 18,600 ريال. أرفع المطالبة اليوم 12 مايو 2026. أنا عميل لديكم منذ 5 سنوات.
+عمومًا، رقم وثيقتي OMI-8596031 ونوع التغطية تأمين شامل (COMP)، وهي سارية حتى 16 أكتوبر 2026. قبل أيام تعرضتُ لحادث تصادم مع مركبة أخرى في بريدة. أُبلغ نجم بالحادث، ورقم التقرير NJ-91103513. قدّر تقرير تقييم الأضرار تكلفة إصلاح سيارتي بمبلغ 18,600 ريال. أرفع المطالبة اليوم 12 مايو 2026. أتعامل معكم منذ 5 سنوات.
 وتفضلوا بقبول فائق الاحترام،
 يوسف
 ```
@@ -797,7 +796,7 @@ Design: `extract`
 
 ```text
 هذه تفاصيل حالتي.
-قبل أيام تعرضت سيارتي لحادث صدم وهروب في الرياض، والجاني مجهول. أُبلغ المرور بالحادث، ورقم التقرير TP-06552573. قيّم تقرير تقدير إصلاح سيارتي بمبلغ ٣٠٬١٠٠ ريال. أرفع المطالبة اليوم ١٦ أغسطس ٢٠٢٦. كان الطرف الآخر متعاونًا. سويت مطالبة سابقة في 2023 وانتهت دون مشكلة. كان الجو ممطرًا قليلًا تلك الليلة.
+قبل أيام تعرضت سيارتي لحادث صدم وهروب في الرياض، والجاني مجهول. أُبلغ المرور بالحادث، ورقم التقرير TP-06552573. قيّم تقرير تقدير إصلاح سيارتي بمبلغ ٣٠٬١٠٠ ريال. أرفع المطالبة اليوم ١٦ أغسطس ٢٠٢٦. سويت مطالبة سابقة في 2023 وانتهت دون مشكلة. كان الجو ممطرًا قليلًا تلك الليلة.
 ما الإجراء التالي؟
 ```
 
@@ -817,7 +816,7 @@ Design: `extract`
 تاريخ وقوع الحادث: 2026-09-28
 جهة الإبلاغ: نجم
 رقم تقرير الحادث: NJ-52455198
-تاريخ الإرسال: 2026-10-10
+تاريخ الإرسال: 10 أكتوبر 2026
 وصف الحادث: في 2026-09-28 انزلقت سيارتي واصطدمت بعمود إنارة في تبوك، وكانت سيارتي وحدها. كان الجو ممطرًا قليلًا تلك الليلة. سويت مطالبة سابقة في 2023 وانتهت دون مشكلة. الحمد لله لم يُصب أحد.
 ```
 
@@ -831,8 +830,8 @@ Design: `late_accepted_reason` · rules exercised: R6, R3
 
 ```text
 السادة فريق المطالبات في واحة لتأمين المركبات المحترمين، السلام عليكم ورحمة الله وبركاته،
-رقم وثيقتي OMI-2824085 ونوع التغطية شامل، وهي سارية حتى 3 مايو 2026. باشر نجم الحادث وأصدر التقرير رقم NJ-01949078، وحُمّلت فيه نسبة خطأ 100%. كنت خارج المملكة حتى وقت قريب، ولذلك تأخرت المطالبة. بتاريخ 18 مارس 2026 صدمت سيارةٌ أخرى سيارتي في حائل. أتقدم بهذه المطالبة بتاريخ 26 أبريل 2026. كنت أقود السيارة بنفسي. أنا عميل لديكم منذ 6 سنوات. مرفق: report نجم، استمارة المركبة، صورة رخصة القيادة، صور الأضرار وتقرير تقدير الأضرار. مبلغ الinsurance في جدول وثيقتي 61,000 ريال. قدّر report تقييم الأضرار تكلفة إصلاح سيارتي بمبلغ 24,700 ريال.
-شاكرًا لكم،
+رقم وثيقتي OMI-2824085 ونوع التغطية شامل، وهي سارية حتى 3 مايو 2026. باشر نجم الحادث وأصدر التقرير رقم NJ-01949078، وحُمّلت فيه نسبة خطأ 100%. كنت خارج المملكة حتى وقت قريب، ولذلك تأخرت المطالبة. بتاريخ 18 مارس 2026 صدمت سيارةٌ أخرى سيارتي في حائل. أتقدم بهذه المطالبة بتاريخ 26 أبريل 2026. كنت أقود السيارة بنفسي. أتعامل معكم منذ 6 سنوات. مرفق: report نجم، استمارة المركبة، صورة رخصة القيادة، صور الأضرار وتقرير تقدير الأضرار. مبلغ insurance في جدول وثيقتي 61,000 ريال. قدّر report تقييم الأضرار تكلفة إصلاح سيارتي بمبلغ 24,700 ريال.
+شاكرةً لكم،
 حصة
 ```
 
@@ -883,18 +882,18 @@ Review: ☐ correct ☐ label error — note:
 Design: `conflict_amount` · rules exercised: R7
 
 ```text
-ملخص الموظف - المتصل: ماجد.
+ملخص الموظف - مكالمة من ماجد.
 - الوثيقة: OMI-6094156
 - التغطية: تأمين شامل (COMP)
-- انتهاء الوثيقة: 2026/09/01
+- انتهاء الوثيقة: 1 سبتمبر 2026
 - نوع المطالبة: مطالبة طرف ثالث ضدي
 - الطرف الآخر: معروف ومؤمَّن عليه
-- تاريخ الحادث: 2026/03/02
+- تاريخ الحادث: 2 مارس 2026
 - جهة التقرير: نجم
 - رقم التقرير: NJ-48193428
 - نسبة الخطأ: 50%
-- تاريخ تقديم المطالبة: 2026/03/08
-- إفادة العميل: في 2026/03/02 وقع لي حادث في الرياض، والطرف الآخر ريم يطالب بالتعويض من وثيقتي. وصلني تقريرا تقييم للأضرار: أحدهما 57,100 ريال سعودي والآخر 60,900 ريال سعودي، ولا أعرف أيهما الصحيح. مرفق: تقرير نجم، استمارة مركبة المطالِب، صورة رخصة السائق المتسبب في الحادث، صور أضرار مركبة المطالِب وتقرير تقييم أضرار مركبة المطالِب.
+- تاريخ تقديم المطالبة: 8 مارس 2026
+- إفادة العميل: في 2 مارس 2026 وقع لي حادث في الرياض، والطرف الآخر ريم يطالب بالتعويض من وثيقتي. وصلني تقريرا تقييم للأضرار: أحدهما 57,100 ريال سعودي والآخر 60,900 ريال سعودي، ولا أعرف أيهما الصحيح. مرفق: تقرير نجم، استمارة مركبة المطالِب، صورة رخصة السائق المتسبب في الحادث، صور أضرار مركبة المطالِب وتقرير تقييم أضرار مركبة المطالِب.
 ```
 
 **Gold:** `{"decision":"need_info","payout_sar":0,"reasons":["R7_CONFLICT"],"inputs":{"claim_type":"third_party_claim","cover":"COMP","accident_date":"2026-03-02","other_party":"insured","fault_share":50,"damage_amount_sar":57100}}`
@@ -916,7 +915,7 @@ Design: `od_over_sum_insured` · rules exercised: R3, R8
 
 ```text
 السادة فريق المطالبات في واحة لتأمين المركبات المحترمين، السلام عليكم ورحمة الله وبركاته،
-أنا مؤمَّن لديكم بالوثيقة رقم OMI-8153286 (شامل)، وتنتهي في 1 مارس 2027. سيارتي مؤمَّنة بمبلغ 29,000 ريال. رقم report المرور هو TP-75255384، ونسبة الخطأ عليّ 75%. أتقدم بهذه الclaim بتاريخ 16 يونيو 2026. أرفقتُ تقرير الحادث من المرور، رخصة سير المركبة (الاستمارة)، نسخة من رخصة القيادة، صور التلفيات وتقرير تقدير (Taqdeer). بتاريخ 1 يونيو 2026 صدمت سيارةٌ أخرى سيارتي في بريدة. سويت claim سابقة في 2023 وانتهت دون مشكلة. قيّم تقرير تقدير إصلاح سيارتي بمبلغ 31,700 ريال.
+وثيقتي لديكم رقمها OMI-8153286 (شامل)، وتنتهي في 1 مارس 2027. سيارتي مؤمَّنة بمبلغ 29,000 ريال. رقم report المرور هو TP-75255384، ونسبة الخطأ عليّ 75%. أتقدم بهذه claim بتاريخ 16 يونيو 2026. أرفقتُ تقرير الحادث من المرور، رخصة سير المركبة (الاستمارة)، نسخة من رخصة القيادة، صور التلفيات وتقرير تقدير (Taqdeer). بتاريخ 1 يونيو 2026 صدمت سيارةٌ أخرى سيارتي في بريدة. سويت claim سابقة في 2023 وانتهت دون مشكلة. قيّم تقرير تقدير إصلاح سيارتي بمبلغ 31,700 ريال.
 وتفضلوا بقبول فائق الاحترام،
 محمد
 ```
@@ -947,7 +946,7 @@ Design: `tp_full_fault` · rules exercised: R4
 ```text
 تحية طيبة وبعد،
 رقم وثيقتي OMI-1377587 ونوع التغطية ضد الغير (TPL)، وهي سارية حتى 17 نوفمبر 2026. بتاريخ 1 مارس 2026 صدمتُ سيارة أخرى في الدمام، وقدّم الطرف الآخر محمد مطالبة على وثيقتي. باشر المرور الحادث وأصدر التقرير رقم TP-71576395، وحُمّلت فيه نسبة خطأ 100%. قيّم تقرير تقييم الأضرار سيارة الطرف الآخر بمبلغ 20,700 ريال. في الحقيقة، كنت أقود السيارة بنفسي. أتقدم بهذه المطالبة بتاريخ 7 مارس 2026. عمومًا، أرفقتُ تقرير الحادث من المرور، رخصة سير مركبة الطرف الآخر (الاستمارة)، نسخة من رخصة السائق المتسبب، صور تلفيات سيارة الطرف الآخر وتقرير تقدير (Taqdeer) لسيارة الطرف الآخر. رقم جوالي 0583861671.
-شاكرًا لكم،
+شاكرةً لكم،
 حصة
 ```
 
@@ -999,7 +998,7 @@ Design: `missing_doc` · rules exercised: R7
 ```text
 السادة فريق المطالبات في واحة لتأمين المركبات المحترمين، السلام عليكم ورحمة الله وبركاته،
 في الحقيقة، رقم وثيقتي OMI-7167887 ونوع التغطية شامل، وهي سارية حتى 13 أكتوبر 2026. بتاريخ 24 أبريل 2026 صدمتُ سيارة أخرى في أبها، وقدّم الطرف الآخر عمر مطالبة على وثيقتي. باشر نجم الحادث وأصدر التقرير رقم NJ-97261837، وحُمّلت فيه نسبة خطأ 100%. قدّمت الورشة عرض سعر للإصلاح بمبلغ 12,700 ريال، ولم يصدر تقرير تقييم الأضرار بعد. كنت أقود السيارة بنفسي. أتقدم بهذه المطالبة بتاريخ 1 مايو 2026. أرفقتُ تقرير نجم، استمارة مركبة المطالِب، صورة رخصة السائق المتسبب في الحادث وصور أضرار مركبة المطالِب. لم يتوفر لديّ تقرير تقييم أضرار مركبة المطالِب بعد.
-شاكرًا لكم،
+شاكرةً لكم،
 مها
 ```
 
@@ -1021,7 +1020,7 @@ Design: `tp_partial_fault` · rules exercised: R4, R2
 
 ```text
 أود أن أشرح ما حدث.
-أنا مؤمَّن لديكم بالوثيقة رقم OMI-1855944 (شامل)، وتنتهي في ٢٦ ديسمبر ٢٠٢٦. في ٧ مارس ٢٠٢٦ وقع لي حادث في حائل، والطرف الآخر سارة يطالب بالتعويض من وثيقتي. رقم تقرير المرور هو TP-98905984، ونسبة الخطأ عليّ ٥٠%. قُدّرت أضرار سيارة الطرف الآخر في تقرير التقييم بمبلغ ٣٥٬٠٠٠ ريال. أرفع المطالبة اليوم ٧ مارس ٢٠٢٦. أرفقتُ تقرير المرور، استمارة مركبة المطالِب، صورة رخصة السائق المتسبب في الحادث، صور أضرار مركبة المطالِب وتقرير تقييم أضرار مركبة المطالِب.
+وثيقتي لديكم رقمها OMI-1855944 (شامل)، وتنتهي في ٢٦ ديسمبر ٢٠٢٦. في ٧ مارس ٢٠٢٦ وقع لي حادث في حائل، والطرف الآخر سارة يطالب بالتعويض من وثيقتي. رقم تقرير المرور هو TP-98905984، ونسبة الخطأ عليّ ٥٠%. قُدّرت أضرار سيارة الطرف الآخر في تقرير التقييم بمبلغ ٣٥٬٠٠٠ ريال. أرفع المطالبة اليوم ٧ مارس ٢٠٢٦. أرفقتُ تقرير المرور، استمارة مركبة المطالِب، صورة رخصة السائق المتسبب في الحادث، صور أضرار مركبة المطالِب وتقرير تقييم أضرار مركبة المطالِب.
 ما الإجراء التالي؟
 ```
 
@@ -1049,16 +1048,16 @@ Design: `od_comp_hit_and_run` · rules exercised: R3, R8
 ملاحظة مكالمة: اتصال من عبير على خط المطالبات.
 - الوثيقة: OMI-0145159
 - التغطية: تأمين شامل (COMP)
-- انتهاء الوثيقة: 2026/03/12
-- نوع الclaim: أضرار ذاتية
+- انتهاء الوثيقة: 12 مارس 2026
+- نوع claim: أضرار ذاتية
 - الطرف الآخر: مجهول (صدم وهروب)
-- تاريخ الحادث: 2026/02/02
+- تاريخ الحادث: 2 فبراير 2026
 - جهة التقرير: المرور
 - رقم التقرير: TP-99902291
 - قيمة الإصلاح (تقرير التقييم): 42,200 ريال سعودي
-- مبلغ الinsurance: 131,000 ريال سعودي
-- تاريخ تقديم الclaim: 2026/02/08
-- إفادة العميل: في 2026/02/02 تعرضت سيارتي لحادث صدم وهروب في أبها، والجاني مجهول. مرفق: report الحادث من المرور، رخصة سير المركبة (الاستمارة)، نسخة من رخصة القيادة، صور التلفيات وتقرير تقدير (Taqdeer). كان الطرف الآخر متعاونًا.
+- مبلغ insurance: 131,000 ريال سعودي
+- تاريخ تقديم claim: 8 فبراير 2026
+- إفادة العميل: في 2 فبراير 2026 تعرضت سيارتي لحادث صدم وهروب في أبها، والجاني مجهول. مرفق: report الحادث من المرور، رخصة سير المركبة (الاستمارة)، نسخة من رخصة القيادة، صور التلفيات وتقرير تقدير (Taqdeer).
 ```
 
 **Gold:** `{"decision":"approve","payout_sar":42200,"reasons":["R3_OWN_DAMAGE","R8_UNKNOWN_PARTY"],"inputs":{"claim_type":"own_damage","cover":"COMP","accident_date":"2026-02-02","other_party":"unknown","fault_share":null,"damage_amount_sar":42200,"sum_insured_sar":131000,"base_sar":42200,"deductible_applied_sar":0,"total_loss":false}}`
@@ -1085,19 +1084,19 @@ Review: ☐ correct ☐ label error — note:
 Design: `tp_no_fault` · rules exercised: R4, R2
 
 ```text
-ملخص الموظف - المتصل: عمر.
+ملخص الموظف - مكالمة من عمر.
 - الوثيقة: OMI-8918142
 - التغطية: ضد الغير (TPL)
-- انتهاء الوثيقة: 2026/12/07
+- انتهاء الوثيقة: 7 ديسمبر 2026
 - نوع المطالبة: مطالبة طرف ثالث ضدي
 - الطرف الآخر: معروف ومؤمَّن عليه
-- تاريخ الحادث: 2026/03/04
+- تاريخ الحادث: 4 مارس 2026
 - جهة التقرير: نجم
 - رقم التقرير: NJ-99705473
 - نسبة الخطأ: 0%
 - أضرار الطرف الثالث (مقيّمة): 58,600 ريال سعودي
-- تاريخ تقديم المطالبة: 2026/03/11
-- إفادة العميل: في 2026/03/04 وقع لي حادث في الرياض، والطرف الآخر تركي يطالب بالتعويض من وثيقتي. كنت أنا السائق وقت الحادث. أرفقتُ تقرير الحادث من نجم، رخصة سير مركبة الطرف الآخر (الاسمتارة)، نسخة من رخصة السائق المتسبب، صور تلفيات سيارة الطرف الآخر وتقرير تقدير (Taqdeer) لسيارة الطرف الآخر. الحمد لله لم يُصب أحد.
+- تاريخ تقديم المطالبة: 11 مارس 2026
+- إفادة العميل: في 4 مارس 2026 وقع لي حادث في الرياض، والطرف الآخر تركي يطالب بالتعويض من وثيقتي. كنت أنا من يقود وقت الحادث. أرفقتُ تقرير الحادث من نجم، رخصة سير مركبة الطرف الآخر (الاسمتارة)، نسخة من رخصة السائق المتسبب، صور تلفيات سيارة الطرف الآخر وتقرير تقدير (Taqdeer) لسيارة الطرف الآخر. الحمد لله لم يُصب أحد.
 ```
 
 **Gold:** `{"decision":"deny","payout_sar":0,"reasons":["R4_NO_FAULT"],"inputs":{"claim_type":"third_party_claim","cover":"TPL","accident_date":"2026-03-04","other_party":"insured","fault_share":0,"damage_amount_sar":58600}}`
@@ -1122,7 +1121,7 @@ Design: `garage_quote_only` · rules exercised: R7
 ```text
 السادة فريق المطالبات في واحة لتأمين المركبات المحترمين، السلام عليكم ورحمة الله وبركاته،
 رقم وثيقتي OMI-4061969 ونوع التغطية تأمين شامل (COMP)، وهي سارية حتى 17 ديسمبر 2026. في 10 أغسطس 2026 وقع لي حادث في الرياض، والطرف الآخر هيا يطالب بالتعويض من وثيقتي. باشر نجم الحادث وأصدر التقرير رقم NJ-73917110، وحُمّلت فيه نسبة خطأ 25%. عمومًا، قدّمت الورشة عرض سعر للإصلاح بمبلغ 29,900 ريال، ولم يصدر تقرير تقييم الأضرار بعد. أتقدم بهذه المطالبة بتاريخ 15 أغسطس 2026. أرفقتُ تقرير الحادث من نجم، رخصة سير مركبة الطرف الآخر (الاستمارة)، نسخة من رخصة السائق المتسبب وصور تلفيات سيارة الطرف الآخر. الحمد لله لم يُصب أحد.
-شاكرًا لكم،
+شاكرةً لكم،
 هيا
 ```
 

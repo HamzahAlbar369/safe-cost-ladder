@@ -314,3 +314,79 @@ def test_wording_change_stays_local_to_the_items_that_use_it(monkeypatch):
         assert all(x.gold == y.gold for x, y in zip(a[split], b[split], strict=True))
         changed = [x for x, y in zip(a[split], b[split], strict=True) if x.text != y.text]
         assert changed and all(x.meta.case and x.meta.case.claim_type == "third_party_claim" for x in changed)
+
+
+# --- D1.12 text-defect scans -------------------------------------------------------------------------
+
+
+def test_numeric_dates_never_ambiguous():
+    from datetime import date
+
+    for fam in R.FAMILIES:
+        early, late = R.fmt_date(date(2026, 3, 5), fam), R.fmt_date(date(2026, 3, 15), fam)
+        assert not qa.ambiguous_dates(early) and not qa.ambiguous_dates(late), fam.id
+        assert normalise(early) == "2026-03-05" and normalise(late) == "2026-03-15", fam.id
+    assert qa.ambiguous_dates("on 05/03/2026") == ["05/03/2026"]
+    assert qa.ambiguous_dates("on 2026-03-05") == ["2026-03-05"]
+    assert not qa.ambiguous_dates("on 15/03/2026 and 2026-03-15")
+
+
+def test_ticket_dates_never_after_the_ticket_date():
+    rng = random.Random(4)
+    for _ in range(200):
+        d = sampler.tp_licence_grace(rng, V1)
+        c = d.case
+        if c.licence_renewal_date > c.report_date:
+            assert c.submitted_on is not None and c.submitted_on >= c.licence_renewal_date
+        else:
+            assert c.submitted_on is None
+
+
+def test_hit_and_run_tickets_never_describe_the_other_driver():
+    rng = random.Random(9)
+    for fam in R.FAMILIES:
+        d = sampler.od_comp_hit_and_run(rng, V1)
+        r = R.render_claim(
+            R.ClaimView(case=d.case, distractors=tuple(range(8))), fam, R.people(rng), rng, "adjudicate"
+        )
+        assert not any(line in s for s in r.sentences for line in R.OTHER_DRIVER_LINES), fam.id
+
+
+def test_signer_gender_scan_and_closing():
+    def t(text):
+        return Ticket(
+            id="dev-1",
+            split="dev",
+            task_type="intent",
+            level="L2",
+            language="ar",
+            dialect="msa",
+            template_family="ar_msa_letter",
+            rules_version="v1",
+            text=text,
+            gold=IntentGold(intent="other"),
+            meta=TicketMeta(),
+        )
+
+    assert qa.signer_gender_mismatch(t("نص\nشاكرًا لكم،\nنورة"))
+    assert not qa.signer_gender_mismatch(t("نص\nشاكرةً لكم،\nنورة"))
+    assert not qa.signer_gender_mismatch(t("نص\nشاكرًا لكم،\nفيصل"))
+    assert qa.signer_gender_mismatch(t("نص\nشاكرةً لكم،\nفيصل"))
+
+
+def test_arabic_english_spacing_scan():
+    assert qa.mangled_tokens("رفعت الclaim اليوم") and qa.mangled_tokens("وصلني reportا")
+    assert not qa.mangled_tokens("رفعت claim اليوم (Taqdeer) و OMI-1234567")
+
+
+def test_english_prose_has_no_wallah_yalla_or_you_know():
+    from engine.datagen.templates import bank_en
+
+    words = " ".join(bank_en.FILLER + bank_en.CODESWITCH_APPEND).lower()
+    assert not any(w in words for w in ("wallah", "yalla", "you know"))
+
+
+def test_parallel_pairs_spanning_splits_are_detected():
+    a = _ticket(1, "dev", "x").model_copy(update={"parallel_pair_id": "pair-x"})
+    b = _ticket(2, "heldout", "y").model_copy(update={"parallel_pair_id": "pair-x"})
+    assert qa.text_defects({"dev": [a], "heldout": [b]})["value"]["parallel_pairs_spanning_splits"] == 1

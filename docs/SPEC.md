@@ -67,8 +67,19 @@ Insurer: **"Oasis Motor Insurance (fictional demo insurer)"**. Policy document r
 | `extract` | Free-text claim message | `{"policy_number","accident_date","report_number","damage_amount_sar","fault_share"}` (null if absent) | all fields exact after normalisation; field-level accuracy also reported | medium ($5) |
 | `adjudicate` | Claim narrative | `{"decision": approve|partial|deny|need_info, "payout_sar": int, "reasons": [rule_ids], "inputs": {...}}` | decision exact AND payout within ±1 SAR | high ($50) |
 
-Intent labels (8): `new_claim, claim_status, coverage_question, document_submission, complaint,
-policy_change, payment_issue, other`.
+Decision definitions (also in `rules.yaml` → `decisions`; D1.5): **approve** = the full claimed damage is paid;
+**partial** = payout > 0 but reduced by fault share, a cap or the deductible; **deny** = payout 0 (exclusion,
+no cover, late report, 0% fault, or damage at or below the deductible); **need_info** = payout 0 because a
+required item is missing or contradictory. Every claim has a `claim_type`: `own_damage` (the policyholder's own
+car, R3/R8) or `third_party` (another party claims against the policyholder, R4). `reasons` is reported but not graded.
+FAQ answers are a number, `yes`/`no`, an enum value, or `out_of_scope` for non-insurance questions (D1.3).
+
+Intent labels (9; D1.5): `new_claim, claim_status, coverage_question, document_submission, complaint,
+policy_change, payment_issue, fault_dispute, other`. Overlap definitions live in `rules.yaml` → `intents`:
+`new_claim` = no claim exists yet; `document_submission` = a claim exists and a document is being sent;
+`payment_issue` = the claim payout only (IBAN, delay, wrong amount); premium and renewal → `policy_change`;
+`fault_dispute` = objection to the fault share in the accident report; out-of-scope perils (injury/death, theft,
+fire, flood) and non-insurance messages → `other`.
 
 Normalisation: Arabic-Indic digits → ASCII; strip thousands separators; dates → ISO; case/whitespace fold.
 
@@ -89,35 +100,59 @@ The skew toward easy traffic is deliberate and declared: it mirrors real support
 ## §4 Data generation (`engine gen`)
 
 ### §4.1 Rules file — single source of truth (`data/rules/rules.yaml`)
-Simplified, fictional rules (Hamzah reviews wording before generation):
-- R1 Coverage types: `TPL` (third-party damage only) and `COMP` (own vehicle + third party).
-- R2 Fault share ∈ {0, 25, 50, 75, 100} %.
-- R3 Own damage (COMP only): payout = min(damage, own_damage_limit) − deductible; deductible doubles when fault ≥ 75%.
-- R4 Third-party claim against the policyholder: payout = damage × fault_share, capped at TPL limit.
-- R5 Exclusions → deny: driver without valid licence; policy expired on accident date; commercial use under private policy.
-- R6 Reporting window: reported > 30 days after accident → deny unless a valid justification is stated.
-- R7 Required documents: accident report number AND damage estimate; missing → `need_info`.
+Simplified, fictional rules (Hamzah reviews wording before generation). Structure informed by the SAMA Unified
+Compulsory Motor Insurance Policy; the insurer and all wording are fictional and our own (D1.5). Every threshold
+below is a named parameter in the YAML; values shown are v1.
+- R0 Scope: injury/death, theft, fire and flood are out of scope (claim → deny; ticket intent → `other`).
+- R1 Cover types: `TPL` (damage to third parties only) and `COMP` (own vehicle + third parties). An own-damage
+  claim under TPL → deny.
+- R2 Fault share of the policyholder ∈ {0, 25, 50, 75, 100} %, taken from the accident report.
+- R3 Own damage (COMP): covered = min(repair estimate, vehicle market value); repair estimate > market value =
+  total loss. Deductible = max(SAR 1,000, 5% of covered). Payout = covered − deductible (0 if negative → deny).
+- R4 Third-party claim against the policyholder: payout = damage × fault share, capped at a fictional TPL cap
+  (set low enough to trigger). 0% fault → deny.
+- R5 Policy validity and exclusions, in this order: policy expired on the accident date → deny; intoxication,
+  fled the scene, drifting/racing or fraud → deny (any claim type); own-damage claim with an invalid licence or
+  commercial use of a private policy → deny. Third-party claim with a violation (invalid licence, wrong direction,
+  red light, use outside the schedule) → paid per R4 plus reason `R5_recovery_right`. A licence that had expired
+  counts as valid if it was renewed within 50 days of the accident.
+- R6 Reporting window: reported > 15 days after the accident → deny unless an accepted justification is stated.
+- R7 Required documents: accident report number AND damage estimate; missing or contradictory → `need_info`.
+- R8 Unknown or uninsured other party (hit-and-run, uninsured vehicle): COMP pays own damage per R3; TPL denies.
+  The report may come from Najm or the traffic police (any rule accepts either).
+- Precedence (first match decides): R0 → R5 expiry → R5 absolute exclusions → R1/R8 cover → R5 own-damage
+  exclusions → R6 → R7 → payout (R3 or R4) → decision from payout. The YAML states the order explicitly.
+- FAQ-only parameters (not used in adjudication): replacement-car days, towing limit, 3/5/15 working-day
+  timelines (acknowledge / decide / settle), report-to-Najm-within-24-hours.
 `render_policy.py` turns rules.yaml into the policy document (EN + AR); `rules_engine.py` computes gold labels
 from the same file. `rules_v2.yaml` changes 2–3 values (e.g. deductible, window) for the policy-change scenario.
 
 ### §4.2 Pipeline
 1. **Sample** case facts per level with a seeded RNG (seed recorded in MANIFEST).
 2. **Compute gold** with `rules_engine.py`.
-3. **Realise text** from template families (≥4 families per task per language; shifted split uses held-back
-   families only).
-4. **Paraphrase (optional)** with `haiku-low` for naturalness and dialect; **fact-preservation check**: every gold-relevant
-   value must still appear (after normalisation) or the item is regenerated. Disclose same-family generation in docs.
+3. **Realise text** from template families (≥6 families per task per language for dev/held-out; the shifted
+   split uses held-back families only; D1.2).
+4. **Variation layer** (deterministic, seeded): typos, filler, sentence reordering, Arabic/English code-switching.
+   Never edits a gold-relevant value. **Fact-preservation check**: every value in `meta.facts` must still appear
+   (after normalisation) or the item is regenerated. No LLM paraphrase; Phase 1 makes no paid calls (D1.2).
+   (A non-Anthropic rewrite of the shifted split is deferred; §13, D1.6.)
 5. **QA** (§4.4), then write splits + `MANIFEST.json` (counts, composition, sha256 per file, seed, generator git SHA).
 
 ### §4.3 Split composition
 | Split | n | Arabic | Notes |
 |---|---|---|---|
-| dev | 240 | ~30% (mostly MSA, light Saudi dialect) | tuning, floors, router training (cross-validated) |
-| heldout | 240 | ~30% (same mix as dev) | sealed; run once at `freeze-*` tag |
-| shifted | 120 | ~30%, dialect-leaning | unseen template families, longer, noisier, code-switching; 40 items use rules_v2 |
+| dev | 400 | ~30% (mostly MSA, light Saudi dialect) | tuning, floors, router training (cross-validated) |
+| heldout | 400 | ~30% (same mix as dev) | sealed; run once at `freeze-*` tag |
+| shifted | 200 | ~30%, dialect-leaning | held-back template families only, longer, noisier, code-switching; 40 items use rules_v2; ~20 adversarial items |
 
-~20% of dev items are EN/AR parallel pairs (same facts, both languages) for the language cost/accuracy comparison.
-Stratify every split by task × level × language (±3 percentage points of target).
+Sizes per D1.1. ~20% of dev items are EN/AR parallel pairs (same facts, both languages) for the language
+cost/accuracy comparison. Stratify every split by task × level × language (±3 percentage points of target).
+
+Adversarial / out-of-scope items (shifted only, ~20; D1.3), correct behaviour defined in `rules.yaml` →
+`adversarial`: prompt injection asking for approval (gold = the rules applied to the facts, injection ignored);
+non-insurance questions (`faq` → `out_of_scope`, `intent` → `other`); garbled or near-empty messages
+(`intent` → `other`, `adjudicate` → `need_info`); very long rambling tickets (normal gold). Tagged
+`meta.scenario = adversarial` so they are reported separately as well as in the shifted totals.
 
 ### §4.4 QA thresholds (all must pass; failures block Phase 1)
 | Check | Threshold |
@@ -126,7 +161,7 @@ Stratify every split by task × level × language (±3 percentage points of targ
 | Exact duplicates across splits | 0 |
 | Near-duplicates across splits (char 5-gram Jaccard ≥ 0.8) | 0 |
 | Composition vs §4.3 | within ±3 pts |
-| Fact preservation after paraphrase | 100% |
+| Fact preservation after the variation layer (every `meta.facts` value present after normalisation) | 100% |
 | Template leak: label predictable from `template_family` id alone | ≤ majority-class rate + 5 pts |
 | Rules-engine unit tests | ≥1 test per rule + interaction tests; 100% pass |
 | Manual review (Hamzah): 30 EN + 20 AR dev items | 0 label errors (any error → fix generator, regenerate) |
@@ -137,7 +172,9 @@ Stratify every split by task × level × language (±3 percentage points of targ
 ## §5 Data contracts (`src/engine/contracts.py`, pydantic v2)
 
 - **Ticket**: `id, split, task_type, level, language (en|ar), dialect (msa|saudi|mixed), template_family,
-  rules_version, parallel_pair_id?, text, gold (task-typed), meta{rule_ids, distractors}`.
+  rules_version, parallel_pair_id?, text, gold (task-typed), meta{rule_ids, distractors, scenario
+  (normal|adversarial|policy_change), facts (gold-relevant surface values, for the fact-preservation check),
+  case (the sampled facts gold was computed from, incl. `claim_type`), trace (rule-by-rule engine trace)}`.
 - **ModelCall** (one per API call): `call_id, ticket_id, run_id, config_id, model, effort, role
   (answer|verify|router), request_hash, input_tokens, cache_creation_tokens, cache_read_tokens, output_tokens,
   latency_ms, cost_usd, cost_usd_nocache, stop_reason, parsed_ok, error?, replayed (bool), ts`.
@@ -238,9 +275,11 @@ router latency added). Zero extra API cost. The same recordings give the oracle,
 scenario switcher.
 
 ### §7.5 Reporting rules
-- Headline cost = **no-cache** cost (all input at base rate): conservative and order-independent.
-- Beside it: modelled steady-state cache cost (static prefix at cache-read price, writes amortised per 5-min window at
-  a stated traffic rate) — labelled "modelled".
+- Labels (D1.4), used verbatim everywhere: **"Cost without caching (headline)"** = all prompt tokens at the base
+  input rate (`cost_usd_nocache`): conservative and order-independent. **"Cost with caching (actual)"** = what was
+  billed (`cost_usd`).
+- Beside them, if shown: modelled steady-state cache cost (static prefix at cache-read price, writes amortised per
+  5-min window at a stated traffic rate) — labelled "modelled".
 - Every metric reported per task, per language, and overall, with 95% paired bootstrap CIs (2,000 resamples, fixed seed).
 - **Oracle**: per ticket, cheapest correct config within budget. Gap captured = (CPST_B1 − CPST_policy) / (CPST_B1 − CPST_oracle).
 - **Break-even map**: per task, each rung's pass rate vs its break-even threshold (cost_rung + cost_verify) / cost_next_rung.
@@ -367,3 +406,7 @@ Never cut: held-out protocol, replay, report, secret hygiene.
 
 OPEN: product name · approval of §6.6 extract-then-compute · Jev access confirmation (Phase 0) ·
 Hamzah's review of rules.yaml wording and intent labels.
+
+DEFERRED (Phase 3, if time allows; D1.6): AI rewrite of the shifted split only, by a non-Anthropic model via
+OpenRouter, with a fact-preservation check that rejects any rewrite changing a gold-relevant value (`meta.facts`).
+Gold labels are computed from case facts, so a rewrite never changes them.

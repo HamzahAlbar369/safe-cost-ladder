@@ -121,3 +121,86 @@ named run file, never typed from memory.
 ### Phase 0 closed (2026-10-30, Hamzah's sign-off)
 Gate (SPEC §10): repo + `.gitignore` + `.env.example` + pre-commit/gitleaks committed · prices re-verified (D0.1) ·
 smoke checks 1–7 logged (D0.6) · Jev reachable + Arabic result logged (D0.6) · mentor slot: Hamzah.
+
+## Phase 1 — Data (2026-10-30)
+
+Decisions D1.1–D1.6 were made by Hamzah at the start of Phase 1, informed by a review of the SAMA Unified
+Compulsory Motor Insurance Policy (https://rulebook.sama.gov.sa/en/node/7886) and commercial Najm/claims guides.
+The insurer and every rule stay fictional and are worded by us; nothing is presented as a real Najm, SAMA or
+insurer rule.
+
+### D1.1 · Splits are 400 / 400 / 200 (was 240 / 240 / 120)
+- **Decision:** dev 400 · held-out 400 (sealed) · shifted 200. ~30% Arabic in every split, stratified by
+  task × level × language. Updates locked decision 5 (CLAUDE.md) and SPEC §4.3.
+- **Why:** tighter bootstrap CIs on per-task and per-language comparisons.
+- **Consequence:** the Phase 2 dev + shifted matrix is 600 tickets × 9 configs (was 360 × 9), about 1.67× the
+  calls; `engine final` records 400 × 9. `engine matrix` prints its estimate before any spend, and any run over $5
+  needs Hamzah's OK (CLAUDE.md).
+
+### D1.2 · Templates only, no LLM paraphrase; Phase 1 makes no paid calls
+- **Decision:** text comes only from template families plus a deterministic variation layer. At least 6
+  families per task per language are used by dev/held-out; further families are held back for the shifted
+  split only. The variation layer (seeded) adds typos, filler, sentence reordering and Arabic/English
+  code-switching, and never edits a gold-relevant value. SPEC §4.2 step 4 (paraphrase with `haiku-low`) is removed.
+- **Why:** no generator/answerer model overlap, no Phase 1 spend, fully reproducible text.
+- **Check kept:** the §4.4 fact-preservation check (100%) now runs on the variation layer's output.
+
+### D1.3 · Shifted split adds ~20 adversarial / out-of-scope items
+- **Decision:** prompt injection asking for approval, non-insurance questions, garbled or near-empty
+  messages, very long rambling tickets. The correct behaviour for each kind is defined in `rules.yaml`
+  (`adversarial:` section), and gold comes from the rules engine like every other item.
+
+### D1.4 · Cost labels everywhere
+- **Decision:** every report, CLI table, chart and slide uses exactly two labels:
+  **"Cost with caching (actual)"** (`cost_usd`, what was billed) and **"Cost without caching (headline)"**
+  (`cost_usd_nocache`, all prompt tokens at the base input rate; SPEC §7.5). Field names in data files stay as they are.
+
+### D1.5 · Rules realism changes (structure informed by the SAMA unified policy; wording our own)
+- **R3** own damage: deductible = max(SAR 1,000, 5% of damage); own-damage cap = the vehicle's market value;
+  repair cost above market value = total loss.
+- **R4** third-party payout proportional to fault, with a lower fictional TPL cap so the cap triggers.
+- **R5** rework. Third-party claims with a violation (unlicensed driver, expired licence not renewed within 50 days
+  of the accident, wrong direction, red light, use outside the schedule) → pay per R4 plus a `recovery_right`
+  reason code. Outright denials (any claim type): intoxication, fled the scene, drifting/racing, fraud.
+  Own-damage claims: deny for unlicensed driver and commercial use (a fictional policy choice). Policy expired on
+  the accident date → deny.
+- **R8 (new)** unknown or uninsured other party: COMP pays own damage less the deductible; TPL denies. The report
+  may come from Najm or the traffic police.
+- **R6** reporting window 15 days. **R7** unchanged.
+- Explicit decision definitions: approve = full payout; partial = reduced by fault, cap or deductible;
+  deny = payout 0. Every claim carries `claim_type` (`own_damage` | `third_party`).
+- FAQ-only parameters: replacement-car days, towing, the 3 / 5 / 15 working-day timelines, the 24-hour Najm report.
+- Declared out of scope in the policy: injury/death, theft, fire, flood (intent `other`).
+- Intent labels: 9 (adds `fault_dispute`), with overlap definitions: `payment_issue` = claim payout only;
+  premium/renewal → `policy_change`; `new_claim` = no claim exists yet; `document_submission` = a claim exists.
+- Every threshold is a YAML parameter. SPEC §3.1, §4.1, §4.3 updated.
+
+### D1.6 · DEFERRED to Phase 3 (if time allows): AI rewrite of the shifted split
+- **Decision:** a rewrite pass over the shifted split only, using a non-Anthropic model via OpenRouter (so Claude
+  never rewrites the tests Claude then answers), with a fact-preservation check that rejects any rewrite that
+  changes a gold-relevant value. Listed in SPEC §13 open items.
+- **Design hook built now:** every ticket stores its gold-relevant surface values (`meta.facts`), and gold is
+  computed from sampled case facts, never from text, so a later rewrite can be checked and bolted on without
+  changing any gold label.
+
+### D1.7 · Stage A interpretation choices (PENDING Hamzah's wording review)
+Choices made while writing `data/rules/rules.yaml` where D1.5 left a detail open. Each is a YAML value or a
+precedence step, so changing one is a one-line edit plus `engine policy`.
+1. **Own damage can never be `approve`.** The deductible is always ≥ SAR 1,000, so an own-damage payout is always
+   below the claimed damage → `partial` (or `deny` at/below the deductible). `approve` happens only on third-party
+   claims at 100% fault under the cap. Alternative: waive the deductible when the other party is identified,
+   insured and 100% at fault (adds an approve path and one more interaction).
+2. **Deny beats need_info.** Precedence: R0 → R5 expiry → R5 absolute → R8/R1 cover → R5 own-damage → R6 → R7 →
+   payout. A claim that is excluded AND missing a document is `deny`.
+3. **Licence grace period** reads as: an expired licence counts as valid if renewed within 50 days *after* the
+   accident (`licence_renewal_grace_days`).
+4. **R8** treats "identified but uninsured" the same as "unknown". Under TPL the reason code is `R8_no_own_cover`
+   (checked before R1); under COMP it adds `R8_unknown_party` to the R3 payout.
+5. **Boundaries are inclusive:** a report on day 15 is on time; a policy is valid through its end date.
+6. **Out-of-scope perils (R0) in an adjudication ticket → `deny`**, payout 0 (intent tickets about them → `other`).
+7. **Fictional values:** TPL cap SAR 50,000; replacement car 10 days (COMP only); towing SAR 500; fault objection
+   5 days (from a soft source, so labelled fictional like everything else). v2: deductible floor 1,500, window 10
+   days, TPL cap 35,000.
+8. **Fictional ID formats:** policy `OMI-<7 digits>`, report `NJ-<8 digits>` (Najm) / `TP-<8 digits>` (police).
+9. `rules_v2.yaml` is an override file (base + 3 changed values) so v1/v2 cannot drift; a test asserts that only
+   those three values differ.

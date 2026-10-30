@@ -100,6 +100,16 @@ def smoke(
 
 
 @app.command()
+def policy() -> None:
+    """Render the FICTIONAL policy document (EN + AR, v1 + v2) from data/rules/ (SPEC §4.1)."""
+    from engine.datagen.render_policy import write_all
+    from engine.llm.pricing import ROOT
+
+    for path in write_all():
+        typer.echo(f"wrote {path.relative_to(ROOT).as_posix()}")
+
+
+@app.command()
 def check() -> None:
     """ruff + pytest + replay integrity + gitleaks (run before every commit)."""
     from engine.check import run_all

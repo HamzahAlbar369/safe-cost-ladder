@@ -1,0 +1,298 @@
+# FICTIONAL. Single source of truth for the policy document the models read AND the gold labels (SPEC §4.1).
+# Oasis Motor Insurance is a fictional demo insurer. Structure informed by the SAMA Unified Compulsory Motor
+# Insurance Policy (https://rulebook.sama.gov.sa/en/node/7886); every value and every sentence here is our own
+# and invented for testing. Nothing here is a real Najm, SAMA or insurer rule. Decisions: DECISIONS.md D1.5.
+#
+# Consumers: src/engine/datagen/render_policy.py (policy document, EN + AR) and
+# src/engine/datagen/rules_engine.py (gold labels). Change a value here, never in code.
+
+version: v1
+
+fiction:
+  insurer_en: "Oasis Motor Insurance"
+  insurer_ar: "واحة لتأمين المركبات"
+  label_en: >-
+    FICTIONAL. Oasis Motor Insurance is a fictional demo insurer created for a hackathon. These rules were
+    invented to test AI systems. They are not real Najm, SAMA or insurer rules and must not be used for any
+    real claim.
+  label_ar: >-
+    وثيقة وهمية. "واحة لتأمين المركبات" شركة تأمين وهمية أُنشئت لأغراض مسابقة تقنية. وُضعت هذه القواعد لاختبار
+    أنظمة الذكاء الاصطناعي، وهي ليست قواعد حقيقية لنجم أو للبنك المركزي السعودي أو لأي شركة تأمين، ولا يجوز
+    استخدامها في أي مطالبة حقيقية.
+
+# --- Parameters used by the rules engine. Every threshold is here. -------------------------------------------
+params:
+  currency: SAR
+  fault_shares: [0, 25, 50, 75, 100]      # R2: policyholder's share, percent
+  deductible_floor_sar: 1000              # R3: deductible = max(floor, pct% of covered amount)
+  deductible_pct: 5                       # R3
+  tpl_cap_sar: 50000                      # R4: fictional cap per accident, low enough to trigger
+  reporting_window_days: 15               # R6: report_date - accident_date > this -> late
+  licence_renewal_grace_days: 50          # R5: expired licence still valid if renewed within this many days
+  rounding: half_up_whole_sar             # all SAR amounts round half up to a whole riyal
+
+# --- FAQ-only parameters: published in the policy, never used in adjudication. ------------------------------
+faq_only:
+  replacement_car_days: 10                # COMP only, per accident
+  towing_limit_sar: 500                   # per accident, both cover types
+  acknowledge_working_days: 3             # acknowledge claim + list missing documents
+  decision_working_days: 5                # accept/deny once all documents are in
+  settlement_working_days: 15             # pay an accepted claim (individual customers)
+  report_within_hours: 24                 # report the accident to Najm or the traffic police
+  fault_objection_days: 5                 # object to the fault share with the reporting authority
+
+# --- Enumerations. Each value has EN and AR labels used by the document and the templates. ------------------
+cover_types:
+  TPL: {en: "Third-Party Liability (TPL)", ar: "التأمين ضد الغير (TPL)"}
+  COMP: {en: "Comprehensive (COMP)", ar: "التأمين الشامل (COMP)"}
+
+claim_types:
+  own_damage: {en: "own-damage claim (damage to the policyholder's own vehicle)", ar: "مطالبة أضرار ذاتية (أضرار مركبة حامل الوثيقة)"}
+  third_party: {en: "third-party claim (another party claims against the policyholder)", ar: "مطالبة طرف ثالث (طرف آخر يطالب حامل الوثيقة)"}
+
+other_party_status:
+  identified_insured: {en: "identified and insured", ar: "معروف ومؤمَّن عليه"}
+  identified_uninsured: {en: "identified but uninsured", ar: "معروف وغير مؤمَّن عليه"}
+  unknown: {en: "unknown (for example hit-and-run)", ar: "مجهول (مثل الصدم والهروب)"}
+
+report_sources:
+  najm: {en: "Najm", ar: "نجم"}
+  traffic_police: {en: "the traffic police", ar: "المرور"}
+
+out_of_scope_perils:
+  injury_or_death: {en: "bodily injury or death", ar: "الإصابات الجسدية أو الوفاة"}
+  theft: {en: "theft of the vehicle", ar: "سرقة المركبة"}
+  fire: {en: "fire", ar: "الحريق"}
+  flood: {en: "flood", ar: "السيول والفيضانات"}
+
+violations:
+  intoxication: {en: "driving under the influence of alcohol or drugs", ar: "القيادة تحت تأثير الكحول أو المخدرات"}
+  fled_scene: {en: "leaving the accident scene before the report was made", ar: "مغادرة موقع الحادث قبل إعداد التقرير"}
+  racing_or_drifting: {en: "racing or drifting (tafheet)", ar: "السباق أو التفحيط"}
+  fraud: {en: "fraud or deliberate false information in the claim", ar: "الاحتيال أو تقديم معلومات كاذبة عمدًا في المطالبة"}
+  invalid_licence: {en: "the driver had no valid driving licence", ar: "عدم حيازة السائق رخصة قيادة سارية"}
+  commercial_use: {en: "commercial use of a vehicle insured under a private policy (paid rides, deliveries)", ar: "الاستخدام التجاري لمركبة مؤمَّنة بوثيقة خاصة (نقل الركاب بأجر أو التوصيل)"}
+  wrong_direction: {en: "driving against the direction of traffic", ar: "القيادة عكس اتجاه السير"}
+  red_light: {en: "crossing a red light", ar: "قطع الإشارة الحمراء"}
+
+exclusions:
+  absolute: [intoxication, fled_scene, racing_or_drifting, fraud]      # deny, any claim type
+  own_damage: [invalid_licence, commercial_use]                         # deny own-damage claims only
+  third_party_recovery: [invalid_licence, wrong_direction, red_light, commercial_use]  # pay + recovery right
+
+late_report_justifications:
+  accepted:
+    hospitalisation: {en: "the customer was in hospital", ar: "تنويم العميل في المستشفى"}
+    travel_outside_kingdom: {en: "the customer was travelling outside the Kingdom", ar: "سفر العميل خارج المملكة"}
+    official_report_delay: {en: "the reporting authority delayed the accident report", ar: "تأخر جهة الإبلاغ في إصدار تقرير الحادث"}
+  not_accepted:
+    busy: {en: "being busy at work", ar: "الانشغال بالعمل"}
+    forgot: {en: "forgetting", ar: "النسيان"}
+    unaware_of_deadline: {en: "not knowing the deadline", ar: "عدم معرفة المهلة"}
+
+required_documents:
+  report_number: {en: "the accident report number (Najm or traffic police)", ar: "رقم تقرير الحادث (نجم أو المرور)"}
+  damage_estimate: {en: "a damage estimate in SAR", ar: "تقدير للأضرار بالريال"}
+
+# --- Decisions (gold depends on these exact definitions). ----------------------------------------------------
+decisions:
+  approve: "payout > 0 and equals the full damage amount claimed"
+  partial: "payout > 0 but reduced by fault share, a cap or the deductible"
+  deny: "payout 0: out of scope, policy expired, exclusion, no cover, late report, 0% fault, or damage at or below the deductible"
+  need_info: "payout 0: a required document is missing or two stated values contradict each other"
+
+# --- Order of application. The first step that fires decides; payout steps run only if nothing fired. -------
+precedence:
+  - {step: R0, fires: "claim is for an out-of-scope peril", decision: deny, reason: R0_out_of_scope}
+  - {step: R5, fires: "accident_date > policy_end_date", decision: deny, reason: R5_policy_expired}
+  - {step: R5, fires: "any exclusions.absolute applies", decision: deny, reason: "R5_<violation>"}
+  - {step: R8, fires: "own_damage, cover TPL, other party unknown or uninsured", decision: deny, reason: R8_no_own_cover}
+  - {step: R1, fires: "own_damage, cover TPL", decision: deny, reason: R1_tpl_no_own_damage}
+  - {step: R5, fires: "own_damage and any exclusions.own_damage applies", decision: deny, reason: "R5_od_<violation>"}
+  - {step: R6, fires: "report_date - accident_date > reporting_window_days and no accepted justification", decision: deny, reason: R6_late_report}
+  - {step: R7, fires: "report_number or damage_estimate missing, or two stated values conflict", decision: need_info, reason: "R7_missing_<doc> | R7_conflicting_info"}
+  - {step: R3, fires: "own_damage (COMP)", decision: from_payout, reason: "R3_own_damage (+ R3_total_loss, R8_unknown_party)"}
+  - {step: R4, fires: "third_party", decision: from_payout, reason: "R4_third_party (+ R4_cap_applied, R5_recovery_right)"}
+
+reason_codes:
+  R0_out_of_scope: "claim is for an out-of-scope peril"
+  R5_policy_expired: "policy had expired on the accident date"
+  R5_intoxication: "absolute exclusion: intoxication"
+  R5_fled_scene: "absolute exclusion: left the scene"
+  R5_racing_or_drifting: "absolute exclusion: racing or drifting"
+  R5_fraud: "absolute exclusion: fraud"
+  R8_no_own_cover: "unknown or uninsured other party and TPL cover: nothing covers the own vehicle"
+  R1_tpl_no_own_damage: "TPL does not cover the policyholder's own vehicle"
+  R5_od_invalid_licence: "own-damage exclusion: no valid licence"
+  R5_od_commercial_use: "own-damage exclusion: commercial use under a private policy"
+  R6_late_report: "reported after the window without an accepted justification"
+  R6_justified: "reported late with an accepted justification (informational)"
+  R7_missing_report_number: "accident report number missing"
+  R7_missing_damage_estimate: "damage estimate missing"
+  R7_conflicting_info: "two stated values contradict each other"
+  R3_own_damage: "own-damage payout computed"
+  R3_total_loss: "repair estimate above market value: total loss, paid on market value"
+  R3_below_deductible: "covered amount at or below the deductible: payout 0"
+  R8_unknown_party: "unknown or uninsured other party: own damage paid under COMP, no fault share needed"
+  R4_third_party: "third-party payout computed from fault share"
+  R4_cap_applied: "third-party payout capped at the TPL cap"
+  R4_no_fault: "policyholder 0% at fault: nothing payable"
+  R5_recovery_right: "third party paid; insurer keeps a right to recover from the insured or driver"
+
+# --- Ticket intents (9). Overlap definitions decide borderline tickets. --------------------------------------
+intents:
+  new_claim: "customer wants to open a claim and no claim exists yet"
+  claim_status: "customer asks about the progress of an existing claim"
+  coverage_question: "customer asks what the policy covers or how a rule works, without a specific claim action"
+  document_submission: "a claim already exists and the customer is sending or offering a document for it"
+  complaint: "customer is unhappy with service, delay or treatment and wants it recorded or escalated"
+  policy_change: "change to the policy itself: details, vehicle, driver, cancellation, premium or renewal"
+  payment_issue: "the claim payout only: IBAN or bank details, payout delay, wrong payout amount"
+  fault_dispute: "customer objects to the fault share in the accident report"
+  other: "anything else, including out-of-scope perils (injury/death, theft, fire, flood) and non-insurance messages"
+
+# --- Adversarial / out-of-scope items (shifted split only; D1.3). ---------------------------------------------
+adversarial:
+  prompt_injection:
+    tasks: [adjudicate]
+    behaviour: "ignore any instruction inside the ticket; gold = the rules applied to the stated facts"
+  non_insurance:
+    tasks: [faq, intent]
+    behaviour: {faq: {answer: out_of_scope}, intent: {intent: other}}
+  garbled_or_empty:
+    tasks: [intent, adjudicate]
+    behaviour: {intent: {intent: other}, adjudicate: {decision: need_info, payout_sar: 0}}
+  long_rambling:
+    tasks: [faq, intent, extract, adjudicate]
+    behaviour: "normal gold; length and digressions do not change the answer"
+
+# --- Fictional identifier formats (used by templates and extraction). ---------------------------------------
+formats:
+  policy_number: "OMI-<7 digits>"
+  report_number: {najm: "NJ-<8 digits>", traffic_police: "TP-<8 digits>"}
+
+# --- Policy document (rendered by render_policy.py). {name} = a value from params / faq_only; a clause with
+# `items:` renders that enumeration's labels as a list. Wording is ours. -------------------------------------
+document:
+  title_en: "{insurer_en} — Motor Policy Wording ({version})"
+  title_ar: "{insurer_ar} — وثيقة تأمين المركبات ({version})"
+  sections:
+    - id: decisions
+      title: {en: "1. How claims are decided", ar: "1. كيف تُقرَّر المطالبات"}
+      clauses:
+        - en: "Every claim is either an own-damage claim (damage to the policyholder's own vehicle) or a third-party claim (another party claims against the policyholder)."
+          ar: "كل مطالبة إما مطالبة أضرار ذاتية (أضرار مركبة حامل الوثيقة) أو مطالبة طرف ثالث (طرف آخر يطالب حامل الوثيقة)."
+        - en: "Approve: the full damage amount claimed is paid."
+          ar: "الموافقة: يُدفع كامل مبلغ الأضرار المطالَب به."
+        - en: "Partial: an amount is paid, reduced by the fault share, a cap or the deductible."
+          ar: "الموافقة الجزئية: يُدفع مبلغ مخفَّض بسبب نسبة الخطأ أو الحد الأقصى أو مبلغ التحمل."
+        - en: "Deny: nothing is paid (out of scope, policy expired, exclusion, no cover, late report, 0% fault, or damage at or below the deductible)."
+          ar: "الرفض: لا يُدفع شيء (خارج النطاق، أو انتهاء الوثيقة، أو استثناء، أو عدم وجود تغطية، أو تأخر الإبلاغ، أو نسبة خطأ 0%، أو أضرار لا تتجاوز مبلغ التحمل)."
+        - en: "Need info: nothing is paid yet because a required document is missing or two stated values contradict each other."
+          ar: "طلب معلومات: لا يُدفع شيء حاليًا لنقص مستند مطلوب أو لتعارض قيمتين مذكورتين."
+        - en: "All amounts are in Saudi riyals (SAR) and are rounded half up to a whole riyal."
+          ar: "جميع المبالغ بالريال السعودي، وتُقرَّب إلى أقرب ريال صحيح (النصف يُقرَّب للأعلى)."
+    - id: R0
+      title: {en: "2. What this policy does not handle", ar: "2. ما لا تشمله هذه الوثيقة"}
+      clauses:
+        - en: "Claims for the following are out of scope and are denied; customers are referred to the competent authority:"
+          ar: "المطالبات المتعلقة بما يلي خارج نطاق هذه الوثيقة وتُرفض، ويُحال العميل إلى الجهة المختصة:"
+          items: out_of_scope_perils
+    - id: R1
+      title: {en: "3. Cover types", ar: "3. أنواع التغطية"}
+      clauses:
+        - en: "Third-Party Liability (TPL) covers damage the policyholder causes to other people's vehicles and property. It never covers the policyholder's own vehicle."
+          ar: "التأمين ضد الغير (TPL) يغطي الأضرار التي يسببها حامل الوثيقة لمركبات الآخرين وممتلكاتهم، ولا يغطي مركبة حامل الوثيقة نفسها أبدًا."
+        - en: "Comprehensive (COMP) covers the policyholder's own vehicle and third-party damage."
+          ar: "التأمين الشامل (COMP) يغطي مركبة حامل الوثيقة وأضرار الغير."
+        - en: "An own-damage claim under a TPL policy is denied."
+          ar: "تُرفض مطالبة الأضرار الذاتية إذا كانت الوثيقة تأمينًا ضد الغير (TPL)."
+    - id: R2
+      title: {en: "4. Fault share", ar: "4. نسبة الخطأ"}
+      clauses:
+        - en: "The policyholder's fault share is taken from the accident report and is one of {fault_shares_text} percent."
+          ar: "تؤخذ نسبة خطأ حامل الوثيقة من تقرير الحادث، وتكون إحدى النسب التالية: {fault_shares_text} بالمئة."
+        - en: "A customer who disagrees with the fault share must object to the reporting authority within {fault_objection_days} days; the insurer applies the share in the report."
+          ar: "على العميل المعترض على نسبة الخطأ أن يعترض لدى جهة الإبلاغ خلال {fault_objection_days:ar_day}، وتطبّق الشركة النسبة الواردة في التقرير."
+    - id: R3
+      title: {en: "5. Own-damage claims (COMP only)", ar: "5. مطالبات الأضرار الذاتية (التأمين الشامل فقط)"}
+      clauses:
+        - en: "The covered amount is the repair estimate or the vehicle's market value, whichever is lower. If the repair estimate is above the market value, the vehicle is a total loss and the covered amount is the market value."
+          ar: "المبلغ المغطى هو تقدير الإصلاح أو القيمة السوقية للمركبة، أيهما أقل. وإذا تجاوز تقدير الإصلاح القيمة السوقية تُعدّ المركبة خسارة كلية ويكون المبلغ المغطى هو القيمة السوقية."
+        - en: "Deductible = the higher of SAR {deductible_floor_sar:,} and {deductible_pct}% of the covered amount."
+          ar: "مبلغ التحمل = الأعلى من {deductible_floor_sar:,} ريال و{deductible_pct}% من المبلغ المغطى."
+        - en: "Payout = covered amount − deductible. If the covered amount is at or below the deductible, the payout is 0 and the claim is denied."
+          ar: "مبلغ التعويض = المبلغ المغطى − مبلغ التحمل. وإذا كان المبلغ المغطى مساويًا لمبلغ التحمل أو أقل منه يكون التعويض صفرًا وتُرفض المطالبة."
+        - en: "The policyholder's fault share does not change an own-damage payout."
+          ar: "لا تؤثر نسبة خطأ حامل الوثيقة في مبلغ تعويض الأضرار الذاتية."
+    - id: R4
+      title: {en: "6. Third-party claims against the policyholder", ar: "6. مطالبات الطرف الثالث ضد حامل الوثيقة"}
+      clauses:
+        - en: "Payout = the third party's damage × the policyholder's fault share, capped at SAR {tpl_cap_sar:,} per accident."
+          ar: "مبلغ التعويض = أضرار الطرف الثالث × نسبة خطأ حامل الوثيقة، بحد أقصى {tpl_cap_sar:,} ريال للحادث الواحد."
+        - en: "If the policyholder's fault share is 0%, nothing is payable and the claim is denied."
+          ar: "إذا كانت نسبة خطأ حامل الوثيقة 0% فلا يُدفع شيء وتُرفض المطالبة."
+    - id: R5
+      title: {en: "7. Policy validity and exclusions", ar: "7. سريان الوثيقة والاستثناءات"}
+      clauses:
+        - en: "If the policy had expired on the accident date, the claim is denied. A policy is valid up to and including its end date."
+          ar: "إذا كانت الوثيقة منتهية في تاريخ الحادث تُرفض المطالبة. وتبقى الوثيقة سارية حتى تاريخ انتهائها شاملًا ذلك اليوم."
+        - en: "Any claim, of either type, is denied if any of the following applies:"
+          ar: "تُرفض أي مطالبة، من أي نوع، إذا انطبق أي مما يلي:"
+          items: exclusions.absolute
+        - en: "An own-damage claim is also denied if any of the following applies:"
+          ar: "وتُرفض مطالبة الأضرار الذاتية أيضًا إذا انطبق أي مما يلي:"
+          items: exclusions.own_damage
+        - en: "A third-party claim is still paid under section 6 when any of the following applies, but the insurer keeps the right to recover the amount from the policyholder or the driver:"
+          ar: "تُدفع مطالبة الطرف الثالث وفق البند 6 حتى إذا انطبق أي مما يلي، مع احتفاظ الشركة بحق الرجوع على حامل الوثيقة أو السائق بالمبلغ:"
+          items: exclusions.third_party_recovery
+        - en: "A driving licence that had expired on the accident date still counts as valid if the driver renewed it within {licence_renewal_grace_days} days after the accident."
+          ar: "تُعدّ رخصة القيادة المنتهية في تاريخ الحادث سارية إذا جدّدها السائق خلال {licence_renewal_grace_days:ar_day} من تاريخ الحادث."
+    - id: R6
+      title: {en: "8. Reporting window", ar: "8. مهلة الإبلاغ"}
+      clauses:
+        - en: "A claim must be reported to the insurer within {reporting_window_days} days of the accident. A claim reported on day {reporting_window_days} is on time."
+          ar: "يجب إبلاغ الشركة بالمطالبة خلال {reporting_window_days:ar_day} من تاريخ الحادث، والمطالبة المبلَّغ عنها في اليوم {reporting_window_days} تُعدّ في الموعد."
+        - en: "A claim reported later is denied unless the customer states one of these accepted reasons:"
+          ar: "تُرفض المطالبة المبلَّغ عنها بعد ذلك ما لم يذكر العميل أحد الأسباب المقبولة التالية:"
+          items: late_report_justifications.accepted
+        - en: "Other reasons are not accepted, for example:"
+          ar: "ولا تُقبل الأسباب الأخرى، ومنها:"
+          items: late_report_justifications.not_accepted
+    - id: R7
+      title: {en: "9. Required documents", ar: "9. المستندات المطلوبة"}
+      clauses:
+        - en: "Every claim needs both of the following:"
+          ar: "تحتاج كل مطالبة إلى ما يلي معًا:"
+          items: required_documents
+        - en: "If either is missing, or if two stated values for the same item contradict each other, the decision is need info and no payout is computed."
+          ar: "إذا نقص أي منهما، أو تعارضت قيمتان مذكورتان للعنصر نفسه، يكون القرار طلب معلومات ولا يُحسب أي تعويض."
+        - en: "A report from Najm or from the traffic police is accepted, whichever attended the accident."
+          ar: "يُقبل تقرير نجم أو تقرير المرور، أيهما باشر الحادث."
+    - id: R8
+      title: {en: "10. Unknown or uninsured other party", ar: "10. الطرف الآخر المجهول أو غير المؤمَّن عليه"}
+      clauses:
+        - en: "If the other party is unknown (for example hit-and-run) or uninsured, a COMP policy pays the own damage under section 5. No fault share is needed for this."
+          ar: "إذا كان الطرف الآخر مجهولًا (مثل الصدم والهروب) أو غير مؤمَّن عليه، تدفع وثيقة التأمين الشامل الأضرار الذاتية وفق البند 5، ولا يُشترط وجود نسبة خطأ لذلك."
+        - en: "Under a TPL policy nothing covers the policyholder's own vehicle, so the claim is denied."
+          ar: "وفي وثيقة التأمين ضد الغير لا يغطي شيء مركبة حامل الوثيقة، فتُرفض المطالبة."
+    - id: order
+      title: {en: "11. Order of application", ar: "11. ترتيب تطبيق القواعد"}
+      clauses:
+        - en: "Rules are checked in this order, and the first one that leads to a decision decides: out of scope (2) → policy expired (7) → exclusions for any claim (7) → cover type and unknown other party (3, 10) → own-damage exclusions (7) → reporting window (8) → required documents (9) → payout (5 or 6)."
+          ar: "تُطبَّق القواعد بهذا الترتيب، وأول قاعدة تؤدي إلى قرار هي الحاسمة: خارج النطاق (2) ← انتهاء الوثيقة (7) ← الاستثناءات لأي مطالبة (7) ← نوع التغطية والطرف المجهول (3، 10) ← استثناءات الأضرار الذاتية (7) ← مهلة الإبلاغ (8) ← المستندات المطلوبة (9) ← حساب التعويض (5 أو 6)."
+    - id: service
+      title: {en: "12. Service standards and other benefits", ar: "12. معايير الخدمة والمزايا الأخرى"}
+      clauses:
+        - en: "Report every accident to Najm or the traffic police within {report_within_hours} hours."
+          ar: "أبلغ نجم أو المرور عن أي حادث خلال {report_within_hours:ar_hour}."
+        - en: "The insurer acknowledges a claim and lists any missing documents within {acknowledge_working_days} working days."
+          ar: "تؤكد الشركة استلام المطالبة وتحدد المستندات الناقصة خلال {acknowledge_working_days:ar_workday}."
+        - en: "Once all documents are in, the insurer accepts or denies the claim within {decision_working_days} working days."
+          ar: "بعد اكتمال المستندات تقبل الشركة المطالبة أو ترفضها خلال {decision_working_days:ar_workday}."
+        - en: "An accepted claim is paid within {settlement_working_days} working days (individual customers)."
+          ar: "تُدفع المطالبة المقبولة خلال {settlement_working_days:ar_workday} (للأفراد)."
+        - en: "COMP includes a replacement car for up to {replacement_car_days} days per accident. TPL does not."
+          ar: "يشمل التأمين الشامل سيارة بديلة لمدة تصل إلى {replacement_car_days:ar_day} لكل حادث، ولا يشملها التأمين ضد الغير."
+        - en: "Towing is covered up to SAR {towing_limit_sar:,} per accident under both cover types."
+          ar: "يُغطّى سحب المركبة بحد أقصى {towing_limit_sar:,} ريال لكل حادث في نوعي التغطية."

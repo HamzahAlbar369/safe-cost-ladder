@@ -30,7 +30,7 @@ budget, and it proves the savings on held-out data.
 3. Router sits **in front of** the cascade; low confidence → normal cascade.
 4. Data: 100% synthetic, generated from `data/rules/rules.yaml` — the single source of truth
    for BOTH the policy document the models read AND the gold labels.
-5. Splits: dev 240 / held-out 240 (sealed) / shifted 120. ~30% Arabic in every split
+5. Splits: dev 400 / held-out 400 (sealed) / shifted 200 (D1.1). ~30% Arabic in every split
    (MSA + Saudi dialect; shifted leans dialectal), stratified by task × difficulty; some EN/AR
    parallel pairs.
 6. **Per-task** accuracy floors (fallback: one global floor), derived from dev baselines and

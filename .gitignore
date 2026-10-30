@@ -3,3 +3,9 @@ CLAUDE.local.md
 .claude/settings.local.json
 .venv/
 __pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/

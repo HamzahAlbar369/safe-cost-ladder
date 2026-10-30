@@ -130,3 +130,25 @@ def test_estimate_has_breakdown_per_check():
     checks = {k.split(":")[0] for k in est["rows"]}
     assert checks == {"cache_size", "matrix", "thinking", "jev"}
     assert 0 < est["anthropic_expected"] < est["anthropic_worst"]
+
+
+def test_summary_rows_and_cheapest_effort():
+    per = {
+        f"{m}-{e}": {
+            "parsed_ok": 5,
+            "n": 5,
+            "output_tokens_mean": 1.0,
+            "output_tokens_max": 1,
+            "thinking_tokens_mean": 0.0,
+            "thinking_tokens_max": 0,
+            "latency_ms_mean": 1.0,
+            "latency_ms_p50": 1.0,
+            "cost_usd": c,
+            "cost_usd_nocache": nc,
+        }
+        for m, e, c, nc in [("opus", "low", 0.03, 0.01), ("opus", "high", 0.02, 0.02)]
+    }
+    checks = {"3_tokens_latency_per_config": per}
+    rows = smoke.summary_rows(checks)
+    assert [r["nocache_usd"] for r in rows] == [0.01, 0.02]
+    assert smoke.cheapest_effort_nocache(checks) == {"opus": "low"}

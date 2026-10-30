@@ -19,6 +19,7 @@ from typing import Any, Literal
 
 import httpx
 
+from engine import runinfo
 from engine.contracts import Cassette, JevRequest, JevResponse, SpendEntry, utcnow
 from engine.llm.client import (
     CassetteStore,
@@ -80,6 +81,7 @@ class JevClient:
         prices: PriceBook | None = None,
         http: httpx.Client | None = None,
         timeout_s: float = 30.0,
+        allow_dirty: bool = False,
     ) -> None:
         self.mode = mode
         self.run_id = run_id
@@ -89,6 +91,7 @@ class JevClient:
         self.prices = prices or pricebook()
         self._http = http
         self.timeout_s = timeout_s
+        self._tree_ok = allow_dirty  # only `engine smoke` may run paid calls on a dirty tree (D0.8)
 
     def estimate(self, req: JevRequest) -> float:
         tokens = estimate_tokens(canonical_json(jev_payload(req)))
@@ -108,6 +111,9 @@ class JevClient:
         if self._http is None:
             self._http = httpx.Client(timeout=self.timeout_s)  # reused: one TLS handshake per run
         headers = {"Authorization": f"Bearer {load_key('OPENROUTER_API_KEY')}"}
+        if not self._tree_ok:
+            runinfo.require_clean_tree()
+            self._tree_ok = True
         est = self.estimate(req)
         guard(self.ledger, self.run_budget, "openrouter", est)
         t0 = time.perf_counter()

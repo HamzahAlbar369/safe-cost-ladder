@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import json
 import statistics
-import subprocess
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -21,6 +20,7 @@ from typing import Any
 
 import httpx
 
+from engine import runinfo
 from engine.contracts import JevRequest, JevResponse, LLMRequest, ModelCall, SmokeReport
 from engine.llm import jev
 from engine.llm.client import (
@@ -304,7 +304,9 @@ def run(
     budget = RunBudget(caps) if caps is not None else None
     if mode != "replay" and budget is None:
         raise ValueError("a live smoke run needs an approved run cap")
-    client = LLMClient(mode, run_id, ledger=ledger, store=store, run_budget=budget, sdk_client=sdk)
+    client = LLMClient(
+        mode, run_id, ledger=ledger, store=store, run_budget=budget, sdk_client=sdk, allow_dirty=True
+    )
     models_api = list_models(mode, sdk, smoke_json)
 
     state = RunState()
@@ -313,7 +315,9 @@ def run(
         for f in [pool.submit(_run_model, client, steps, state) for steps in plan.values()]:
             f.result()
 
-    jc = jev.JevClient(mode, run_id, ledger=ledger, store=store, run_budget=budget, http=http)
+    jc = jev.JevClient(
+        mode, run_id, ledger=ledger, store=store, run_budget=budget, http=http, allow_dirty=True
+    )
     jev_calls: list[JevCall] = []
     for pj in plan_jev():
         h = jev.jev_request_hash(pj.req)
@@ -339,7 +343,7 @@ def run(
     notes = [f"ABORTED {a}" for a in state.aborted]
     report = SmokeReport(
         run_id=run_id,
-        git_sha=git_sha(),
+        git_sha=runinfo.git_sha(),
         mode=mode,
         models_api=models_api,
         checks=checks,
@@ -368,19 +372,6 @@ def write_run(report: SmokeReport, calls: list[SmokeCall], jev_calls: list[JevCa
             }
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
     SMOKE_JSON.write_text(report.model_dump_json(indent=1), encoding="utf-8")
-
-
-def git_sha() -> str:
-    try:
-        sha = subprocess.run(
-            ["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=True
-        ).stdout.strip()
-        dirty = subprocess.run(
-            ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT, capture_output=True, text=True
-        ).stdout.strip()
-        return sha + ("-dirty" if dirty else "")
-    except (OSError, subprocess.CalledProcessError):
-        return "unknown"
 
 
 # --------------------------------------------------------------------------- analysis
@@ -665,3 +656,51 @@ def analyse_jev(jev_calls: list[JevCall]) -> dict[str, Any]:
 
 def comparable(checks: dict[str, Any]) -> str:
     return json.dumps(checks, sort_keys=True, ensure_ascii=False, default=str)
+
+
+SUMMARY_COLUMNS = (
+    ("config", "{}"),
+    ("json_ok", "{}"),
+    ("out_mean", "{:.0f}"),
+    ("out_max", "{}"),
+    ("think_mean", "{:.0f}"),
+    ("think_max", "{}"),
+    ("lat_mean_ms", "{:,.0f}"),
+    ("lat_p50_ms", "{:,.0f}"),
+    ("cost_usd", "{:.6f}"),
+    ("nocache_usd", "{:.6f}"),
+)
+
+
+def summary_rows(checks: dict[str, Any]) -> list[dict[str, Any]]:
+    """Per-config smoke summary. `nocache_usd` prices every prompt token at the base input rate (SPEC §7.5),
+    removing the cache-write ordering effect (the first effort run per model paid the cache write)."""
+    rows = []
+    for cid, s in checks["3_tokens_latency_per_config"].items():
+        rows.append(
+            {
+                "config": cid,
+                "json_ok": f"{s['parsed_ok']}/{s['n']}",
+                "out_mean": s["output_tokens_mean"],
+                "out_max": s["output_tokens_max"],
+                "think_mean": s["thinking_tokens_mean"],
+                "think_max": s["thinking_tokens_max"],
+                "lat_mean_ms": s["latency_ms_mean"],
+                "lat_p50_ms": s["latency_ms_p50"],
+                "cost_usd": s["cost_usd"],
+                "nocache_usd": s["cost_usd_nocache"],
+            }
+        )
+    return rows
+
+
+def cheapest_effort_nocache(checks: dict[str, Any]) -> dict[str, str]:
+    """Per model: the effort with the lowest no-cache cost over the smoke matrix."""
+    out: dict[str, str] = {}
+    per = checks["3_tokens_latency_per_config"]
+    for short in sorted({cid.split("-")[0] for cid in per}):
+        costs = {
+            cid.split("-")[1]: per[cid]["cost_usd_nocache"] for cid in per if cid.startswith(short + "-")
+        }
+        out[short] = min(costs, key=costs.__getitem__)
+    return out

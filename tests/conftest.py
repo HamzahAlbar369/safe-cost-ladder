@@ -58,3 +58,11 @@ def tmp_store(tmp_path):
 @pytest.fixture
 def tmp_ledger(tmp_path):
     return Ledger(tmp_path / "spend.jsonl", budgets={"anthropic": 100.0, "openrouter": 5.0})
+
+
+@pytest.fixture(autouse=True)
+def clean_tree(monkeypatch):
+    """Tests run against a clean tree unless they say otherwise (paid calls refuse a dirty one)."""
+    from engine import runinfo
+
+    monkeypatch.setattr(runinfo, "tree_status", lambda: "")

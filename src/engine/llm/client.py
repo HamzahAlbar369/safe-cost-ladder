@@ -18,6 +18,7 @@ from typing import Any, Literal
 
 from dotenv import load_dotenv
 
+from engine import runinfo
 from engine.contracts import (
     Cassette,
     LLMRequest,
@@ -220,6 +221,7 @@ class LLMClient:
         run_budget: RunBudget | None = None,
         prices: PriceBook | None = None,
         sdk_client: Any = None,
+        allow_dirty: bool = False,
     ) -> None:
         self.mode = mode
         self.run_id = run_id
@@ -228,6 +230,7 @@ class LLMClient:
         self.run_budget = run_budget
         self.prices = prices or pricebook()
         self._sdk = sdk_client
+        self._tree_ok = allow_dirty  # only `engine smoke` may run paid calls on a dirty tree (D0.8)
 
     # -- public
 
@@ -292,6 +295,11 @@ class LLMClient:
             self._sdk = anthropic.Anthropic(api_key=load_key("ANTHROPIC_API_KEY"), max_retries=1)
         return self._sdk
 
+    def _require_clean_tree(self) -> None:
+        if not self._tree_ok:
+            runinfo.require_clean_tree()
+            self._tree_ok = True
+
     @staticmethod
     def build_params(req: LLMRequest) -> dict[str, Any]:
         """SPEC §6.2: one static system block (cached), user = task type + ticket text only."""
@@ -314,6 +322,7 @@ class LLMClient:
 
         sdk = self._sdk_client()
         worst = worst_case_cost(price, req)
+        self._require_clean_tree()
         guard(self.ledger, self.run_budget, "anthropic", worst)
         t0 = time.perf_counter()
         try:

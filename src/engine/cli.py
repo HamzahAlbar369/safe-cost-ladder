@@ -31,10 +31,24 @@ def _print_estimate(est: dict) -> None:
         typer.echo(f"  assumption {k}: {v}")
 
 
+def _print_summary(s) -> None:
+    import json
+
+    report = json.loads(s.SMOKE_JSON.read_text(encoding="utf-8"))
+    typer.echo(f"run {report['run_id']} | git {report['git_sha'][:12]}")
+    names = [name for name, _ in s.SUMMARY_COLUMNS]
+    typer.echo("  ".join(f"{n:>12}" for n in names))
+    for row in s.summary_rows(report["checks"]):
+        cells = [fmt.format(row[n]) if row[n] is not None else "-" for n, fmt in s.SUMMARY_COLUMNS]
+        typer.echo("  ".join(f"{c:>12}" for c in cells))
+    typer.echo(f"cheapest effort per model (no-cache): {s.cheapest_effort_nocache(report['checks'])}")
+
+
 @app.command()
 def smoke(
     mode: str = typer.Option("replay", help="replay (no key, no spend) | live | auto"),
     estimate_only: bool = typer.Option(False, "--estimate", help="Print the cost estimate and exit."),
+    summary: bool = typer.Option(False, "--summary", help="Print the per-config table from runs/smoke.json."),
     cap_anthropic: float = typer.Option(0.0, help="Approved Anthropic spend cap for this run (USD)."),
     cap_openrouter: float = typer.Option(0.0, help="Approved OpenRouter spend cap for this run (USD)."),
     yes: bool = typer.Option(
@@ -45,6 +59,9 @@ def smoke(
     from engine import smoke as s
     from engine.llm.client import Ledger
 
+    if summary:
+        _print_summary(s)
+        return
     est = s.estimate()
     ledger = Ledger()
     if estimate_only or mode != "replay":

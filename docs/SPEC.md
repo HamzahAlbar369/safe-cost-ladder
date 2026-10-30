@@ -199,6 +199,8 @@ Every API call goes through `llm/client.py`. Key = sha256 of (model, effort, sys
 thinking mode, repeat index); `thinking` = omitted|adaptive, `repeat` = 0 except for deliberate identical repeats
 (cache probes). The system prompt enters the key and the cassette as its sha256 (approved 2026-10-30, DECISIONS.md).
 Jev calls use their own key: sha256 of (model, state, questions, repeat).
+Paid (live/auto) calls refuse to run on a dirty working tree so every run's git SHA is clean; only `engine smoke`
+is exempt (DECISIONS D0.10).
 Modes: `live` (call + record), `replay` (cassette only; miss = error), `auto` (replay if present). Recorded latency
 is stored and reused in replay; replayed results are labelled `replayed=true` and reports say "simulated".
 

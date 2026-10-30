@@ -90,3 +90,34 @@ named run file, never typed from memory.
    dev-item measurements with headroom; until then keep generous caps (truncation = failure).
 5. **Jev:** warm it with one call before timing anything (the 42.8 s cold start would otherwise dominate p95);
    Arabic agreement (3/5) is a risk flag for the Jev router on Arabic tickets.
+
+### D0.8 · D0.7 approved by Hamzah (2026-10-30)
+- **Keep all 9 configs.**
+- **`thinking: {type: "adaptive"}` is sent explicitly on every task call.**
+- **Structured outputs (`output_config.format`) on all task calls.** Not yet verified on these models.
+  **Phase 2 entry check:** before the dev matrix is recorded, a small paid probe (estimate shown first) must confirm
+  that all three models accept `output_config.format` together with `output_config.effort` and adaptive thinking,
+  and return schema-valid JSON for all four task schemas.
+- **Jev is warmed with one untimed call before any latency measurement.**
+
+### D0.9 · Low effort is the cheapest config per model once caching is removed (Hamzah's hypothesis: confirmed)
+- **Evidence:** run `smoke-20261030T130454Z`, `uv run engine smoke --summary`, column `nocache_usd` (every prompt
+  token at the base input rate, SPEC §7.5). Low effort has the lowest no-cache cost on all three models. Medium /
+  high cost more than low by: Haiku +3.1% / +9.6%, Sonnet +8.0% / +8.7%, Opus +6.8% / +8.7%.
+- **Why the actual-cost column said otherwise:** `low` ran first on each model and paid the one cache write for the
+  shared prefix (D0.6 check 5); `medium` and `high` then read that cache, so their actual cost looked lower.
+- **Caveat:** 5 short probe items per config; the gaps are small. Phase 2 re-measures on the dev matrix.
+
+### D0.10 · Paid commands refuse a dirty working tree (except `engine smoke`)
+- **Decision:** `LLMClient` and `JevClient` check `git status --porcelain` (tracked changes and untracked,
+  non-ignored files) before their first live call and raise `DirtyTree` if anything is uncommitted. Only `engine
+  smoke` opts out (`allow_dirty=True`). Replay mode never checks. Enforced in the clients, not per command, so a new
+  paid command cannot forget it.
+- **Why:** every paid run's git SHA must identify the exact code and prompts (the smoke run was recorded as
+  `9c507f0-dirty`).
+- **Evidence:** `tests/test_runinfo.py` (refusal before any API call or ledger entry; smoke opt-out; replay unaffected;
+  Jev too).
+
+### Phase 0 closed (2026-10-30, Hamzah's sign-off)
+Gate (SPEC §10): repo + `.gitignore` + `.env.example` + pre-commit/gitleaks committed · prices re-verified (D0.1) ·
+smoke checks 1–7 logged (D0.6) · Jev reachable + Arabic result logged (D0.6) · mentor slot: Hamzah.

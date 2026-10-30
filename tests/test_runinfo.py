@@ -67,3 +67,14 @@ def test_porcelain_leading_space_survives(monkeypatch):
 
     monkeypatch.setattr(subprocess, "run", lambda *a, **k: SimpleNamespace(stdout=" M docs/SPEC.md\n"))
     assert runinfo._git("status", "--porcelain") == " M docs/SPEC.md"
+
+
+def test_harness_outputs_do_not_make_the_tree_dirty(monkeypatch):
+    out = "\n".join(["?? runs/matrix-dev-pilot-1/", " M runs/spend.jsonl", "?? cassettes/anthropic/abc.json"])
+    monkeypatch.setattr(runinfo, "tree_status", lambda: out)
+    runinfo.require_clean_tree()
+    assert not runinfo.git_sha().endswith("-dirty")
+    monkeypatch.setattr(runinfo, "tree_status", lambda: "\n".join([out, " M src/engine/tasks/prompts.py"]))
+    with pytest.raises(runinfo.DirtyTree, match="prompts.py"):
+        runinfo.require_clean_tree()
+    assert runinfo.git_sha().endswith("-dirty")

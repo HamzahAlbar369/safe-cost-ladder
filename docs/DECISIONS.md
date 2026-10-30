@@ -493,3 +493,12 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   command piped the output through `tail`, which hid the non-zero exit. The check now reads both row shapes
   (`src/engine/check.py`). Re-run with the real exit code: all four steps PASS (109 cassettes, 109 recorded calls
   referenced; smoke replay exact). From now on the exit code is read directly, not through a pipe.
+
+### D2.6 · The clean-tree rule ignores the harness's own output paths (`runs/`, `cassettes/`)
+- **Found:** the first pilot launch was refused, with no spend, because the matrix runner creates
+  `runs/<run_id>/calls.jsonl` before its first paid call and a resumed run's earlier output is uncommitted; both
+  made the tree "dirty" (D0.10).
+- **Decision:** `runinfo.code_changes()` filters out `runs/` and `cassettes/`; `require_clean_tree()` and
+  `git_sha()` use it. Anything else (code, prompts, config, data, docs) still blocks a paid run and marks the SHA
+  `-dirty`. Run outputs cannot change which code or prompts a run used, which is what the rule protects.
+- **Evidence:** `tests/test_runinfo.py::test_harness_outputs_do_not_make_the_tree_dirty`.

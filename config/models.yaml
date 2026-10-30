@@ -1,0 +1,47 @@
+# Prices are the ONLY place prices live (CLAUDE.md hard rule). USD per million tokens.
+# Re-verified against the official Anthropic pricing page in Phase 0: all values match SPEC §2.2.
+verified_on: "2026-10-30"
+source: "https://platform.claude.com/docs/en/about-claude/pricing (Model pricing table + Long context pricing)"
+
+anthropic:
+  budget_usd: 100.0
+  efforts: [low, medium, high]
+  models:
+    claude-haiku-5-5:
+      short: haiku
+      input: 0.10
+      output: 0.50
+      cache_write_5m: 0.125
+      cache_read: 0.01
+      # Prompts over 100,000 tokens (all input incl. cache reads/writes) are billed at a higher tier.
+      # We never exceed it; the client refuses requests estimated above this.
+      max_prompt_tokens: 100000
+      long_context:
+        input: 0.50
+        output: 2.50
+        cache_write_5m: 0.625
+        cache_read: 0.05
+    claude-sonnet-5-5:
+      short: sonnet
+      input: 2.00
+      output: 10.00
+      cache_write_5m: 2.50
+      cache_read: 0.10  # 0.05x base (official footnote 2)
+    claude-opus-5-5:
+      short: opus
+      input: 4.00
+      output: 20.00
+      cache_write_5m: 5.00
+      cache_read: 0.20  # 0.05x base (official footnote 2)
+
+openrouter:
+  budget_usd: 5.0
+  verified_on: "2026-10-30"
+  source: >-
+    https://openrouter.ai/docs/guides/community/jev.md ("Output tokens are free. You pay per input token");
+    rate derived from the official Decisions API example (476 input tokens -> usage.cost 0.000019992 USD).
+    usage.cost on each response is authoritative; this rate is used only for pre-call estimates.
+  models:
+    typesafe/jev-1.14:
+      input: 0.042
+      output: 0.0

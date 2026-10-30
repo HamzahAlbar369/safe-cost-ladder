@@ -3,11 +3,19 @@ matrix and the live policies all produce identical cassette keys."""
 
 from __future__ import annotations
 
-from engine.contracts import Effort, LLMRequest, Ticket
+from functools import cache
+from typing import Any
+
+from engine.contracts import Effort, LLMRequest, TaskType, Ticket
 from engine.datagen.rules import load_version
 from engine.llm.pricing import PriceBook, pricebook
 from engine.tasks.prompts import MAX_TOKENS, system_prompt, user_prompt
 from engine.tasks.schemas import schema_for
+
+
+@cache
+def _schema(task: TaskType, version: str) -> dict[str, Any]:
+    return schema_for(task, load_version(version))  # parsed once: the matrix builds thousands of requests
 
 
 def build_request(ticket: Ticket, model: str, effort: Effort, version: str = "v1") -> LLMRequest:
@@ -18,7 +26,7 @@ def build_request(ticket: Ticket, model: str, effort: Effort, version: str = "v1
         user=user_prompt(ticket.task_type, ticket.text),
         max_tokens=MAX_TOKENS[ticket.task_type],
         schema_name=ticket.task_type,
-        output_schema=schema_for(ticket.task_type, load_version(version)),
+        output_schema=_schema(ticket.task_type, version),
         thinking="adaptive",
         cache=True,
     )

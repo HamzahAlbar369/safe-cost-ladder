@@ -1,0 +1,56 @@
+run: matrix-dev-full-1 | split: dev | git: 6d065c3ee4b301eb80ce87cc9c66fb5aeb09a039 | config_hash: 1201126a080c897a
+
+O1 = per-task cheapest config meeting the floor + risk-tiered verification on adjudicate (SPEC 7.3)
+    faq/intent/extract: faq haiku-low, intent haiku-high, extract haiku-low (no verification)
+    adjudicate: haiku-low || haiku-medium in parallel; wait for haiku-medium at most 6.0s; accept haiku-low iff V0-V2 pass and the two agree (decision, payout +-1 SAR); if haiku-medium is late, iff haiku-low passes V0-V2; else escalate to opus-low
+    floors and budgets: config/policy.yaml (frozen, budget rule premium)
+    Tier 0: not yet included (Phase 3 step c)
+
+Adjudicate: correct 178/180  success 170/180  escalated 11/180 (6.1%)  second opinion late 37
+    escalation reasons: disagree 3, first failed (second late) 3, first failed checks 3, second failed checks 2
+
+O1
+    correct 396/400  accuracy 0.990  success 0.965  p50 1.56s  p95 6.55s  meets every floor: yes
+    CPST, Cost without caching (headline):  $0.00277 [0.00210, 0.00353]
+        vs B1 (opus-low): $0.03533 -> $0.00277  saving +92.2% [+90.0%, +94.0%]
+        vs B3 (static per task): $0.01785 -> $0.00277  saving +84.5% [+80.5%, +88.1%]
+    CPST, Cost with caching (actual):       $0.00080 [0.00064, 0.00097]
+        vs B1 (opus-low): $0.00452 -> $0.00080  saving +82.4% [+78.9%, +85.5%]
+        vs B3 (static per task): $0.00308 -> $0.00080  saving +74.1% [+69.2%, +78.3%]
+
+Per task (O1)
+    task          n  correct    acc  floor  success   p95 s  budget s
+    faq         100       99  0.990  0.980    0.980    1.79       2.5
+    intent       60       60  1.000  0.980    1.000    1.41       4.5
+    extract      60       59  0.983  0.980    0.967    2.10       3.5
+    adjudicate  180      178  0.989  0.984    0.944    8.33       8.5
+    language en: n=280  accuracy 0.993  success 0.971
+    language ar: n=120  accuracy 0.983  success 0.950
+
+Verifier quality on the haiku-low adjudicate answer (n=180; wrong 6, correct 174)
+    false-accept rate, V0-V2 only:        4/6 (66.7%)
+    false-accept rate, V0-V2 + V3 (O1):   2/6 (33.3%)   still accepted: dev-0214, dev-0378
+    false-reject rate, V0-V2 only:        4/174 (2.3%)
+    false-reject rate, V0-V2 + V3 (O1):   7/174 (4.0%)  (correct answers escalated)
+
+Deadline for the second opinion (D3.2; tuned on dev only; late calls charged in full)
+         D  correct  success  escalated  second late  adjudicate CPST (headline)
+      none      178      161         13            0  $0.00607
+      6.0s      178      170         11           37  $0.00529
+      5.0s      178      170         10           69  $0.00508
+
+Remaining failures (wrong, or correct but over the task's latency budget)
+    dev-0018  adjudicate over budget   9.60s / 8.5s  path haiku-low > haiku-medium > opus-low
+    dev-0019  adjudicate over budget  10.64s / 8.5s  path haiku-low > haiku-medium
+    dev-0045  extract    over budget   7.04s / 3.5s  path haiku-low
+    dev-0089  faq        wrong         0.82s / 2.5s  path haiku-low
+    dev-0109  adjudicate over budget  13.50s / 8.5s  path haiku-low > haiku-medium > opus-low
+    dev-0140  faq        over budget   3.44s / 2.5s  path haiku-low
+    dev-0168  adjudicate over budget  11.39s / 8.5s  path haiku-low > haiku-medium > opus-low
+    dev-0208  extract    wrong         0.86s / 3.5s  path haiku-low
+    dev-0214  adjudicate wrong         5.44s / 8.5s  path haiku-low > haiku-medium
+    dev-0263  adjudicate over budget  14.10s / 8.5s  path haiku-low > haiku-medium > opus-low
+    dev-0292  adjudicate over budget   9.90s / 8.5s  path haiku-low > haiku-medium > opus-low
+    dev-0355  adjudicate over budget   9.04s / 8.5s  path haiku-low > haiku-medium
+    dev-0375  adjudicate over budget   8.69s / 8.5s  path haiku-low > haiku-medium > opus-low
+    dev-0378  adjudicate wrong         3.43s / 8.5s  path haiku-low > haiku-medium

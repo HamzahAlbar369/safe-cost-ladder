@@ -48,4 +48,4 @@ model or read unnaturally; each was fixed in the generator with a permanent QA s
 - 50 items is a sample (5% of the data); the remaining items are covered by automated QA
   (schema, gold re-derivation, duplicates, leakage, fact consistency, language scans — see `MANIFEST.json`).
 
-Full reviewer log: `review/raw/checker_log.pdf`.
+Full reviewer log: `data/review/raw/checker_log.pdf`.

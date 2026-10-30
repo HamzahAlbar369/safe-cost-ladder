@@ -3,7 +3,7 @@
 import pytest
 
 from engine.contracts import LLMRequest
-from engine.llm.client import LLMClient, ReplayMiss, request_hash
+from engine.llm.client import LLMClient, ReplayMiss, rate_limit_from_headers, request_hash, request_record
 from tests.conftest import FakeAnthropic
 
 REQ = LLMRequest(
@@ -50,6 +50,7 @@ def test_hash_covers_every_output_relevant_field():
         {"schema_name": "intent"},
         {"thinking": "adaptive"},
         {"repeat": 1},
+        {"output_schema": {"type": "object"}},
     ):
         assert request_hash(REQ.model_copy(update=change)) != base, change
     assert request_hash(REQ) == base  # deterministic
@@ -74,3 +75,45 @@ def test_cassette_never_contains_system_text_or_key(tmp_store, tmp_ledger):
     raw = path.read_text(encoding="utf-8")
     assert "STATIC" not in raw and "system_sha256" in raw
     assert "sk-ant" not in raw
+
+
+SCHEMA = {"type": "object", "properties": {"answer": {"type": "string"}}, "required": ["answer"]}
+
+
+def test_output_schema_goes_to_output_config_and_the_key_only_when_present():
+    with_schema = REQ.model_copy(update={"output_schema": SCHEMA, "thinking": "adaptive"})
+    p = LLMClient.build_params(with_schema)
+    assert p["output_config"] == {"effort": "low", "format": {"type": "json_schema", "schema": SCHEMA}}
+    assert p["thinking"] == {"type": "adaptive"}
+    assert request_hash(with_schema) != request_hash(with_schema.model_copy(update={"output_schema": {}}))
+    assert "output_schema" not in request_record(REQ)  # old cassette keys stay valid
+
+
+def test_queue_wait_is_recorded_apart_from_latency(tmp_store, tmp_ledger):
+    c = LLMClient("live", "r", ledger=tmp_ledger, store=tmp_store, sdk_client=FakeAnthropic())
+    r = c.call(REQ, ticket_id="t", queue_wait_ms=1234.5)
+    assert r.call.queue_wait_ms == 1234.5
+    assert r.call.latency_ms == r.response.latency_ms  # latency is send -> receive only
+    again = LLMClient("replay", "r2", ledger=tmp_ledger, store=tmp_store).call(REQ, ticket_id="t")
+    assert again.call.queue_wait_ms == 0.0 and again.call.latency_ms == r.call.latency_ms
+
+
+def test_rate_limit_headers_are_parsed_on_live_calls_only(tmp_store, tmp_ledger):
+    fake = FakeAnthropic()
+    fake.headers = {
+        "anthropic-ratelimit-requests-remaining": "41",
+        "anthropic-ratelimit-requests-limit": "50",
+        "anthropic-ratelimit-output-tokens-remaining": "9000",
+        "retry-after": "2",
+    }
+    live = LLMClient("live", "r", ledger=tmp_ledger, store=tmp_store, sdk_client=fake).call(
+        REQ, ticket_id="t"
+    )
+    rl = live.rate_limit
+    assert (rl.requests_remaining, rl.requests_limit, rl.output_tokens_remaining) == (41, 50, 9000)
+    assert rl.retry_after_s == 2.0 and rl.input_tokens_remaining is None
+    assert (
+        LLMClient("replay", "r2", ledger=tmp_ledger, store=tmp_store).call(REQ, ticket_id="t").rate_limit
+        is None
+    )
+    assert rate_limit_from_headers({}) is None and rate_limit_from_headers(None) is None

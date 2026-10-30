@@ -141,6 +141,40 @@ def policy() -> None:
 
 
 @app.command()
+def probe(
+    mode: str = typer.Option("auto", help="auto (replay if recorded) | live | replay"),
+    estimate_only: bool = typer.Option(False, "--estimate", help="Print the cost estimate and exit."),
+    cap_anthropic: float = typer.Option(0.0, help="Approved Anthropic spend cap for this run (USD)."),
+    yes: bool = typer.Option(False, "--yes", help="Confirm the estimate was approved; required to spend."),
+) -> None:
+    """Phase 2 entry check (D0.8): structured outputs + effort + adaptive thinking on all models/schemas."""
+    from engine.eval import estimate as E
+    from engine.eval import probe as P
+    from engine.llm.client import CassetteStore, Ledger, request_hash
+
+    reqs = [(t.task_type, P.build_request(t, m, e)) for t, m, e in P.probe_requests()]
+    missing = sum(CassetteStore().get("anthropic", request_hash(r)) is None for _, r in reqs)
+    est = E.estimate_requests(reqs, concurrency=3)
+    typer.echo(E.format_estimate("Probe", est, Ledger().remaining("anthropic")))
+    typer.echo(f"  already recorded: {len(reqs) - missing}; would be live: {missing}")
+    if estimate_only:
+        return
+    spends = mode == "live" or (mode == "auto" and missing)
+    if spends and (not yes or cap_anthropic <= 0):
+        typer.echo("Paid run refused: pass --yes with --cap-anthropic (the approved cap).")
+        raise typer.Exit(2)
+    run_id, calls = P.run(mode, cap_anthropic)  # type: ignore[arg-type]
+    out = P.write(run_id, calls)
+    for c in calls:
+        typer.echo(
+            f"{'ok  ' if c.ok else 'FAIL'} {c.config_id:<14} {c.task:<10} {c.call.stop_reason} "
+            f"out={c.call.output_tokens} think={c.call.thinking_tokens} cache_r={c.call.cache_read_tokens} "
+            f"lat={c.call.latency_ms:.0f}ms graded={c.graded_correct} {c.schema_errors or ''}"
+        )
+    typer.echo(f"{sum(c.ok for c in calls)}/{len(calls)} ok; wrote {out}")
+
+
+@app.command()
 def check() -> None:
     """ruff + pytest + replay integrity + gitleaks (run before every commit)."""
     from engine.check import run_all

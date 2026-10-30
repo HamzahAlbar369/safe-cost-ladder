@@ -439,3 +439,14 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   shifted 200/200 on both checks.
 - **Latency measurement (Hamzah):** `latency_ms` = request sent to response received; queue/pacer wait is recorded
   separately as `queue_wait_ms` and excluded from p95 and the latency budgets (to be added with the matrix runner).
+
+### D2.2 · Client: structured outputs in the cassette key, queue wait, rate-limit headers; entry probe built
+- `LLMRequest.output_schema` is sent as `output_config.format` and enters the cassette key only when present, so
+  every pre-existing cassette key is unchanged (`engine check` replay integrity re-derives them).
+- `ModelCall.queue_wait_ms` (default 0) is recorded apart from `latency_ms`; latency starts at the moment of sending
+  (after the budget guard and any pacer wait), so p95 and the latency budgets exclude our own queueing (Hamzah).
+- Live calls return the parsed `anthropic-ratelimit-*` / `retry-after` headers (`CallResult.rate_limit`) for the
+  matrix pacer; replay returns none.
+- Held-out cannot be loaded through `eval.data.load_split` (raises `SealedSplit`); only `engine final` will read it.
+- `engine probe` (24 calls: 4 dev items x 3 models x efforts low/high) is built; its requests are ordinary matrix
+  requests, so their cassettes will be reused. Not yet run: awaiting Hamzah's sign-off on the estimate.

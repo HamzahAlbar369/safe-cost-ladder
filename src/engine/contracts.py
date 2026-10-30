@@ -44,6 +44,7 @@ class LLMRequest(Frozen):
     user: str
     max_tokens: int
     schema_name: str = ""  # identifies the output schema embedded in the prompt
+    output_schema: dict[str, Any] | None = None  # JSON schema sent as output_config.format (D0.8)
     thinking: ThinkingMode = "default"
     cache: bool = True  # cache_control on the static system block (SPEC §6.2)
     repeat: int = 0  # distinguishes deliberate repeats of an identical request (cache probes)
@@ -55,6 +56,17 @@ class LLMResponse(Frozen):
     usage: Usage
     latency_ms: float
     served_model: str
+
+
+class RateLimitInfo(Frozen):
+    """Anthropic rate-limit response headers (None = header absent). Used by the matrix pacer only."""
+
+    requests_remaining: int | None = None
+    requests_limit: int | None = None
+    input_tokens_remaining: int | None = None
+    output_tokens_remaining: int | None = None
+    tokens_remaining: int | None = None
+    retry_after_s: float | None = None
 
 
 class Cassette(Frozen):
@@ -83,7 +95,8 @@ class ModelCall(Frozen):
     cache_read_tokens: int
     output_tokens: int
     thinking_tokens: int | None = None
-    latency_ms: float
+    latency_ms: float  # request sent -> response received; never includes our own queue/pacer wait
+    queue_wait_ms: float = 0.0  # time spent waiting in our pacer before the request was sent (not in latency)
     cost_usd: float
     cost_usd_nocache: float
     stop_reason: str | None

@@ -8,8 +8,9 @@ from engine.llm.client import CassetteStore, Ledger
 
 
 class FakeStream:
-    def __init__(self, msg):
+    def __init__(self, msg, headers=None):
         self._msg = msg
+        self.response = SimpleNamespace(headers=headers or {})
 
     def __enter__(self):
         return self
@@ -26,6 +27,7 @@ class FakeAnthropic:
 
     def __init__(self, text='{"answer": "yes"}', usage=None):
         self.calls: list[dict] = []
+        self.headers: dict[str, str] = {}
         self.text = text
         self.usage = usage or SimpleNamespace(
             input_tokens=100,
@@ -47,7 +49,7 @@ class FakeAnthropic:
             usage=self.usage,
             model=params["model"],
         )
-        return FakeStream(msg)
+        return FakeStream(msg, self.headers)
 
 
 @pytest.fixture

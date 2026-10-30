@@ -25,6 +25,7 @@ from engine.contracts import (
     LLMResponse,
     ModelCall,
     Provider,
+    RateLimitInfo,
     Role,
     SpendEntry,
     Usage,
@@ -175,6 +176,8 @@ def request_record(req: LLMRequest) -> dict[str, Any]:
     """What gets hashed and stored. The system prompt is represented by its sha256."""
     rec = req.model_dump()
     rec["system_sha256"] = sha256(rec.pop("system"))
+    if rec["output_schema"] is None:  # keeps every pre-structured-output cassette key unchanged
+        del rec["output_schema"]
     return rec
 
 
@@ -205,9 +208,12 @@ def worst_case_cost(price: ModelPrice, req: LLMRequest) -> float:
 
 
 class CallResult:
-    def __init__(self, response: LLMResponse | None, call: ModelCall) -> None:
+    def __init__(
+        self, response: LLMResponse | None, call: ModelCall, rate_limit: RateLimitInfo | None = None
+    ) -> None:
         self.response = response
         self.call = call
+        self.rate_limit = rate_limit  # live calls only; None on replay
 
 
 class LLMClient:
@@ -241,6 +247,7 @@ class LLMClient:
         ticket_id: str,
         role: Role = "answer",
         validate: Callable[[str], bool] | None = None,
+        queue_wait_ms: float = 0.0,
     ) -> CallResult:
         price = self.prices.price(req.model)
         if price.max_prompt_tokens is not None:
@@ -251,6 +258,7 @@ class LLMClient:
         cassette = self.store.get("anthropic", h) if self.mode != "live" else None
         error: str | None = None
         response: LLMResponse | None = None
+        rate_limit: RateLimitInfo | None = None
         replayed = cassette is not None
 
         if cassette is not None:
@@ -258,7 +266,7 @@ class LLMClient:
         elif self.mode == "replay":
             raise ReplayMiss(f"no cassette for request {h} ({req.model}, {req.effort}, ticket {ticket_id})")
         else:
-            response, error = self._live(req, h, price)
+            response, error, rate_limit = self._live(req, h, price)
 
         usage = response.usage if response else Usage()
         cost = cost_usd(price, usage)
@@ -277,6 +285,7 @@ class LLMClient:
             output_tokens=usage.output_tokens,
             thinking_tokens=usage.thinking_tokens,
             latency_ms=response.latency_ms if response else 0.0,
+            queue_wait_ms=queue_wait_ms,
             cost_usd=cost,
             cost_usd_nocache=cost_usd_nocache(price, usage),
             stop_reason=response.stop_reason if response else None,
@@ -284,7 +293,7 @@ class LLMClient:
             error=error,
             replayed=replayed,
         )
-        return CallResult(response, call)
+        return CallResult(response, call, rate_limit)
 
     # -- live path
 
@@ -313,27 +322,34 @@ class LLMClient:
             "messages": [{"role": "user", "content": req.user}],
             "output_config": {"effort": req.effort},
         }
+        if req.output_schema is not None:
+            params["output_config"]["format"] = {"type": "json_schema", "schema": req.output_schema}
         if req.thinking == "adaptive":
             params["thinking"] = {"type": "adaptive"}
         return params
 
-    def _live(self, req: LLMRequest, h: str, price: ModelPrice) -> tuple[LLMResponse | None, str | None]:
+    def _live(
+        self, req: LLMRequest, h: str, price: ModelPrice
+    ) -> tuple[LLMResponse | None, str | None, RateLimitInfo | None]:
         import anthropic
 
         sdk = self._sdk_client()
         worst = worst_case_cost(price, req)
         self._require_clean_tree()
         guard(self.ledger, self.run_budget, "anthropic", worst)
-        t0 = time.perf_counter()
+        t0 = time.perf_counter()  # latency starts at send: budget guard and pacer waits are not included
         try:
             with sdk.messages.stream(**self.build_params(req)) as stream:
                 msg = stream.get_final_message()
+                rate_limit = rate_limit_from_headers(
+                    getattr(getattr(stream, "response", None), "headers", None)
+                )
         except anthropic.APIStatusError as e:
             settle(self.run_budget, "anthropic", worst, 0.0)
-            return None, f"{type(e).__name__} {e.status_code}: {_safe_error_message(e)}"
+            return None, f"{type(e).__name__} {e.status_code}: {_safe_error_message(e)}", _rate_limit_of(e)
         except anthropic.APIConnectionError as e:
             settle(self.run_budget, "anthropic", worst, 0.0)
-            return None, f"{type(e).__name__}"
+            return None, f"{type(e).__name__}", None
         latency_ms = (time.perf_counter() - t0) * 1000
         response = LLMResponse(
             text="".join(b.text for b in msg.content if b.type == "text"),
@@ -358,7 +374,38 @@ class LLMClient:
                 recorded_at=utcnow(),
             )
         )
-        return response, None
+        return response, None, rate_limit
+
+
+def _int(headers: Any, name: str) -> int | None:
+    try:
+        return int(headers.get(name))
+    except (TypeError, ValueError):
+        return None
+
+
+def rate_limit_from_headers(headers: Any) -> RateLimitInfo | None:
+    """Parse `anthropic-ratelimit-*` and `retry-after` response headers; None if there are none."""
+    if headers is None:
+        return None
+    try:
+        retry = float(headers.get("retry-after"))
+    except (TypeError, ValueError):
+        retry = None
+    info = RateLimitInfo(
+        requests_remaining=_int(headers, "anthropic-ratelimit-requests-remaining"),
+        requests_limit=_int(headers, "anthropic-ratelimit-requests-limit"),
+        input_tokens_remaining=_int(headers, "anthropic-ratelimit-input-tokens-remaining"),
+        output_tokens_remaining=_int(headers, "anthropic-ratelimit-output-tokens-remaining"),
+        tokens_remaining=_int(headers, "anthropic-ratelimit-tokens-remaining"),
+        retry_after_s=retry,
+    )
+    return info if info.model_dump(exclude_none=True) else None
+
+
+def _rate_limit_of(error: Exception) -> RateLimitInfo | None:
+    response = getattr(error, "response", None)
+    return rate_limit_from_headers(getattr(response, "headers", None))
 
 
 def usage_from_sdk(u: Any) -> Usage:

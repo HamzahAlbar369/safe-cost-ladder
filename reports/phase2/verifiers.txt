@@ -1,0 +1,90 @@
+run: matrix-dev-full-1 | split: dev | git: 1e92851739058a94f8e58e11419c856f24970127 | config_hash: 1201126a080c897a
+
+Verifier quality, V0-V2 (V3 second opinion is a Phase 3 policy layer, not measured here)
+FAR = false-accept rate = wrong answers that passed every check / wrong answers.
+FRR = false-reject rate = correct answers that failed a check / correct answers.
+Check columns count how many answers each check rejected (an answer can fail more than one check).
+
+task       config         wrong false acc     FAR   wrong caught V0/V1/V2  correct false rej     FRR  rejected by V0/V1/V2
+faq        haiku-high         0         0       -                   0/0/0      100         0    0.0%                 0/0/0
+faq        haiku-low          1         1  100.0%                   0/0/0       99         0    0.0%                 0/0/0
+faq        haiku-medium       0         0       -                   0/0/0      100         0    0.0%                 0/0/0
+faq        opus-high          0         0       -                   0/0/0      100         0    0.0%                 0/0/0
+faq        opus-low           0         0       -                   0/0/0      100         0    0.0%                 0/0/0
+faq        opus-medium        0         0       -                   0/0/0      100         0    0.0%                 0/0/0
+faq        sonnet-high        0         0       -                   0/0/0      100         0    0.0%                 0/0/0
+faq        sonnet-low         0         0       -                   0/0/0      100         0    0.0%                 0/0/0
+faq        sonnet-medium      0         0       -                   0/0/0      100         0    0.0%                 0/0/0
+faq        ALL 9              1         1  100.0%                              899         0    0.0%
+
+intent     haiku-high         0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+intent     haiku-low          3         3  100.0%                   0/0/0       57         0    0.0%                 0/0/0
+intent     haiku-medium       2         2  100.0%                   0/0/0       58         0    0.0%                 0/0/0
+intent     opus-high          0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+intent     opus-low           0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+intent     opus-medium        0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+intent     sonnet-high        0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+intent     sonnet-low         0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+intent     sonnet-medium      0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+intent     ALL 9              5         5  100.0%                              535         0    0.0%
+
+extract    haiku-high         0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+extract    haiku-low          1         1  100.0%                   0/0/0       59         0    0.0%                 0/0/0
+extract    haiku-medium       0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+extract    opus-high          0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+extract    opus-low           0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+extract    opus-medium        0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+extract    sonnet-high        0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+extract    sonnet-low         0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+extract    sonnet-medium      0         0       -                   0/0/0       60         0    0.0%                 0/0/0
+extract    ALL 9              1         1  100.0%                              539         0    0.0%
+
+adjudicate haiku-high         6         6  100.0%                   0/0/0      174         2    1.1%                 0/0/2
+adjudicate haiku-low          6         4   66.7%                   0/0/2      174         4    2.3%                 0/0/4
+adjudicate haiku-medium       5         4   80.0%                   0/0/1      175         3    1.7%                 0/0/3
+adjudicate opus-high          1         1  100.0%                   0/0/0      179         0    0.0%                 0/0/0
+adjudicate opus-low           1         1  100.0%                   0/0/0      179         0    0.0%                 0/0/0
+adjudicate opus-medium        1         1  100.0%                   0/0/0      179         0    0.0%                 0/0/0
+adjudicate sonnet-high        3         2   66.7%                   1/0/0      177         0    0.0%                 0/0/0
+adjudicate sonnet-low         6         3   50.0%                   1/0/2      174         8    4.6%                 0/0/8
+adjudicate sonnet-medium      5         3   60.0%                   2/0/0      175         2    1.1%                 0/0/2
+adjudicate ALL 9             34        25   73.5%                             1586        19    1.2%
+
+False rejects (correct answers rejected by a check)
+dev-0015  sonnet-low    adjudicate V2: payout 2500 but the formula on the stated inputs gives 3500
+dev-0047  sonnet-low    adjudicate V2: payout 8950 but the formula on the stated inputs gives 9700
+dev-0080  haiku-medium  adjudicate V2: payout 34150 but the formula on the stated inputs gives 34900
+dev-0080  sonnet-medium adjudicate V2: payout 34150 but the formula on the stated inputs gives 34900
+dev-0167  sonnet-low    adjudicate V2: payable decision without a payout reason
+dev-0168  haiku-medium  adjudicate V2: payout 28250 but the formula on the stated inputs gives 29000
+dev-0259  haiku-high    adjudicate V2: payout 57000 but the formula on the stated inputs gives 58000
+dev-0263  haiku-low     adjudicate V2: payout 40050 but the formula on the stated inputs gives 40300
+dev-0263  sonnet-low    adjudicate V2: payout 40050 but the formula on the stated inputs gives 40300
+dev-0266  sonnet-low    adjudicate V2: payable decision without a payout reason
+dev-0266  sonnet-medium adjudicate V2: payable decision without a payout reason
+dev-0277  sonnet-low    adjudicate V2: payable decision without a payout reason
+dev-0292  haiku-low     adjudicate V2: payout 23700 but the formula on the stated inputs gives 24700
+dev-0309  haiku-low     adjudicate V2: payout 12900 but the formula on the stated inputs gives 13400
+dev-0309  sonnet-low    adjudicate V2: payout 12900 but the formula on the stated inputs gives 13400
+dev-0334  sonnet-low    adjudicate V2: payout 16000 but the formula on the stated inputs gives 16500
+dev-0347  haiku-high    adjudicate V2: payout 19350 but the formula on the stated inputs gives 19600
+dev-0375  haiku-low     adjudicate V2: payable decision without a payout reason
+dev-0397  haiku-medium  adjudicate V2: payable decision without a payout reason
+
+haiku-low and haiku-medium adjudicate misses
+config        ticket    level lang design                    wrong fields      flagged by
+haiku-low     dev-0018  L4    ar   od_driver_unauthorised    decision          NOT FLAGGED (false accept)
+haiku-low     dev-0058  L4    en   od_violation_not_cause    decision          V2: payout 43050 but the formula on the stated inputs gives 43300; decision partial but the stated inputs give approve
+haiku-low     dev-0109  L4    ar   od_over_sum_insured       decision,payout   NOT FLAGGED (false accept)
+haiku-low     dev-0214  L5    ar   excluded_and_missing      decision          NOT FLAGGED (false accept)
+haiku-low     dev-0378  L4    en   od_driver_unauthorised    decision,payout   NOT FLAGGED (false accept)
+haiku-low     dev-0391  L3    en   od_comp_single_vehicle    decision,payout   V2: need_info without an R7 reason
+haiku-low: 6 adjudicate misses, 4 not flagged
+
+haiku-medium  dev-0058  L4    en   od_violation_not_cause    payout            NOT FLAGGED (false accept)
+haiku-medium  dev-0101  L5    en   excluded_and_missing      decision          NOT FLAGGED (false accept)
+haiku-medium  dev-0214  L5    ar   excluded_and_missing      decision          NOT FLAGGED (false accept)
+haiku-medium  dev-0334  L4    en   od_driver_authorised      decision          V2: decision partial but the stated inputs give approve
+haiku-medium  dev-0378  L4    en   od_driver_unauthorised    decision,payout   NOT FLAGGED (false accept)
+haiku-medium: 5 adjudicate misses, 4 not flagged
+

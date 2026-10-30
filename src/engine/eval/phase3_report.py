@@ -188,6 +188,48 @@ def o1_report(ctx: Context) -> str:
     return "\n".join(lines)
 
 
+ABLATIONS: dict[str, O1Options] = {
+    "O1 as specified (no deadline)": O1_DEFAULT.model_copy(update={"deadline_s": None}),
+    "drop V3 (haiku-low -> opus-low on a V0-V2 failure)": O1_DEFAULT.model_copy(update={"second": None}),
+    "drop V2 (V0-V1 + V3 only)": O1_DEFAULT.model_copy(update={"checks": ("V0", "V1")}),
+}
+
+
+def ablation_rows(ctx: Context) -> list[tuple[str, list[Outcome]]]:
+    return [(name, ctx.o1(o)[0]) for name, o in ABLATIONS.items()]
+
+
+def ablations_report(ctx: Context) -> str:
+    """Each O1 layer toggled off one at a time (SPEC 7.5), compared with O1 on the same tickets (paired)."""
+    base, _ = ctx.o1()
+    lines = [
+        "Ablations: one O1 layer off at a time, paired against O1 on the same 400 dev tickets",
+        "'saving' > 0 = the ablation is cheaper per successful task than O1 (the layer costs money and is kept only",
+        "if it is needed to meet a floor). Accuracy/success deltas are ablation - O1 (paired bootstrap 95% CI).",
+        "",
+        "O1 (all layers)",
+        *per_task_lines(base, ctx),
+    ]
+    for name, outs in ablation_rows(ctx):
+        lines += ["", *policy_block(name, outs, {"O1": base}, ctx)]
+        for task in ("adjudicate", None):
+            sel = [i for i, x in enumerate(outs) if task in (None, x.task)]
+            a = [float(outs[i].correct) for i in sel]
+            b = [float(base[i].correct) for i in sel]
+            sa = [float(outs[i].success) for i in sel]
+            sb = [float(base[i].success) for i in sel]
+            sub = B.resample_indices(len(sel))
+            lo, hi = B.paired_mean_diff_ci(a, b, sub)
+            slo, shi = B.paired_mean_diff_ci(sa, sb, sub)
+            lines.append(
+                f"    {task or 'overall'}: accuracy delta {(sum(a) - sum(b)) / len(sel):+.3f} [{lo:+.3f}, {hi:+.3f}]  "
+                f"success delta {(sum(sa) - sum(sb)) / len(sel):+.3f} [{slo:+.3f}, {shi:+.3f}]  "
+                f"correct {int(sum(a))} vs {int(sum(b))}"
+            )
+        lines += [f"    per task ({name})", *per_task_lines(outs, ctx)]
+    return "\n".join(lines)
+
+
 def write(run_id: str, reports: dict[str, callable], out: Path = OUT) -> list[Path]:
     out.mkdir(parents=True, exist_ok=True)
     header = f"run: {run_id} | split: dev | git: {runinfo.git_sha()} | config_hash: {config_hash()}\n\n"
@@ -200,4 +242,4 @@ def write(run_id: str, reports: dict[str, callable], out: Path = OUT) -> list[Pa
     return paths
 
 
-REPORTS = {"o1.txt": o1_report}
+REPORTS = {"o1.txt": o1_report, "ablations.txt": ablations_report}

@@ -138,3 +138,8 @@ def test_o1_on_the_committed_dev_matrix():
     assert _meets(outs, ctx.floors)
     no_deadline, _ = ctx.o1(O1Options(deadline_s=None))
     assert sum(o.correct for o in no_deadline if o.task == "adjudicate") == 178
+    # ablations (reports/phase3/ablations.txt): V3 and V2 are each needed for the adjudicate floor
+    for opts, correct in ((O1Options(second=None), 176), (O1Options(checks=("V0", "V1")), 177)):
+        outs, _ = ctx.o1(opts)
+        assert sum(o.correct for o in outs if o.task == "adjudicate") == correct
+        assert not _meets(outs, ctx.floors)

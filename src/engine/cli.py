@@ -188,6 +188,7 @@ def matrix(
     estimate_only: bool = typer.Option(False, "--estimate", help="Print the estimate and exit."),
     cap_anthropic: float = typer.Option(0.0, help="Approved Anthropic spend cap for this run (USD)."),
     concurrency: int = typer.Option(6, help="Max calls in flight per model (the pacer adapts below it)."),
+    repeat: int = typer.Option(0, help="Recording epoch: a different value records everything afresh."),
     yes: bool = typer.Option(False, "--yes", help="Confirm the estimate was approved; required to spend."),
 ) -> None:
     """Record the 9-config matrix (SPEC §7.4): paid, resumable, paced by the API rate-limit headers."""
@@ -210,9 +211,10 @@ def matrix(
     run_id = run_id or f"matrix-{split}-{subset}-" + utcnow().strftime("%Y%m%dT%H%M%SZ")
     done = M.load_done(M.runs_dir(run_id) / "calls.jsonl")
     cells = [c for c in M.plan_cells(tickets) if (c[0].id, pricebook().config_id(c[1], c[2])) not in done]
-    live = M.pending_live(cells, CassetteStore(), done)
+    live = M.pending_live(cells, CassetteStore(), done, repeat)
     est = E.estimate_requests(
-        [(t.task_type, M.build_request(t, m, e)) for t, m, e in live], concurrency=3 * concurrency
+        [(t.task_type, M.build_request(t, m, e, repeat=repeat)) for t, m, e in live],
+        concurrency=3 * concurrency,
     )
     typer.echo(
         f"run {run_id}: {len(tickets)} tickets, {len(cells)} cells to do, {len(cells) - len(live)} replayable"
@@ -230,6 +232,7 @@ def matrix(
         run_id=run_id,
         cap_usd=cap_anthropic,
         per_model_concurrency=concurrency,
+        repeat=repeat,
         git_sha=runinfo.git_sha(),
         progress=typer.echo,
     )
@@ -237,6 +240,17 @@ def matrix(
     if summary.n_errors:
         typer.echo(f"{summary.n_errors} cells have no response: re-run with --run-id {run_id} to retry them.")
         raise typer.Exit(1)
+
+
+@app.command("cells-report")
+def cells_report(
+    run_id: str = typer.Argument(..., help="matrix run id, e.g. matrix-dev-pilot-1"),
+    split: str = typer.Option("dev"),
+) -> None:
+    """Parse rate, accuracy per config and task, cost and latency of a recorded matrix run (replay only)."""
+    from engine.eval.report_text import format_report
+
+    typer.echo(format_report(run_id, split))
 
 
 @app.command()

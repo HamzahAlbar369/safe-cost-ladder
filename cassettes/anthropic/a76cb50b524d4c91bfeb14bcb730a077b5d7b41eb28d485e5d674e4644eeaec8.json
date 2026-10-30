@@ -1,0 +1,52 @@
+{
+ "request_hash": "a76cb50b524d4c91bfeb14bcb730a077b5d7b41eb28d485e5d674e4644eeaec8",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: intent\n\n<ticket>\n[طلب عبر الموقع]\nنص الطلب: أقود سيارة Toyota Camry 2021. أكتب إليكم من الرياض. أرغب في إضافة زوجتي سائقةً مسمّاة على الوثيقة OMI-6625336.\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"policy_change\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 116,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 14,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 804.9,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:17:59.550141Z"
+}

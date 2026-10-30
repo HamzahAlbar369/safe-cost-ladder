@@ -45,8 +45,8 @@
    "output_tokens": 15,
    "thinking_tokens": 0
   },
-  "latency_ms": 1560.0,
+  "latency_ms": 1489.9,
   "served_model": "claude-opus-5-5"
  },
- "recorded_at": "2026-10-30T18:54:29.823211Z"
+ "recorded_at": "2026-10-30T19:18:30.928874Z"
 }

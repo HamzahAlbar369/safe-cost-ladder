@@ -4,7 +4,7 @@ Labels follow SPEC §7.5: "Cost with caching (actual)" and "Cost without caching
 Input tokens: the expected figure uses 2.6 UTF-8 bytes/token on the static prefix (measured in probe
 probe-20261030T185356Z: ~7.2K cached tokens for the 19 KB system block plus schema) and 2 bytes/token on the
 (partly Arabic) ticket; the worst case uses 2 bytes/token everywhere. Output tokens
-(thinking included) are an ASSUMPTION per task and effort until the pilot measures them; the worst case
+(thinking included) are taken from the measured pilot means (matrix-dev-pilot-1); the worst case
 is every call hitting max_tokens.
 """
 
@@ -20,8 +20,29 @@ from engine.llm.client import estimate_tokens, worst_case_cost
 from engine.llm.pricing import PER_MTOK, PriceBook, pricebook
 
 PREFIX_BYTES_PER_TOKEN = 2.6
-EXPECTED_OUT_BY_TASK: dict[str, int] = {"faq": 80, "intent": 80, "extract": 200, "adjudicate": 500}
-EFFORT_OUT_FACTOR = {"low": 1.0, "medium": 1.3, "high": 1.6}
+# Mean output tokens (thinking included) per model / task / effort, MEASURED in run matrix-dev-pilot-1 (40 dev
+# tickets). Replaces the earlier per-task assumption; used for estimates only, never for reported costs.
+MEASURED_OUT: dict[str, dict[str, dict[str, int]]] = {
+    "haiku": {
+        "adjudicate": {"high": 1316, "low": 862, "medium": 1001},
+        "extract": {"high": 171, "low": 77, "medium": 137},
+        "faq": {"high": 48, "low": 15, "medium": 24},
+        "intent": {"high": 32, "low": 15, "medium": 22},
+    },
+    "sonnet": {
+        "adjudicate": {"high": 454, "low": 223, "medium": 330},
+        "extract": {"high": 59, "low": 59, "medium": 59},
+        "faq": {"high": 15, "low": 10, "medium": 14},
+        "intent": {"high": 23, "low": 15, "medium": 15},
+    },
+    "opus": {
+        "adjudicate": {"high": 372, "low": 205, "medium": 345},
+        "extract": {"high": 79, "low": 59, "medium": 59},
+        "faq": {"high": 10, "low": 10, "medium": 10},
+        "intent": {"high": 15, "low": 15, "medium": 15},
+    },
+}
+EFFORT_OUT_FACTOR = {"low": 1.0, "medium": 1.3, "high": 1.6}  # latency scaling only
 EXPECTED_LATENCY_S = {"faq": 2.0, "intent": 2.0, "extract": 3.0, "adjudicate": 6.0}  # per call, assumption
 
 
@@ -35,8 +56,8 @@ class Estimate(BaseModel):
     assumptions: dict[str, str]
 
 
-def expected_output_tokens(task: TaskType, effort: str) -> int:
-    return round(EXPECTED_OUT_BY_TASK[task] * EFFORT_OUT_FACTOR[effort])
+def expected_output_tokens(model: str, task: TaskType, effort: str) -> int:
+    return MEASURED_OUT[model.split("-")[1]][task][effort]
 
 
 def estimate_requests(
@@ -53,7 +74,7 @@ def estimate_requests(
         p = prices.price(req.model)
         prefix = math.ceil(len(req.system.encode("utf-8")) / PREFIX_BYTES_PER_TOKEN)
         user = estimate_tokens(req.user)
-        out = expected_output_tokens(task, req.effort) * p.output
+        out = expected_output_tokens(req.model, task, req.effort) * p.output
         write = (req.model, task) not in warmed
         warmed.add((req.model, task))
         c = (prefix * (p.cache_write_5m if write else p.cache_read) + user * p.input + out) / PER_MTOK
@@ -71,7 +92,7 @@ def estimate_requests(
         per_model=dict(per_model),
         assumptions={
             "input_tokens": "static prefix 2.6 bytes/token (measured), ticket 2 bytes/token (worst case: 2)",
-            "output_tokens": f"assumed {EXPECTED_OUT_BY_TASK} x effort {EFFORT_OUT_FACTOR} (incl. thinking)",
+            "output_tokens": "measured means per model/task/effort from matrix-dev-pilot-1 (incl. thinking)",
             "cache": "one write per (model, task): the schema is in the cached prefix (D2.3); TTL ignored",
             "latency": f"assumed {EXPECTED_LATENCY_S} s/call, divided by concurrency {concurrency}",
             "worst": "no cache reads, every call hits max_tokens",

@@ -165,3 +165,26 @@ def test_pending_live_skips_recorded_cassettes(tmp_path, tmp_store, tmp_ledger):
     other = [t for t in load_split("dev") if t.task_type == "intent"][:1]
     assert len(M.pending_live(M.plan_cells(other), tmp_store, set())) == 9
     assert tmp_store.get("anthropic", request_hash(build_request(*cells[0])))
+
+
+def test_epoch_repeat_changes_every_cassette_key_and_connections_are_prewarmed(
+    tmp_path, tmp_store, tmp_ledger
+):
+    t = [x for x in load_split("dev") if x.task_type == "faq"][:1]
+    a, b = (
+        build_request(t[0], "claude-opus-5-5", "low"),
+        build_request(t[0], "claude-opus-5-5", "low", repeat=1),
+    )
+    assert request_hash(a) != request_hash(b)
+
+    class Models:
+        def __init__(self):
+            self.n = 0
+
+        def retrieve(self, _id):
+            self.n += 1
+
+    fake = FakeAnthropic(text='{"answer": "yes"}')
+    fake.models = Models()
+    run(tmp_path, tmp_store, tmp_ledger, t, fake)
+    assert fake.models.n == 2 * 3  # per-model concurrency x 3 models, once per run

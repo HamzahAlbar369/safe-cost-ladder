@@ -74,13 +74,15 @@ def plan_cells(tickets: list[Ticket]) -> list[Cell]:
     return [(t, model, effort) for t in order for model, effort, _ in configs()]
 
 
-def pending_live(cells: list[Cell], store: CassetteStore, done: set[tuple[str, str]]) -> list[Cell]:
+def pending_live(
+    cells: list[Cell], store: CassetteStore, done: set[tuple[str, str]], repeat: int = 0
+) -> list[Cell]:
     prices = pricebook()
     return [
         c
         for c in cells
         if (c[0].id, prices.config_id(c[1], c[2])) not in done
-        and store.get("anthropic", request_hash(build_request(*c))) is None
+        and store.get("anthropic", request_hash(build_request(*c, repeat=repeat))) is None
     ]
 
 
@@ -120,6 +122,7 @@ def run_matrix(
     run_id: str,
     cap_usd: float,
     per_model_concurrency: int,
+    repeat: int = 0,
     git_sha: str,
     progress: Callable[[str], None] = print,
     store: CassetteStore | None = None,
@@ -142,9 +145,14 @@ def run_matrix(
     rules = load_version("v1")
     pacers = {m: Pacer(per_model_concurrency) for m, _, _ in configs()}
     sink = _Sink(calls_path)
-    live_cells = pending_live(cells, store, done) if mode != "replay" else []
+    live_cells = pending_live(cells, store, done, repeat) if mode != "replay" else []
     if live_cells:
-        _warm_up(live_cells, make_client("live"), sink, progress)
+        warm_client = make_client("live")
+        setup_ms = warm_client.warm_connections(per_model_concurrency * len(pacers))
+        if setup_ms:
+            median = sorted(setup_ms)[len(setup_ms) // 2]
+            progress(f"  warmed {len(setup_ms)} connections (setup median {median:.0f} ms)")
+        _warm_up(live_cells, warm_client, sink, progress)
 
     counts: Counter[str] = Counter()
     lock = threading.Lock()
@@ -154,7 +162,7 @@ def run_matrix(
         if stop.is_set():
             return
         ticket, model, effort = cell
-        req = build_request(ticket, model, effort)
+        req = build_request(ticket, model, effort, repeat=repeat)
 
         def valid(text: str) -> bool:
             return check_format(ticket.task_type, text, rules, stop_reason="end_turn").passed

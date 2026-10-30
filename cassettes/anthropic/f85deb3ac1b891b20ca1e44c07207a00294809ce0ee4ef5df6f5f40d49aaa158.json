@@ -1,0 +1,53 @@
+{
+ "request_hash": "f85deb3ac1b891b20ca1e44c07207a00294809ce0ee4ef5df6f5f40d49aaa158",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nHello,\nQuick question about policy OMI-0284918. What is the deductible on my comprehensive policy?\nThank you,\nNoura\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":1000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 70,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 10,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1838.5,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:18:11.845203Z"
+}

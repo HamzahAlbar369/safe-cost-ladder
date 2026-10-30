@@ -40,13 +40,13 @@
   "stop_reason": "end_turn",
   "usage": {
    "input_tokens": 125,
-   "cache_creation_tokens": 7236,
-   "cache_read_tokens": 0,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
    "output_tokens": 15,
    "thinking_tokens": 0
   },
-  "latency_ms": 2063.9,
+  "latency_ms": 1323.0,
   "served_model": "claude-sonnet-5-5"
  },
- "recorded_at": "2026-10-30T18:54:09.500212Z"
+ "recorded_at": "2026-10-30T19:18:30.461932Z"
 }

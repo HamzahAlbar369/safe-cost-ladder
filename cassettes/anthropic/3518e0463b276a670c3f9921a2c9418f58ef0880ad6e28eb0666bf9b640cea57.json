@@ -1,0 +1,93 @@
+{
+ "request_hash": "3518e0463b276a670c3f9921a2c9418f58ef0880ad6e28eb0666bf9b640cea57",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nhi\nI'm insured with you under policy OMI-1341071 (comprehensive (COMP)), which runs until 23/05/2026.\nA few days ago another car hit mine in Taif, and it turned out the other driver had no insurance.\nThe report puts me at 25% fault.\nI am reporting this claim to you on 28/03/2026.\nMy phone number is 0535729328.\nThank God nobody was hurt.\nMy car is a Toyota Land Cruiser 2018.\npls help\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-1341071\",\"accident_date\":null,\"report_number\":null,\"damage_amount_sar\":null,\"fault_share\":25}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 183,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 52,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1682.0,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:18:10.730098Z"
+}

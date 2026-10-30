@@ -18,7 +18,9 @@ def _schema(task: TaskType, version: str) -> dict[str, Any]:
     return schema_for(task, load_version(version))  # parsed once: the matrix builds thousands of requests
 
 
-def build_request(ticket: Ticket, model: str, effort: Effort, version: str = "v1") -> LLMRequest:
+def build_request(
+    ticket: Ticket, model: str, effort: Effort, version: str = "v1", repeat: int = 0
+) -> LLMRequest:
     return LLMRequest(
         model=model,
         effort=effort,
@@ -29,6 +31,7 @@ def build_request(ticket: Ticket, model: str, effort: Effort, version: str = "v1
         output_schema=_schema(ticket.task_type, version),
         thinking="adaptive",
         cache=True,
+        repeat=repeat,
     )
 
 

@@ -45,8 +45,8 @@
    "output_tokens": 65,
    "thinking_tokens": 50
   },
-  "latency_ms": 2037.8,
+  "latency_ms": 1528.7,
   "served_model": "claude-sonnet-5-5"
  },
- "recorded_at": "2026-10-30T18:54:24.356122Z"
+ "recorded_at": "2026-10-30T19:18:30.770150Z"
 }

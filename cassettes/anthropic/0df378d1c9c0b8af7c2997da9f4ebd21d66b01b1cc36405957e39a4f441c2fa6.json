@@ -1,0 +1,53 @@
+{
+ "request_hash": "0df378d1c9c0b8af7c2997da9f4ebd21d66b01b1cc36405957e39a4f441c2fa6",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nCall note: customer Saad phoned the claims line.\nMy friend told me something different, so I want to check.\nI'm thinking about my cover before a trip to Taif.\nWhat is the deductible on my comprehensive policy?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":1000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 93,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 10,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 2078.0,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:18:29.167023Z"
+}

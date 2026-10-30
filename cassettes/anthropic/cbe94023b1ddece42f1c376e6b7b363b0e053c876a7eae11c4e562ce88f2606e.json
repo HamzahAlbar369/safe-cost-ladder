@@ -1,0 +1,53 @@
+{
+ "request_hash": "cbe94023b1ddece42f1c376e6b7b363b0e053c876a7eae11c4e562ce88f2606e",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nهلا والله، السلام عليكم\nأنا من عملائكم في الرياض.\nقريبي يعتبر سواق مسموح له بالشامل؟\nالله يعطيكم العافية\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 90,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 62,
+   "thinking_tokens": 50
+  },
+  "latency_ms": 2208.5,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T19:18:36.873931Z"
+}

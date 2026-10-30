@@ -1,0 +1,32 @@
+{
+ "manifest": {
+  "run_id": "matrix-dev-pilot-1",
+  "git_sha": "a75a9ce4e0837cf5cfc5dffc6c8b7fde324e0802",
+  "config_hash": "1201126a080c897a",
+  "split": "dev",
+  "policies": [
+   "matrix"
+  ],
+  "created_at": "2026-10-30T19:19:05.232921Z",
+  "spend_usd": {
+   "anthropic": 1.279278
+  }
+ },
+ "summary": {
+  "run_id": "matrix-dev-pilot-1",
+  "split": "dev",
+  "n_cells": 360,
+  "n_recorded": 360,
+  "n_replayed": 0,
+  "n_live": 360,
+  "n_errors": 0,
+  "parse_rate": 1.0,
+  "spend_usd": 1.279278,
+  "rate_limited": {
+   "claude-haiku-5-5": 0,
+   "claude-sonnet-5-5": 0,
+   "claude-opus-5-5": 0
+  },
+  "wall_s": 98.4
+ }
+}

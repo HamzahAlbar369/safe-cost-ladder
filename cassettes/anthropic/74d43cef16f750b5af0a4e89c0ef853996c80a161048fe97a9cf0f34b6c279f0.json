@@ -42,11 +42,11 @@
    "input_tokens": 125,
    "cache_creation_tokens": 0,
    "cache_read_tokens": 7236,
-   "output_tokens": 118,
-   "thinking_tokens": 103
+   "output_tokens": 115,
+   "thinking_tokens": 100
   },
-  "latency_ms": 1265.5,
+  "latency_ms": 1420.2,
   "served_model": "claude-haiku-5-5"
  },
- "recorded_at": "2026-10-30T18:54:27.899703Z"
+ "recorded_at": "2026-10-30T19:18:30.680240Z"
 }

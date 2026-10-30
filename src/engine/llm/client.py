@@ -13,6 +13,7 @@ import threading
 import time
 import uuid
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any, Literal
 
@@ -303,6 +304,22 @@ class LLMClient:
 
             self._sdk = anthropic.Anthropic(api_key=load_key("ANTHROPIC_API_KEY"), max_retries=1)
         return self._sdk
+
+    def warm_connections(self, n: int) -> list[float]:
+        """Open `n` HTTPS connections with free GET /v1/models calls, so no recorded call pays the ~6 s
+        TCP/TLS setup (measured from Saudi Arabia, D2.7). Returns the milliseconds each took. No tokens and
+        no ledger entry."""
+        models = getattr(self._sdk_client(), "models", None)
+        if models is None or n <= 0:
+            return []
+
+        def one(_: int) -> float:
+            t0 = time.perf_counter()
+            models.retrieve("claude-haiku-5-5")
+            return (time.perf_counter() - t0) * 1000
+
+        with ThreadPoolExecutor(max_workers=n) as pool:
+            return list(pool.map(one, range(n)))
 
     def _require_clean_tree(self) -> None:
         if not self._tree_ok:

@@ -502,3 +502,23 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   `git_sha()` use it. Anything else (code, prompts, config, data, docs) still blocks a paid run and marks the SHA
   `-dirty`. Run outputs cannot change which code or prompts a run used, which is what the rule protects.
 - **Evidence:** `tests/test_runinfo.py::test_harness_outputs_do_not_make_the_tree_dirty`.
+
+### D2.7 · Pilot result (run `matrix-dev-pilot-1`, 40 stratified dev tickets x 9 configs = 360 cells); connection cold start found
+- **Run:** approved cap $5.00; spend **$1.279278** = $1.0398 for the 360 cells (Cost with caching (actual); Cost
+  without caching (headline) $6.4194) + $0.2395 for 12 cache warm-up calls (excluded from every metric). Estimate
+  was $2.03 (with caching) / $6.82 (without). 0 errors, 0 rate-limit (429) hits, 0 truncations, parse rate 100%,
+  wall clock 98 s at 6 in flight per model. All 360 calls read the cache; max output seen 2,707 tokens (cap 6,144).
+- **Accuracy:** 358/360 correct. The only two misses are the same ticket (dev-0168, an L4 over-sum-insured own-damage
+  case with subrogation): `sonnet-low` got the decision wrong, `haiku-medium` the payout wrong. Both accuracy and the
+  verifiers are far from discriminating at n = 40; the full 400 is needed. The V0-V2 verifiers agreed with the grader
+  on 358/360 cells: 1 wrong answer passed all checks (the payout error), 1 right answer was rejected.
+- **Effort effect on output tokens (mean, adjudicate):** Haiku 862 / 1,001 / 1,316 (low / medium / high), Sonnet
+  223 / 330 / 454, Opus 205 / 345 / 372; Opus and Sonnet wrote almost no thinking on faq / intent / extract.
+- **Finding (latency artifact):** the ~21 earliest-completed pilot calls took 6-7 s even for faq / extract (median 1.4-1.6 s),
+  which inflates p95. Cause, measured with free `GET /v1/models` calls (18 parallel): the first request on each new
+  connection takes 5.8-7.4 s from Saudi Arabia (TCP/TLS setup), later requests 0.27-0.40 s. The runner now
+  opens its connection pool with free calls before any recorded call (`LLMClient.warm_connections`), so recorded
+  latency excludes connection setup. Pilot latencies are therefore NOT usable for budgets; the dev matrix is
+  recorded afresh (`--repeat 1` gives every request a new cassette key; the pilot stays on disk as evidence).
+- **Estimator recalibrated** from the measured output means per model / task / effort (`eval/estimate.py`); the
+  full dev matrix now estimates $10.76 with caching / $61.46 without.

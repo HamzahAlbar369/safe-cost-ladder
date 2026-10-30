@@ -1,0 +1,53 @@
+{
+ "request_hash": "912a839d2a4ba6c448049583222c9cda9975941497f1a24412df6ce7f897f8ee",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nملخص الموظف - مكالمة من دانة.\nأخبرني صديقي بشيء مختلف فأردت التأكد.\nكم مبلغ التحمل في وثيقتي الشاملة؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 1000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 96,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 93,
+   "thinking_tokens": 82
+  },
+  "latency_ms": 1232.8,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:18:58.650944Z"
+}

@@ -124,3 +124,6 @@ simplest thing that passes the gate · negative results reported honestly.
 - If the spec is ambiguous or a gate cannot pass, stop and ask — never guess, mock, or fake data.
 - Time pressure → follow the cut order: router experiment → scenario switcher → audit sampling →
   bring-your-own-tasks. Never cut: held-out protocol, replay, report, secret hygiene.
+- Human sign-off required (stop and wait for Hamzah's explicit OK) before: starting each phase's
+  build, every paid run, tagging floors-v1, tagging freeze-*, running engine final, and marking
+  any phase done. At each gate, list the human checks for that phase from SPEC §11.9.

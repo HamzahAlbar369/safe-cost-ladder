@@ -54,6 +54,7 @@ def gold_as_output(t: Ticket) -> dict:
     return gold
 
 
+@pytest.mark.slow
 @pytest.mark.parametrize("split", SPLITS)
 def test_every_gold_validates_against_its_schema_and_grades_100_percent(split):
     """Assertions compare counts only, so a failure prints neither ids nor values (held-out stays unseen)."""

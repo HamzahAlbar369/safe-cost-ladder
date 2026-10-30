@@ -102,6 +102,7 @@ uv run engine final                 # held-out run (freeze-* tag only)
 uv run engine report                # build reports/report.html from runs
 uv run engine demo --replay         # judge-facing demo, no API key needed
 uv run engine check                 # ruff + pytest + replay integrity + gitleaks (before EVERY commit)
+uv run engine check --fast          # ruff + non-slow tests: WIP commits only; never for tags/gates (D3.1)
 ```
 
 ## Phases (gates in SPEC §10 — a phase is done only when its gate passes,

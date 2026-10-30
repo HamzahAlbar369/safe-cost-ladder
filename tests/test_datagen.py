@@ -300,6 +300,7 @@ def test_policy_documents_have_no_unresolved_placeholders():
     assert qa.policy_documents()["pass"]
 
 
+@pytest.mark.slow
 def test_wording_change_stays_local_to_the_items_that_use_it(monkeypatch):
     """Per-slot RNG streams (D1.11): swapping the third-party document wording changes only third-party claim
     texts; no gold label, id or other item moves."""

@@ -561,3 +561,15 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
 - **Spend approved:** $12.26 (ledger `runs/spend.jsonl`).
 - **Frozen:** `config/policy.yaml` (`status: frozen`, derived from `matrix-dev-full-1`) committed and tagged
   `floors-v1` before Phase 3. Changing floors, budgets or the keep/drop rule afterwards needs a new decision entry.
+
+## Phase 3 — Layers & router (2026-10-31)
+
+### D3.1 · `engine check --fast` for work-in-progress commits (approved by Hamzah)
+- **Decision:** `engine check --fast` = ruff + pytest excluding tests marked `slow` (committed-matrix replay,
+  full data regeneration); it skips the replay-integrity and gitleaks steps. Allowed for work-in-progress commits
+  only. The full `engine check` stays mandatory before any tag and at every phase gate, and the fast run labels
+  its result "not valid for tags or phase gates".
+- **Why:** the full pytest suite alone took over 10 minutes on this machine (2026-10-31), which made checking
+  before every commit impractical in the time left.
+- **Remote:** pushed to the private origin on 2026-10-31 (fast-forward `33f03e1..0196989`, tag `floors-v1`);
+  `git ls-remote` shows remote `main` and `floors-v1` at `0196989`.

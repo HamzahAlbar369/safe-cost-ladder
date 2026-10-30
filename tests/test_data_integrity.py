@@ -28,6 +28,7 @@ def test_files_match_manifest_hashes():
     assert m["heldout_sealed"]["sha256"] == m["files"]["heldout.jsonl"]["sha256"]
 
 
+@pytest.mark.slow
 def test_generator_reproduces_committed_data_byte_for_byte():
     m = _manifest()
     regenerated = G.generate()

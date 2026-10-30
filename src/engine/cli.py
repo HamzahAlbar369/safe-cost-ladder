@@ -360,11 +360,15 @@ def replay_check(
 
 
 @app.command()
-def check() -> None:
+def check(
+    fast: bool = typer.Option(
+        False, "--fast", help="ruff + tests not marked slow only (WIP commits; never for tags or phase gates)"
+    ),
+) -> None:
     """ruff + pytest + replay integrity + gitleaks (run before every commit)."""
     from engine.check import run_all
 
-    if not run_all():
+    if not run_all(fast=fast):
         raise typer.Exit(1)
 
 

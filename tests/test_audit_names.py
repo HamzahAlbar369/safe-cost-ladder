@@ -1,8 +1,11 @@
 """Name-collision audit: the driver clash is structural, the held-out audit never exposes ids."""
 
+import pytest
+
 from engine.datagen.audit_names import audit, format_audit
 
 
+@pytest.mark.slow
 def test_audit_counts_and_heldout_ids_are_never_exposed():
     counts, ids = audit()
     for split in ("dev", "heldout", "shifted"):

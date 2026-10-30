@@ -9,6 +9,7 @@ from engine.llm.pricing import ROOT
 RUN = "matrix-dev-full-1"
 
 
+@pytest.mark.slow
 @pytest.mark.skipif(not (ROOT / "runs" / RUN / "calls.jsonl").exists(), reason="dev matrix not recorded")
 def test_dev_matrix_replays_exactly_and_covers_every_cell():
     tickets = load_split("dev")
@@ -19,6 +20,7 @@ def test_dev_matrix_replays_exactly_and_covers_every_cell():
     assert problems == [] and len(cells) == len(tickets) * 9
 
 
+@pytest.mark.slow
 def test_frozen_policy_yaml_matches_the_floors_derived_from_the_committed_matrix():
     """Once config/policy.yaml is frozen (floors-v1) it must stay exactly what the dev matrix gives under the
     premium budget rule; changing floors or budgets needs a new decision, not a quiet edit."""

@@ -32,6 +32,11 @@ def pytest() -> Result:
     return _run([sys.executable, "-m", "pytest", "-q"])
 
 
+def pytest_fast() -> Result:
+    """Tests not marked `slow` (matrix replay, data regeneration, gold scans): for WIP commits."""
+    return _run([sys.executable, "-m", "pytest", "-q", "-m", "not slow"])
+
+
 def replay_integrity() -> Result:
     """Cassettes are self-consistent, every recorded call has a cassette, and smoke replays exactly."""
     store = CassetteStore()
@@ -135,14 +140,23 @@ STEPS: list[tuple[str, Callable[[], Result]]] = [
 ]
 
 
-def run_all() -> bool:
+# D3.1: ruff + fast tests only. Work-in-progress commits may use it; the full check stays mandatory before
+# any tag and at every phase gate.
+FAST_STEPS: list[tuple[str, Callable[[], Result]]] = [
+    ("ruff", ruff),
+    ("pytest (not slow)", pytest_fast),
+]
+
+
+def run_all(fast: bool = False) -> bool:
     all_ok = True
-    for name, fn in STEPS:
+    for name, fn in FAST_STEPS if fast else STEPS:
         ok, out = fn()
         all_ok &= ok
         print(f"[{'PASS' if ok else 'FAIL'}] {name}")
         if not ok or name in ("replay integrity",):
             for line in out.splitlines():
                 print(f"    {line}")
-    print("engine check: " + ("GREEN" if all_ok else "RED"))
+    label = "engine check --fast (not valid for tags or phase gates)" if fast else "engine check"
+    print(f"{label}: " + ("GREEN" if all_ok else "RED"))
     return all_ok

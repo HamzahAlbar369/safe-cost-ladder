@@ -1,0 +1,5 @@
+# Generated data and rendered documents are hashed (MANIFEST.json, policy drift test): keep bytes identical
+# on every OS so a fresh clone reproduces the hashes exactly (SPEC §11.6).
+data/generated/** -text
+data/rules/*.md text eol=lf
+data/review/*.md text eol=lf

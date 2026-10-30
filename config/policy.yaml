@@ -1,9 +1,10 @@
-status: proposed
+status: frozen
 derived_from:
   runs:
   - matrix-dev-full-1
-  git_sha: 7ab4c84a1dbef5ead6177c10ec4b3dd20d13a95d
+  git_sha: 3c555a6f8cccfde4f1e24a8c5357dbccdbb479a9
   split: dev
+budget_rule: premium
 floors:
   faq:
     accuracy: 0.98
@@ -22,6 +23,11 @@ latency_budget_s:
   intent: 4.5
   extract: 3.5
   adjudicate: 8.5
+latency_budget_config:
+  faq: opus-high
+  intent: opus-high
+  extract: opus-high
+  adjudicate: opus-high
 cost_of_error_usd:
   faq: 0.5
   intent: 0.5

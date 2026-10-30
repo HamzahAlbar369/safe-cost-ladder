@@ -1,0 +1,24 @@
+run: matrix-dev-full-1 | split: dev | git: 3c555a6f8cccfde4f1e24a8c5357dbccdbb479a9 | config_hash: 1201126a080c897a
+
+                                                                                       dev   heldout   shifted
+tickets                                                                                400       400       200
+adjudicate tickets                                                                     180       180        90
+tickets with a non-insured driver named                                                  9         5         5
+  driver shares the caller's first name (by construction)                                9         5         5
+  ... and the caller's name also appears elsewhere (visible clash)                       4         1         0
+gold depends on who was driving (driver is not the policyholder)                         9         5         5
+  ... of which gold = deny because the driver is unauthorised                            5         2         3
+  ... of which the clash is visible                                                      4         1         0
+  ... unauthorised-driver tickets with a visible clash                                   2         0         0
+third-party claims where claimant and caller share a name (independent draw)             6         5         2
+  ... and the clash is visible                                                           4         1         2
+
+Held-out is reported as counts only; ticket ids are listed for dev and shifted.
+dev tickets with a visible clash (8): dev-0033, dev-0047, dev-0067, dev-0242, dev-0252, dev-0305, dev-0356, dev-0378
+shifted tickets with a visible clash (2): shifted-0132, shifted-0182
+
+Dev outcome on the 8 visible-clash tickets vs other adjudicate tickets (all efforts)
+model     clash n  clash acc  other n  other acc
+haiku          24      0.875      516      0.973
+sonnet         24      0.833      516      0.981
+opus           24      0.917      516      0.998

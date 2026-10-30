@@ -450,3 +450,26 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
 - Held-out cannot be loaded through `eval.data.load_split` (raises `SealedSplit`); only `engine final` will read it.
 - `engine probe` (24 calls: 4 dev items x 3 models x efforts low/high) is built; its requests are ordinary matrix
   requests, so their cassettes will be reused. Not yet run: awaiting Hamzah's sign-off on the estimate.
+
+### D2.3 · Entry probe result: structured outputs + effort + adaptive thinking work on all 9 configs (Phase 2 entry check passed)
+- **Run:** `probe-20261030T185356Z` (`runs/probe-20261030T185356Z/{calls.jsonl,summary.json}`), approved cap $1.50,
+  spend **$0.294078** (Cost with caching (actual)); Cost without caching (headline) $0.422902; estimate was
+  $0.126 (worst case $1.41). The estimator was recalibrated from this run (now $0.312 for the same 24 calls).
+  The summary's `git_sha` was hand-corrected from `...-dirty` to the clean HEAD: the tree was clean at launch and
+  was dirtied only by the run's own output files; the code now reads the SHA before the run writes anything.
+- **Result:** 24/24 calls accepted with `output_config.format` + `output_config.effort` + `thinking: adaptive`
+  (3 models x efforts low/high x 4 task schemas), all `end_turn`, all JSON schema-valid, no truncations, no
+  errors; all 24 also graded correct (informational: n is too small to compare configs).
+- **Max output seen (thinking included):** 1,727 tokens (`haiku-high`, adjudicate; 1,599 of them thinking), against
+  the 6,144 cap. Opus and Sonnet often wrote 0 thinking tokens on faq / intent / extract; Haiku thought on most.
+- **Finding 1, caches are per (model, task schema), superseding D0.6 check 5's "one cache per model":** the
+  structured-output schema is part of the cached prefix, so each task has its own prefix (cached tokens: faq 7,219,
+  intent 7,236, extract 7,450, adjudicate 8,300). On every model the four low-effort calls each wrote a cache and
+  all four high-effort calls read one. Effort still does not invalidate the cache. Warm-up is therefore one request
+  per (model, task), 12 in total.
+- **Finding 2, the first call on a schema is slow:** 6.8-8.7 s for the first faq / intent / extract call per
+  model against 1.3-2.0 s for the same tasks later (schema compilation plus cache write). Unhandled, this would
+  inflate the p95 latency that becomes the latency budget. The matrix warms each (model, task) with a separate
+  request (`repeat=1`, key distinct from every matrix request) whose result is not part of the data.
+- **Finding 3, prefix size:** about 7.2K tokens (not the ~4.7K assumed), so the headline cost without caching is
+  dominated by input: e.g. opus-high faq $0.0296 without caching vs $0.0021 with caching.

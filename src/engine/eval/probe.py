@@ -15,7 +15,6 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from engine import runinfo
 from engine.contracts import Effort, ModelCall, TaskType, Ticket, utcnow
 from engine.datagen.rules import load_version
 from engine.eval.data import load_split
@@ -111,13 +110,13 @@ def run(mode: Mode, cap_usd: float) -> tuple[str, list[ProbeCall]]:
     return run_id, sorted(results, key=lambda r: (r.config_id, r.task))
 
 
-def write(run_id: str, calls: list[ProbeCall]) -> Path:
+def write(run_id: str, calls: list[ProbeCall], git_sha: str) -> Path:
     out = ROOT / "runs" / run_id
     out.mkdir(parents=True, exist_ok=True)
     (out / "calls.jsonl").write_text("\n".join(c.model_dump_json() for c in calls) + "\n", encoding="utf-8")
     summary = {
         "run_id": run_id,
-        "git_sha": runinfo.git_sha(),
+        "git_sha": git_sha,
         "n_calls": len(calls),
         "n_ok": sum(c.ok for c in calls),
         "cost_usd": round(sum(c.call.cost_usd for c in calls), 6),

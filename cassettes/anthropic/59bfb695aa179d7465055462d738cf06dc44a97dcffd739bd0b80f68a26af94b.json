@@ -1,0 +1,53 @@
+{
+ "request_hash": "59bfb695aa179d7465055462d738cf06dc44a97dcffd739bd0b80f68a26af94b",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nCall note: customer Khalid phoned the claims line.\nMy name is Khalid and I drive a Mazda 6 2019.\nMy friend told me something different, so I want to check.\nUnder comprehensive cover, is my brother covered if he was driving my car, inshallah?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 110,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 55,
+   "thinking_tokens": 43
+  },
+  "latency_ms": 1735.2,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T18:54:22.151314Z"
+}

@@ -1,0 +1,9 @@
+{
+ "run_id": "probe-20261030T185356Z",
+ "git_sha": "e383ca354a1b86a00087d3e2d707ab394bc80e9b",
+ "n_calls": 24,
+ "n_ok": 24,
+ "cost_usd": 0.294078,
+ "cost_usd_nocache": 0.422902,
+ "failures": []
+}

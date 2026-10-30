@@ -1,0 +1,52 @@
+{
+ "request_hash": "e48eea6099bb556bfeedcaf1f5c4c3726476f9c3d78e858d826f572b98edd02f",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: intent\n\n<ticket>\nملاحظة مكالمة: اتصال من عمر على خط المطالبات.\nاسمي عمر.\nالوثيقة OMI-1985393.\nمبلغ التعويض للمطالبة CLM-65833 أقل من المبلغ المعتمد، أرجو المراجعة.\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"payment_issue\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 125,
+   "cache_creation_tokens": 7236,
+   "cache_read_tokens": 0,
+   "output_tokens": 15,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 7937.9,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T18:54:16.269889Z"
+}

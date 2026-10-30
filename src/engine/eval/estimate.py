@@ -1,8 +1,9 @@
 """Pre-run cost and wall-clock estimates (CLAUDE.md: every paid command prints one first).
 
 Labels follow SPEC §7.5: "Cost with caching (actual)" and "Cost without caching (headline)".
-Input tokens: the expected figure assumes ~4 UTF-8 bytes/token on the English-heavy static prefix and 2
-bytes/token on the (partly Arabic) ticket; the worst case uses 2 bytes/token everywhere. Output tokens
+Input tokens: the expected figure uses 2.6 UTF-8 bytes/token on the static prefix (measured in probe
+probe-20261030T185356Z: ~7.2K cached tokens for the 19 KB system block plus schema) and 2 bytes/token on the
+(partly Arabic) ticket; the worst case uses 2 bytes/token everywhere. Output tokens
 (thinking included) are an ASSUMPTION per task and effort until the pilot measures them; the worst case
 is every call hitting max_tokens.
 """
@@ -18,6 +19,7 @@ from engine.contracts import LLMRequest, TaskType
 from engine.llm.client import estimate_tokens, worst_case_cost
 from engine.llm.pricing import PER_MTOK, PriceBook, pricebook
 
+PREFIX_BYTES_PER_TOKEN = 2.6
 EXPECTED_OUT_BY_TASK: dict[str, int] = {"faq": 80, "intent": 80, "extract": 200, "adjudicate": 500}
 EFFORT_OUT_FACTOR = {"low": 1.0, "medium": 1.3, "high": 1.6}
 EXPECTED_LATENCY_S = {"faq": 2.0, "intent": 2.0, "extract": 3.0, "adjudicate": 6.0}  # per call, assumption
@@ -41,17 +43,19 @@ def estimate_requests(
     items: list[tuple[TaskType, LLMRequest]], *, concurrency: int, prices: PriceBook | None = None
 ) -> Estimate:
     prices = prices or pricebook()
-    warmed: set[str] = set()
+    warmed: set[tuple[str, str]] = (
+        set()
+    )  # the schema is part of the cached prefix: one cache per (model, task)
     with_cache = no_cache = worst = 0.0
     per_model: dict[str, float] = defaultdict(float)
     seconds = 0.0
     for task, req in items:
         p = prices.price(req.model)
-        prefix = math.ceil(len(req.system.encode("utf-8")) / 4)
+        prefix = math.ceil(len(req.system.encode("utf-8")) / PREFIX_BYTES_PER_TOKEN)
         user = estimate_tokens(req.user)
         out = expected_output_tokens(task, req.effort) * p.output
-        write = req.model not in warmed
-        warmed.add(req.model)
+        write = (req.model, task) not in warmed
+        warmed.add((req.model, task))
         c = (prefix * (p.cache_write_5m if write else p.cache_read) + user * p.input + out) / PER_MTOK
         with_cache += c
         no_cache += ((prefix + user) * p.input + out) / PER_MTOK
@@ -66,9 +70,9 @@ def estimate_requests(
         wall_clock_s=seconds / max(concurrency, 1),
         per_model=dict(per_model),
         assumptions={
-            "input_tokens": "static prefix ~4 bytes/token, ticket 2 bytes/token (worst case: 2 bytes/token)",
+            "input_tokens": "static prefix 2.6 bytes/token (measured), ticket 2 bytes/token (worst case: 2)",
             "output_tokens": f"assumed {EXPECTED_OUT_BY_TASK} x effort {EFFORT_OUT_FACTOR} (incl. thinking)",
-            "cache": "one cache write per model, every other call reads (D0.6; TTL expiry ignored)",
+            "cache": "one write per (model, task): the schema is in the cached prefix (D2.3); TTL ignored",
             "latency": f"assumed {EXPECTED_LATENCY_S} s/call, divided by concurrency {concurrency}",
             "worst": "no cache reads, every call hits max_tokens",
         },

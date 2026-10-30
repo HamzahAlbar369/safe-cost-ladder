@@ -163,8 +163,11 @@ def probe(
     if spends and (not yes or cap_anthropic <= 0):
         typer.echo("Paid run refused: pass --yes with --cap-anthropic (the approved cap).")
         raise typer.Exit(2)
+    from engine import runinfo
+
+    sha = runinfo.git_sha()  # taken before the run writes anything, so it identifies the code that ran
     run_id, calls = P.run(mode, cap_anthropic)  # type: ignore[arg-type]
-    out = P.write(run_id, calls)
+    out = P.write(run_id, calls, sha)
     for c in calls:
         typer.echo(
             f"{'ok  ' if c.ok else 'FAIL'} {c.config_id:<14} {c.task:<10} {c.call.stop_reason} "

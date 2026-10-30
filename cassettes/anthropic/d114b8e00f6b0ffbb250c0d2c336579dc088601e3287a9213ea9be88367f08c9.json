@@ -1,0 +1,93 @@
+{
+ "request_hash": "d114b8e00f6b0ffbb250c0d2c336579dc088601e3287a9213ea9be88367f08c9",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nملاحظة مكالمة: اتصال من خالد على خط المطالبات.\n- الوثيقة: OMI-5940951\n- التغطية: تأمين شامل (COMP)\n- انتهاء الوثيقة: 2026/03/19\n- تاريخ الحادث: 2026/02/18\n- نسبة الخطأ: 25%\n- قيمة الإصلاح (تقرير التقييم): 22,500 ريال سعودي\n- إفادة العميل: في 2026/02/18 تعرضتُ لحادث تصادم مع مركبة أخرى في جدة. سيارتي من نوع Kia K5 2023.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-5940951\",\"accident_date\":\"2026-02-18\",\"report_number\":null,\"damage_amount_sar\":22500,\"fault_share\":25}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 244,
+   "cache_creation_tokens": 7450,
+   "cache_read_tokens": 0,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 2145.9,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T18:54:17.799731Z"
+}

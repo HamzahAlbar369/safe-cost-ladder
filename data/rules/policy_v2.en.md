@@ -122,7 +122,7 @@
 
 ## 12. Order of application
 
-- Rules are checked in this order, and the first one that leads to a decision decides: out of scope (2) → policy not in force (3) → third-party exclusions (6) → own damage under TPL (3, 9) → own-damage exclusions (8) → reporting window (10) → required documents (11) → loss at or below the deductible (7) → payout (5 or 7).
+- Rules are checked in this order, and the first one that leads to a decision decides: out of scope (2) → policy not in force (3) → third-party exclusions (6) → own damage under TPL (3, 9) → own-damage exclusions (8) → reporting window (10) → loss at or below the deductible, when the damage assessment is present (7) → required documents (11) → payout (5 or 7).
 
 ## 13. Service standards and other benefits
 

@@ -239,17 +239,22 @@ precedence step, so changing one is a one-line edit plus `engine policy`.
 - **rules_v2** changes only insurer-specific values: fixed deductible 1,000 → 1,500, ETL 60% → 50%, window 15 → 10
   days. A test asserts that every changed value is tagged insurer-specific.
 - **MANIFEST** will report the decision-label distribution per split and flag any label under 10% of adjudication items.
-- **What we could and could not check (2026-10-30):** the IA PDF returned 404 and the UP rulebook page returned only
-  the blank schedule, so UP article numbers are as cited by Hamzah. CMIR Art. 5.3–5.6 and 7.1–7.21 were checked
-  against `rulebook.sama.gov.sa/en/entiresection/8038`, but only through a machine summary, not the verbatim text.
-  Points for Hamzah:
-  (a) that summary words 7.2 as "forfeited/expired licences (unless renewed within 50 business days)", which could
-  mean forfeited licences also get the grace period; we follow Hamzah's reading (forfeited and wrong class get no grace);
-  (b) 5.4.5 says the company *may* charge the deductible when there is no other party; we apply it in full and tag it
-  as an interpretation;
-  (c) Art. 1.8 (Driver) was not in that version;
-  (d) CSI items carry "(article TBC)" until article numbers are supplied;
-  (e) the towing amounts are tagged "reported, unverified".
+- **Source verification (Hamzah, 2026-10-30, against the primary texts: the IA PDF and the SAMA rulebook):**
+  - UP: insurer pays third parties = Art. 3 (proportional-to-fault stays "interpretation of UP Art. 3"); TPL cap =
+    Art. 4 + Appendix A, per event; recovery cases = Art. 5; exclusions = Art. 6 (own vehicle 6.1); third parties
+    not denied for violations, subject to Art. 6, recovery kept = Art. 9(7).
+  - CMIR: 1.8 verified (Driver includes relatives and domestic or sponsored workers); 7.2 confirmed (grace only
+    for an expired licence renewed within 50 business days; wrong class or forfeited → no grace); 5.4.5 confirmed
+    as "may" (kept as an interpretation). Towing = "CMIR Policy Schedule, per-claim coverage limit (insurer may
+    agree higher)".
+  - CSI is cited as a whole: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"
+    (no article numbers). Claims below SAR 2,000 → 5 working days; others → 15 calendar days.
+  - Our own fetcher could not load the primary texts (IA PDF 404, UP page showed only the blank schedule); a CMIR
+    machine summary at rulebook.sama.gov.sa/en/entiresection/8038 agreed with the above.
+  - Still open: COMP cover type "CMIR (article TBC)"; fault-share steps and report sources "reported, unverified".
+- **Rule order change (Hamzah):** CMIR 7.3 (repair estimate ≤ full deductible → deny) is evaluated before R7 when
+  the damage assessment is present and unambiguous, so deny beats need_info (D1.7 #2). If the assessment itself is
+  missing → need_info.
 - **R0 note:** a real comprehensive policy usually covers theft and fire. Here R0 is an insurer-specific desk scope
   (collision only). The sampler will use R0 for intent tickets (`other`) and will not generate R0 adjudication
   denials, so the data never claims that a comprehensive policy denies theft.

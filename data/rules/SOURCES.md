@@ -8,9 +8,9 @@ Source forms (D1.8): `<instrument> Art. N` · `interpretation of <instrument> Ar
 
 | Code | Instrument | Issuer | What we checked |
 |---|---|---|---|
-| UP | Unified Compulsory Motor Insurance Policy | SAMA-issued, administered by the Insurance Authority | Article numbers as cited by Hamzah (verified 2026-10-30); the rulebook page returned only the blank schedule to our fetcher, so not re-checked here. |
-| CMIR | Comprehensive Motor Insurance Rules (SAMA Decision 3/S/445, 21/04/1445H) | SAMA-issued, administered by the Insurance Authority | Art. 5.3, 5.4, 5.5, 5.6 and 7.1-7.21 checked 2026-10-30 against https://rulebook.sama.gov.sa/en/entiresection/8038 (machine summary). Art. 1.8 was not in that version: cited by Hamzah. |
-| CSI | Instructions for Motor Insurance Claims' Settlement (SAMA circular, 14 May 2023) | SAMA-issued, administered by the Insurance Authority | Cited by Hamzah (verified 2026-10-30); article numbers not yet cited. |
+| UP | Unified Compulsory Motor Insurance Policy | SAMA-issued, administered by the Insurance Authority | Art. 3, 4 (+ Appendix A), 5, 6, 9(7) verified by Hamzah against the primary text 2026-10-30 (our fetcher saw only the blank schedule). |
+| CMIR | Comprehensive Motor Insurance Rules (SAMA Decision 3/S/445, 21/04/1445H) | SAMA-issued, administered by the Insurance Authority | Art. 1.8, 5.3, 5.4 (5.4.5 says the company MAY charge), 5.5, 5.6, 7.1-7.21 verified by Hamzah against the IA PDF 2026-10-30; also cross-checked by us against rulebook.sama.gov.sa/en/entiresection/8038 (machine summary). |
+| CSI | Instructions for Motor Insurance Claims' Settlement (SAMA circular, 14 May 2023) | SAMA-issued, administered by the Insurance Authority | Verified by Hamzah 2026-10-30; cited as a whole (no article numbers). |
 
 ## Order of application (adjudication rules)
 
@@ -23,11 +23,11 @@ Source forms (D1.8): `<instrument> Art. N` · `interpretation of <instrument> Ar
 | 5 | R1 | own_damage under TPL | deny | `R1_TPL_NO_OWN_DAMAGE` | UP Art. 6.1 | article |
 | 6 | R5 | own_damage under COMP and any exclusions.own_damage_deny except below_deductible | deny | `R5_OD_<key>` | CMIR Art. 7 | article |
 | 7 | R6 | reported more than reporting_window_days after the accident, no accepted justification | deny | `R6_LATE_REPORT` | insurer-specific (illustrative) | insurer-specific (illustrative) |
-| 8 | R7 | a required document is missing | need_info | `R7_MISSING_<doc>` | CSI (article TBC) | article TBC |
-| 9 | R7 | two stated values for the same item contradict each other | need_info | `R7_CONFLICT` | insurer-specific (illustrative) | insurer-specific (illustrative) |
-| 10 | R3 | own_damage and repair estimate <= fixed_deductible_sar (full, not fault-scaled) | deny | `R3_BELOW_DEDUCTIBLE` | CMIR Art. 7.3 | article |
+| 8 | R3 | own_damage, damage assessment present and unambiguous, repair estimate <= fixed_deductible_sar (full, not fault-scaled) | deny | `R3_BELOW_DEDUCTIBLE` | CMIR Art. 7.3 | article |
+| 9 | R7 | a required document is missing | need_info | `R7_MISSING_<doc>` | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) |
+| 10 | R7 | two stated values for the same item contradict each other | need_info | `R7_CONFLICT` | insurer-specific (illustrative) | insurer-specific (illustrative) |
 | 11 | R3 | own_damage under COMP | from_payout | `R3_OWN_DAMAGE (+ R3_TOTAL_LOSS, SUBROGATION, R8_UNKNOWN_PARTY)` | CMIR Art. 5.3, 5.4 | article |
-| 12 | R4 | third_party_claim; 0% fault -> deny | from_payout | `R4_THIRD_PARTY (+ R4_NO_FAULT, R4_CAP, RECOVERY_RIGHT)` | interpretation of UP (article TBC) | interpretation |
+| 12 | R4 | third_party_claim; 0% fault -> deny | from_payout | `R4_THIRD_PARTY (+ R4_NO_FAULT, R4_CAP, RECOVERY_RIGHT)` | interpretation of UP Art. 3 | interpretation |
 
 ## Engine parameters
 
@@ -36,8 +36,8 @@ Source forms (D1.8): `<instrument> Art. N` · `interpretation of <instrument> Ar
 | `currency` | SAR | = | insurer-specific (illustrative) | insurer-specific (illustrative) |  |
 | `rounding` | half_up_whole_sar | = | insurer-specific (illustrative) | insurer-specific (illustrative) |  |
 | `fault_shares` | 0, 25, 50, 75, 100 | = | reported, unverified | reported, unverified | Najm assigns liability in 25% steps (secondary sources). |
-| `tp_payout_proportional_to_fault` | True | = | interpretation of UP (article TBC) | interpretation | Third-party payout = damage x policyholder's fault share. |
-| `tpl_cap_sar` | 10,000,000 | = | UP (article TBC) | article TBC | Per accident. Never binds on synthetic claims; kept for fidelity. |
+| `tp_payout_proportional_to_fault` | True | = | interpretation of UP Art. 3 | interpretation | Insurer pays third parties (Art. 3); payout = damage x policyholder's fault share is our reading. |
+| `tpl_cap_sar` | 10,000,000 | = | UP Art. 4 | article | Per event (Art. 4 + Appendix A). Never binds on synthetic claims; kept for fidelity. |
 | `tp_licence_grace_days` | 50 | = | UP Art. 5 | article | Calendar days after the accident; no recovery right if the expired licence was renewed in time. |
 | `od_licence_grace_business_days` | 50 | = | CMIR Art. 7.2 | article | Business days after the accident; wrong class or forfeited licence gets no grace. |
 | `business_days` | sun, mon, tue, wed, thu | = | interpretation of CMIR Art. 7.2 | interpretation | Saudi working week; public holidays ignored (simplification). |
@@ -53,15 +53,15 @@ Source forms (D1.8): `<instrument> Art. N` · `interpretation of <instrument> Ar
 | `od_licence_grace_business_days_faq` | 50 | = | CMIR Art. 7.2 | article | business days (COMP) |
 | `deductible_when_not_liable_sar` | 0 | = | CMIR Art. 5.4.4 | article |  |
 | `deduction_for_prior_use` | no | = | CMIR Art. 5.3.4 | article |  |
-| `towing_city_sar` | 500 | = | reported, unverified | reported, unverified | per claim; insurer may set higher. CMIR Art. 5.5 covers towing. |
-| `towing_outside_city_sar` | 1,000 | = | reported, unverified | reported, unverified | per claim; insurer may set higher. |
-| `small_claim_threshold_sar` | 2,000 | = | CSI (article TBC) | article TBC |  |
-| `small_claim_settle_working_days` | 5 | = | CSI (article TBC) | article TBC |  |
-| `other_claim_settle_days` | 15 | = | CSI (article TBC) | article TBC |  |
-| `missing_docs_notice_working_days` | 3 | = | CSI (article TBC) | article TBC | individual customers |
-| `total_loss_report_working_days` | 7 | = | CSI (article TBC) | article TBC | from complete documents |
+| `towing_city_sar` | 500 | = | CMIR Policy Schedule, per-claim coverage limit (insurer may agree higher) | instrument (whole) | inside a city; towing itself is CMIR Art. 5.5 |
+| `towing_outside_city_sar` | 1,000 | = | CMIR Policy Schedule, per-claim coverage limit (insurer may agree higher) | instrument (whole) | outside a city |
+| `small_claim_threshold_sar` | 2,000 | = | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) |  |
+| `small_claim_settle_working_days` | 5 | = | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) |  |
+| `other_claim_settle_days` | 15 | = | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) | calendar days |
+| `missing_docs_notice_working_days` | 3 | = | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) | individual customers |
+| `total_loss_report_working_days` | 7 | = | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) | from complete documents |
 | `replacement_car_in_base_policy` | no | = | insurer-specific (illustrative) | insurer-specific (illustrative) | optional add-on needing prior approval (CMIR Art. 5.6) |
-| `claim_statuses` | Incomplete, Outstanding, Settled, Rejected | = | CSI (article TBC) | article TBC |  |
+| `claim_statuses` | Incomplete, Outstanding, Settled, Rejected | = | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) |  |
 | `at_fault_other_party_options` | claim from the other party's insurer, or own COMP insurer pays with no deductible and subrogates | = | interpretation of CMIR Art. 5.4.4 | interpretation |  |
 
 ## Decision definitions
@@ -77,7 +77,7 @@ Source forms (D1.8): `<instrument> Art. N` · `interpretation of <instrument> Ar
 
 | Key | Meaning | Source | Kind | Sampler generates |
 |---|---|---|---|---|
-| `TPL` | Third-Party Liability (TPL) | UP (article TBC) | article TBC | yes |
+| `TPL` | Third-Party Liability (TPL) | UP Art. 3 | article | yes |
 | `COMP` | Comprehensive (COMP) | CMIR (article TBC) | article TBC | yes |
 
 ## Claim types
@@ -197,11 +197,11 @@ Source forms (D1.8): `<instrument> Art. N` · `interpretation of <instrument> Ar
 
 | Key | Meaning | Source | Kind | Sampler generates |
 |---|---|---|---|---|
-| `accident_report` | the accident report (Najm or traffic police) | CSI (article TBC) | article TBC | yes |
-| `registration` | the vehicle registration | CSI (article TBC) | article TBC | yes |
-| `licence_copy` | a copy of the driving licence | CSI (article TBC) | article TBC | yes |
-| `damage_photos` | photos of the damage | CSI (article TBC) | article TBC | yes |
-| `damage_assessment` | a damage assessment report (for example Taqdeer) | CSI (article TBC) | article TBC | yes |
+| `accident_report` | the accident report (Najm or traffic police) | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) | yes |
+| `registration` | the vehicle registration | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) | yes |
+| `licence_copy` | a copy of the driving licence | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) | yes |
+| `damage_photos` | photos of the damage | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) | yes |
+| `damage_assessment` | a damage assessment report (for example Taqdeer) | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) | yes |
 
 ## Other
 

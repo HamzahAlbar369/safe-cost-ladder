@@ -116,7 +116,8 @@ def test_sources_table_lists_every_engine_parameter():
         "UP Art. 5",
         "CMIR Art. 5.4.1, 5.4.7",
         "interpretation of CMIR Art. 5.4.2",
-        "CSI (article TBC)",
+        "UP Art. 5, 9(7)",
+        "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023",
         "insurer-specific (illustrative)",
         "reported, unverified",
     ],
@@ -125,7 +126,9 @@ def test_source_forms_accepted(source):
     assert SOURCE_RE.match(source)
 
 
-@pytest.mark.parametrize("source", ["UP", "Art. 5", "CMIR Article 7", "made up", "interpretation of UP"])
+@pytest.mark.parametrize(
+    "source", ["UP", "Art. 5", "CMIR Article 7", "made up", "interpretation of UP", "CSI (article TBC)"]
+)
 def test_malformed_sources_rejected(source):
     assert not SOURCE_RE.match(source)
 

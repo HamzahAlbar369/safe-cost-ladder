@@ -17,9 +17,13 @@ RULES_V2 = RULES_DIR / "rules_v2.yaml"
 
 INSTRUMENTS = ("UP", "CMIR", "CSI")
 INSURER_SPECIFIC = "insurer-specific (illustrative)"
-_ART = r"(?:UP|CMIR|CSI) (?:Art\. \d+(?:\.\d+)*(?:, \d+(?:\.\d+)*)*|\(article TBC\))"
+CSI_SOURCE = "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"
+TOWING_SOURCE = "CMIR Policy Schedule, per-claim coverage limit (insurer may agree higher)"
+_NUM = r"\d+(?:\.\d+)*(?:\(\d+\))?"
+_ART = rf"(?:UP|CMIR) (?:Art\. {_NUM}(?:, {_NUM})*|\(article TBC\))"
 SOURCE_RE = re.compile(
-    rf"^(?:{_ART}|interpretation of {_ART}|insurer-specific \(illustrative\)|reported, unverified)$"
+    rf"^(?:{_ART}|interpretation of {_ART}|insurer-specific \(illustrative\)|reported, unverified"
+    rf"|{re.escape(CSI_SOURCE)}|{re.escape(TOWING_SOURCE)})$"
 )
 
 
@@ -29,6 +33,8 @@ def source_kind(source: str) -> str:
         return "interpretation"
     if source in (INSURER_SPECIFIC, "reported, unverified"):
         return source
+    if source in (CSI_SOURCE, TOWING_SOURCE):
+        return "instrument (whole)"
     return "article TBC" if "(article TBC)" in source else "article"
 
 

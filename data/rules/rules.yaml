@@ -5,7 +5,9 @@
 # Every rule, parameter and enumeration item carries `source:` in one of these forms (D1.8):
 #   "<instrument> Art. N"                    the article states it
 #   "interpretation of <instrument> Art. N"  our reading of the article (a choice we made)
-#   "<instrument> (article TBC)"             instrument confirmed by Hamzah, article number not yet cited
+#   "<instrument> (article TBC)"             instrument confirmed, article number not yet cited
+#   "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"  (CSI, cited as a whole)
+#   "CMIR Policy Schedule, per-claim coverage limit (insurer may agree higher)"  (towing)
 #   "insurer-specific (illustrative)"        a value or term the fictional insurer chose
 #   "reported, unverified"                   from secondary sources; not checked against an instrument
 # Consumers: src/engine/datagen/render_policy.py (documents + sources table), rules_engine.py (gold labels).
@@ -18,16 +20,16 @@ instruments:
     issuer: "SAMA-issued, administered by the Insurance Authority"
     in_force: "2023-04-01"
     url: "https://rulebook.sama.gov.sa/en/node/7886"
-    checked: "Article numbers as cited by Hamzah (verified 2026-10-30); the rulebook page returned only the blank schedule to our fetcher, so not re-checked here."
+    checked: "Art. 3, 4 (+ Appendix A), 5, 6, 9(7) verified by Hamzah against the primary text 2026-10-30 (our fetcher saw only the blank schedule)."
   CMIR:
     name: "Comprehensive Motor Insurance Rules (SAMA Decision 3/S/445, 21/04/1445H)"
     issuer: "SAMA-issued, administered by the Insurance Authority"
     url: "https://www.ia.gov.sa/Documents/Rules/en/Comprehensive_Motor_Insurance_Rules.pdf"
-    checked: "Art. 5.3, 5.4, 5.5, 5.6 and 7.1-7.21 checked 2026-10-30 against https://rulebook.sama.gov.sa/en/entiresection/8038 (machine summary). Art. 1.8 was not in that version: cited by Hamzah."
+    checked: "Art. 1.8, 5.3, 5.4 (5.4.5 says the company MAY charge), 5.5, 5.6, 7.1-7.21 verified by Hamzah against the IA PDF 2026-10-30; also cross-checked by us against rulebook.sama.gov.sa/en/entiresection/8038 (machine summary)."
   CSI:
     name: "Instructions for Motor Insurance Claims' Settlement (SAMA circular, 14 May 2023)"
     issuer: "SAMA-issued, administered by the Insurance Authority"
-    checked: "Cited by Hamzah (verified 2026-10-30); article numbers not yet cited."
+    checked: "Verified by Hamzah 2026-10-30; cited as a whole (no article numbers)."
 
 fiction:
   insurer_en: "Oasis Motor Insurance"
@@ -51,12 +53,12 @@ params:
     note: "Najm assigns liability in 25% steps (secondary sources)."
   tp_payout_proportional_to_fault:
     value: true
-    source: "interpretation of UP (article TBC)"
-    note: "Third-party payout = damage x policyholder's fault share."
+    source: "interpretation of UP Art. 3"
+    note: "Insurer pays third parties (Art. 3); payout = damage x policyholder's fault share is our reading."
   tpl_cap_sar:
     value: 10000000
-    source: "UP (article TBC)"
-    note: "Per accident. Never binds on synthetic claims; kept for fidelity."
+    source: "UP Art. 4"
+    note: "Per event (Art. 4 + Appendix A). Never binds on synthetic claims; kept for fidelity."
   tp_licence_grace_days:
     value: 50
     source: "UP Art. 5"
@@ -87,22 +89,22 @@ faq_only:
   od_licence_grace_business_days_faq: {value: 50, source: "CMIR Art. 7.2", note: "business days (COMP)"}
   deductible_when_not_liable_sar: {value: 0, source: "CMIR Art. 5.4.4"}
   deduction_for_prior_use: {value: "no", source: "CMIR Art. 5.3.4"}
-  towing_city_sar: {value: 500, source: "reported, unverified", note: "per claim; insurer may set higher. CMIR Art. 5.5 covers towing."}
-  towing_outside_city_sar: {value: 1000, source: "reported, unverified", note: "per claim; insurer may set higher."}
-  small_claim_threshold_sar: {value: 2000, source: "CSI (article TBC)"}
-  small_claim_settle_working_days: {value: 5, source: "CSI (article TBC)"}
-  other_claim_settle_days: {value: 15, source: "CSI (article TBC)"}
-  missing_docs_notice_working_days: {value: 3, source: "CSI (article TBC)", note: "individual customers"}
-  total_loss_report_working_days: {value: 7, source: "CSI (article TBC)", note: "from complete documents"}
+  towing_city_sar: {value: 500, source: "CMIR Policy Schedule, per-claim coverage limit (insurer may agree higher)", note: "inside a city; towing itself is CMIR Art. 5.5"}
+  towing_outside_city_sar: {value: 1000, source: "CMIR Policy Schedule, per-claim coverage limit (insurer may agree higher)", note: "outside a city"}
+  small_claim_threshold_sar: {value: 2000, source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"}
+  small_claim_settle_working_days: {value: 5, source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"}
+  other_claim_settle_days: {value: 15, source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023", note: "calendar days"}
+  missing_docs_notice_working_days: {value: 3, source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023", note: "individual customers"}
+  total_loss_report_working_days: {value: 7, source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023", note: "from complete documents"}
   replacement_car_in_base_policy: {value: "no", source: "insurer-specific (illustrative)", note: "optional add-on needing prior approval (CMIR Art. 5.6)"}
-  claim_statuses: {value: [Incomplete, Outstanding, Settled, Rejected], source: "CSI (article TBC)"}
+  claim_statuses: {value: [Incomplete, Outstanding, Settled, Rejected], source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"}
   at_fault_other_party_options:
     value: "claim from the other party's insurer, or own COMP insurer pays with no deductible and subrogates"
     source: "interpretation of CMIR Art. 5.4.4"
 
 # --- Enumerations (EN + AR labels; each item sourced). -----------------------------------------------------------
 cover_types:
-  TPL: {en: "Third-Party Liability (TPL)", ar: "التأمين ضد الغير (TPL)", source: "UP (article TBC)"}
+  TPL: {en: "Third-Party Liability (TPL)", ar: "التأمين ضد الغير (TPL)", source: "UP Art. 3"}
   COMP: {en: "Comprehensive (COMP)", ar: "التأمين الشامل (COMP)", source: "CMIR (article TBC)"}
 
 claim_types:
@@ -185,11 +187,11 @@ late_report_justifications:   # R6, insurer-specific
     unaware_of_deadline: {en: "not knowing the deadline", ar: "عدم معرفة المهلة", source: "insurer-specific (illustrative)"}
 
 required_documents:   # R7
-  accident_report: {en: "the accident report (Najm or traffic police)", ar: "تقرير الحادث (نجم أو المرور)", source: "CSI (article TBC)"}
-  registration: {en: "the vehicle registration", ar: "استمارة المركبة", source: "CSI (article TBC)"}
-  licence_copy: {en: "a copy of the driving licence", ar: "صورة رخصة القيادة", source: "CSI (article TBC)"}
-  damage_photos: {en: "photos of the damage", ar: "صور الأضرار", source: "CSI (article TBC)"}
-  damage_assessment: {en: "a damage assessment report (for example Taqdeer)", ar: "تقرير تقدير الأضرار (مثل تقدير)", source: "CSI (article TBC)"}
+  accident_report: {en: "the accident report (Najm or traffic police)", ar: "تقرير الحادث (نجم أو المرور)", source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"}
+  registration: {en: "the vehicle registration", ar: "استمارة المركبة", source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"}
+  licence_copy: {en: "a copy of the driving licence", ar: "صورة رخصة القيادة", source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"}
+  damage_photos: {en: "photos of the damage", ar: "صور الأضرار", source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"}
+  damage_assessment: {en: "a damage assessment report (for example Taqdeer)", ar: "تقرير تقدير الأضرار (مثل تقدير)", source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"}
 
 # --- Decisions (gold depends on these exact definitions; D1.8 supersedes D1.7 #1). ------------------------------
 decisions:
@@ -207,11 +209,11 @@ precedence:
   - {step: R1, applies: "own_damage under TPL", decision: deny, reason: R1_TPL_NO_OWN_DAMAGE, source: "UP Art. 6.1"}
   - {step: R5, applies: "own_damage under COMP and any exclusions.own_damage_deny except below_deductible", decision: deny, reason: "R5_OD_<key>", source: "CMIR Art. 7"}
   - {step: R6, applies: "reported more than reporting_window_days after the accident, no accepted justification", decision: deny, reason: R6_LATE_REPORT, source: "insurer-specific (illustrative)"}
-  - {step: R7, applies: "a required document is missing", decision: need_info, reason: "R7_MISSING_<doc>", source: "CSI (article TBC)"}
+  - {step: R3, applies: "own_damage, damage assessment present and unambiguous, repair estimate <= fixed_deductible_sar (full, not fault-scaled)", decision: deny, reason: R3_BELOW_DEDUCTIBLE, source: "CMIR Art. 7.3"}
+  - {step: R7, applies: "a required document is missing", decision: need_info, reason: "R7_MISSING_<doc>", source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"}
   - {step: R7, applies: "two stated values for the same item contradict each other", decision: need_info, reason: R7_CONFLICT, source: "insurer-specific (illustrative)"}
-  - {step: R3, applies: "own_damage and repair estimate <= fixed_deductible_sar (full, not fault-scaled)", decision: deny, reason: R3_BELOW_DEDUCTIBLE, source: "CMIR Art. 7.3"}
   - {step: R3, applies: "own_damage under COMP", decision: from_payout, reason: "R3_OWN_DAMAGE (+ R3_TOTAL_LOSS, SUBROGATION, R8_UNKNOWN_PARTY)", source: "CMIR Art. 5.3, 5.4"}
-  - {step: R4, applies: "third_party_claim; 0% fault -> deny", decision: from_payout, reason: "R4_THIRD_PARTY (+ R4_NO_FAULT, R4_CAP, RECOVERY_RIGHT)", source: "interpretation of UP (article TBC)"}
+  - {step: R4, applies: "third_party_claim; 0% fault -> deny", decision: from_payout, reason: "R4_THIRD_PARTY (+ R4_NO_FAULT, R4_CAP, RECOVERY_RIGHT)", source: "interpretation of UP Art. 3"}
 
 reason_codes:
   R0_OUT_OF_SCOPE: "out-of-scope peril for this desk"
@@ -320,7 +322,7 @@ document:
           source: "UP Art. 6.1"
         - en: "Comprehensive (COMP) covers the policyholder's own vehicle under section 7 and third-party claims under section 5."
           ar: "التأمين الشامل (COMP) يغطي مركبة حامل الوثيقة وفق البند 7 ومطالبات الطرف الثالث وفق البند 5."
-          source: "interpretation of CMIR (article TBC)"
+          source: "CMIR (article TBC)"
         - en: "If the accident happened after the policy end date, the policy was not in force and the claim is denied. A policy is in force up to and including its end date."
           ar: "إذا وقع الحادث بعد تاريخ انتهاء الوثيقة فالوثيقة غير سارية وتُرفض المطالبة. وتبقى الوثيقة سارية حتى تاريخ انتهائها شاملًا ذلك اليوم."
           source: "insurer-specific (illustrative)"
@@ -335,10 +337,10 @@ document:
       clauses:
         - en: "Payout = the third party's damage × the policyholder's fault share, up to SAR {tpl_cap_sar:,} per accident. This applies under TPL and COMP."
           ar: "مبلغ التعويض = أضرار الطرف الثالث × نسبة خطأ حامل الوثيقة، بحد أقصى {tpl_cap_sar:,} ريال للحادث الواحد، في التأمين ضد الغير والتأمين الشامل."
-          source: "interpretation of UP (article TBC)"
+          source: "interpretation of UP Art. 3"
         - en: "If the policyholder's fault share is 0%, nothing is payable and the claim is denied."
           ar: "إذا كانت نسبة خطأ حامل الوثيقة 0% فلا يُدفع شيء وتُرفض المطالبة."
-          source: "interpretation of UP (article TBC)"
+          source: "interpretation of UP Art. 3"
     - id: R5_TP
       title: {en: "6. Third-party claims: exclusions and right of recovery", ar: "6. مطالبات الطرف الثالث: الاستثناءات وحق الرجوع"}
       clauses:
@@ -349,7 +351,7 @@ document:
         - en: "A third-party claim is still paid under section 5 if any of the following applies, and the insurer keeps a right to recover the amount from the policyholder or the driver:"
           ar: "تُدفع مطالبة الطرف الثالث وفق البند 5 حتى إذا انطبق أي مما يلي، مع احتفاظ الشركة بحق الرجوع على حامل الوثيقة أو السائق بالمبلغ:"
           items: exclusions.third_party_recovery
-          source: "UP Art. 5"
+          source: "UP Art. 5, 9(7)"
         - en: "For this section, a licence that had expired on the accident date counts as valid if it was renewed within {tp_licence_grace_days} days after the accident."
           ar: "لأغراض هذا البند، تُعدّ الرخصة المنتهية في تاريخ الحادث سارية إذا جُدّدت خلال {tp_licence_grace_days:ar_day} من تاريخ الحادث."
           source: "UP Art. 5"
@@ -426,34 +428,34 @@ document:
         - en: "Every claim needs all of the following:"
           ar: "تحتاج كل مطالبة إلى جميع ما يلي:"
           items: required_documents
-          source: "CSI (article TBC)"
+          source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"
         - en: "If any is missing, or if two stated values for the same item contradict each other, the decision is need info and no payout is computed."
           ar: "إذا نقص أي منها، أو تعارضت قيمتان مذكورتان للعنصر نفسه، يكون القرار طلب معلومات ولا يُحسب أي تعويض."
           source: "insurer-specific (illustrative)"
     - id: order
       title: {en: "12. Order of application", ar: "12. ترتيب تطبيق القواعد"}
       clauses:
-        - en: "Rules are checked in this order, and the first one that leads to a decision decides: out of scope (2) → policy not in force (3) → third-party exclusions (6) → own damage under TPL (3, 9) → own-damage exclusions (8) → reporting window (10) → required documents (11) → loss at or below the deductible (7) → payout (5 or 7)."
-          ar: "تُطبَّق القواعد بهذا الترتيب، وأول قاعدة تؤدي إلى قرار هي الحاسمة: خارج النطاق (2) ← الوثيقة غير سارية (3) ← استثناءات الطرف الثالث (6) ← الأضرار الذاتية في التأمين ضد الغير (3، 9) ← استثناءات الأضرار الذاتية (8) ← مهلة الإبلاغ (10) ← المستندات المطلوبة (11) ← خسارة لا تتجاوز مبلغ التحمل (7) ← حساب التعويض (5 أو 7)."
+        - en: "Rules are checked in this order, and the first one that leads to a decision decides: out of scope (2) → policy not in force (3) → third-party exclusions (6) → own damage under TPL (3, 9) → own-damage exclusions (8) → reporting window (10) → loss at or below the deductible, when the damage assessment is present (7) → required documents (11) → payout (5 or 7)."
+          ar: "تُطبَّق القواعد بهذا الترتيب، وأول قاعدة تؤدي إلى قرار هي الحاسمة: خارج النطاق (2) ← الوثيقة غير سارية (3) ← استثناءات الطرف الثالث (6) ← الأضرار الذاتية في التأمين ضد الغير (3، 9) ← استثناءات الأضرار الذاتية (8) ← مهلة الإبلاغ (10) ← خسارة لا تتجاوز مبلغ التحمل عند وجود تقرير التقدير (7) ← المستندات المطلوبة (11) ← حساب التعويض (5 أو 7)."
           source: "insurer-specific (illustrative)"
     - id: service
       title: {en: "13. Service standards and other benefits", ar: "13. معايير الخدمة والمزايا الأخرى"}
       clauses:
         - en: "If documents are missing, the insurer tells individual customers within {missing_docs_notice_working_days} working days."
           ar: "إذا نقصت مستندات تُبلغ الشركة العملاء الأفراد خلال {missing_docs_notice_working_days:ar_workday}."
-          source: "CSI (article TBC)"
+          source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"
         - en: "Claims below SAR {small_claim_threshold_sar:,} are settled within {small_claim_settle_working_days} working days; other claims within {other_claim_settle_days} days."
           ar: "تُسوّى المطالبات التي تقل عن {small_claim_threshold_sar:,} ريال خلال {small_claim_settle_working_days:ar_workday}، والمطالبات الأخرى خلال {other_claim_settle_days:ar_day}."
-          source: "CSI (article TBC)"
+          source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"
         - en: "A total-loss report is issued within {total_loss_report_working_days} working days of complete documents."
           ar: "يصدر تقرير الخسارة الكلية خلال {total_loss_report_working_days:ar_workday} من اكتمال المستندات."
-          source: "CSI (article TBC)"
+          source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"
         - en: "Claim statuses: {claim_statuses_text}."
           ar: "حالات المطالبة: {claim_statuses_text}."
-          source: "CSI (article TBC)"
+          source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"
         - en: "Towing is covered per claim up to SAR {towing_city_sar:,} inside a city and SAR {towing_outside_city_sar:,} outside a city."
           ar: "يُغطّى سحب المركبة لكل مطالبة بحد أقصى {towing_city_sar:,} ريال داخل المدينة و{towing_outside_city_sar:,} ريال خارجها."
-          source: "reported, unverified"
+          source: "CMIR Policy Schedule, per-claim coverage limit (insurer may agree higher)"
         - en: "A replacement car is not part of this policy. It is an optional add-on that needs the insurer's prior approval."
           ar: "السيارة البديلة ليست ضمن هذه الوثيقة، وهي إضافة اختيارية تحتاج إلى موافقة مسبقة من الشركة."
           source: "insurer-specific (illustrative)"

@@ -473,3 +473,17 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   request (`repeat=1`, key distinct from every matrix request) whose result is not part of the data.
 - **Finding 3, prefix size:** about 7.2K tokens (not the ~4.7K assumed), so the headline cost without caching is
   dominated by input: e.g. opus-high faq $0.0296 without caching vs $0.0021 with caching.
+
+### D2.4 · Matrix runner, pacer and pilot subset built (no paid calls yet)
+- `engine matrix --split dev --subset pilot|all`: paid runs need `--yes --cap-anthropic`; the estimate (Cost with
+  caching (actual), Cost without caching (headline), worst case, wall clock) is printed first. Resumable by
+  `--run-id`: finished cells are skipped, and in `auto` mode any request that has a cassette is replayed.
+- Parallelism: one `Pacer` per model (limits are per model), max `--concurrency` calls in flight (default 6). It
+  pauses on low `anthropic-ratelimit-*` headroom, halves its allowance on a 429 and honours `retry-after`. Time
+  spent waiting is stored as `queue_wait_ms` and is never part of `latency_ms` (Hamzah).
+- Warm-up: one tiny real request (`max_tokens` 64, fresh `repeat`) per (model, task) with live work pending, stored
+  with role `probe`, excluded from every metric (D2.3 findings 1-2).
+- A cell that returns no response is re-sent up to 3 times (data collection only; policies keep their own retry
+  budget); any cell still without a response makes the command exit non-zero and is retried by resuming.
+- Pilot: 40 dev tickets stratified by task x level (about 30% Arabic per stratum), fixed seed 20261030.
+- `shifted` is refused until Phase 4; `heldout` cannot be loaded at all.

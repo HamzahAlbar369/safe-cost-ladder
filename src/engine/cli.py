@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import typer
 
+from engine.contracts import utcnow
+
 app = typer.Typer(no_args_is_help=True, add_completion=False)
 
 
@@ -175,6 +177,66 @@ def probe(
             f"lat={c.call.latency_ms:.0f}ms graded={c.graded_correct} {c.schema_errors or ''}"
         )
     typer.echo(f"{sum(c.ok for c in calls)}/{len(calls)} ok; wrote {out}")
+
+
+@app.command()
+def matrix(
+    split: str = typer.Option("dev", help="dev (held-out is sealed; shifted is recorded in Phase 4)"),
+    subset: str = typer.Option("all", help="pilot (40 stratified items) | all"),
+    mode: str = typer.Option("auto", help="auto (replay if recorded) | live | replay"),
+    run_id: str = typer.Option("", help="Run id; pass an existing one to resume it."),
+    estimate_only: bool = typer.Option(False, "--estimate", help="Print the estimate and exit."),
+    cap_anthropic: float = typer.Option(0.0, help="Approved Anthropic spend cap for this run (USD)."),
+    concurrency: int = typer.Option(6, help="Max calls in flight per model (the pacer adapts below it)."),
+    yes: bool = typer.Option(False, "--yes", help="Confirm the estimate was approved; required to spend."),
+) -> None:
+    """Record the 9-config matrix (SPEC §7.4): paid, resumable, paced by the API rate-limit headers."""
+    from engine import runinfo
+    from engine.eval import estimate as E
+    from engine.eval import matrix as M
+    from engine.eval.data import load_split
+    from engine.eval.subsets import stratified_subset
+    from engine.llm.client import CassetteStore, Ledger
+    from engine.llm.pricing import pricebook
+
+    if split not in ("dev", "shifted"):
+        raise typer.BadParameter("split must be dev or shifted (held-out is only run by `engine final`)")
+    if split == "shifted":
+        typer.echo("shifted is recorded in Phase 4, not now.")
+        raise typer.Exit(2)
+    tickets = load_split(split)
+    if subset == "pilot":
+        tickets = stratified_subset(tickets)
+    run_id = run_id or f"matrix-{split}-{subset}-" + utcnow().strftime("%Y%m%dT%H%M%SZ")
+    done = M.load_done(M.runs_dir(run_id) / "calls.jsonl")
+    cells = [c for c in M.plan_cells(tickets) if (c[0].id, pricebook().config_id(c[1], c[2])) not in done]
+    live = M.pending_live(cells, CassetteStore(), done)
+    est = E.estimate_requests(
+        [(t.task_type, M.build_request(t, m, e)) for t, m, e in live], concurrency=3 * concurrency
+    )
+    typer.echo(
+        f"run {run_id}: {len(tickets)} tickets, {len(cells)} cells to do, {len(cells) - len(live)} replayable"
+    )
+    typer.echo(E.format_estimate("Live calls", est, Ledger().remaining("anthropic")))
+    if estimate_only:
+        return
+    if live and mode != "replay" and (not yes or cap_anthropic <= 0):
+        typer.echo("Paid run refused: pass --yes with --cap-anthropic (the approved cap).")
+        raise typer.Exit(2)
+    summary = M.run_matrix(
+        split,
+        tickets,
+        mode=mode,  # type: ignore[arg-type]
+        run_id=run_id,
+        cap_usd=cap_anthropic,
+        per_model_concurrency=concurrency,
+        git_sha=runinfo.git_sha(),
+        progress=typer.echo,
+    )
+    typer.echo(summary.model_dump_json(indent=1))
+    if summary.n_errors:
+        typer.echo(f"{summary.n_errors} cells have no response: re-run with --run-id {run_id} to retry them.")
+        raise typer.Exit(1)
 
 
 @app.command()

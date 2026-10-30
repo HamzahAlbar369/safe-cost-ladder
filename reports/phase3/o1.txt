@@ -1,4 +1,4 @@
-run: matrix-dev-full-1 | split: dev | git: 6d065c3ee4b301eb80ce87cc9c66fb5aeb09a039 | config_hash: 1201126a080c897a
+run: matrix-dev-full-1 | split: dev | git: 72972b69eee161b16caab67531a63c2d5a1e2777 | config_hash: 1201126a080c897a
 
 O1 = per-task cheapest config meeting the floor + risk-tiered verification on adjudicate (SPEC 7.3)
     faq/intent/extract: faq haiku-low, intent haiku-high, extract haiku-low (no verification)

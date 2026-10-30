@@ -543,3 +543,21 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   `reports/phase2/floors_*.txt` and `evaluate_*.txt`. Proposal in `config/policy.yaml` is marked `proposed`.
 - **Solvability:** `docs/SOLVABILITY.md` (one `opus-high` failure, ambiguous because of a caller / second-person name
   collision in the generator).
+
+### D2.9 · Phase 2 sign-off (Hamzah): premium budget rule, floors frozen, no data change
+- **Budget rule = PREMIUM.** Among configs tied for the best dev accuracy, the latency budget is the p95 of the most
+  expensive tied config, rounded up to 0.5 s (SPEC §7.2 reworded). Both rules were computed before any optimisation
+  (`reports/phase2/floors_{cheapest,premium}.txt`, `evaluate_{cheapest,premium}.txt`). Under the cheapest-tie rule the
+  always-best baseline B1 failed its own intent latency budget (B1 intent success 0.517), which would have inflated
+  every saving; premium is the fair, conservative choice. Effect on the B3 saving vs B1 (Cost without caching
+  (headline) CPST): 52.9% under cheapest-tie, 49.5% under premium. The accuracy floors are identical under both.
+- **Tolerances unchanged:** adjudicate 1 pt; extract, intent, faq 2 pts.
+- **Name clash: no data change** (documented in `docs/SOLVABILITY.md` and the README limitations). The audit
+  (`engine audit-names`, `reports/phase2/name_collisions.txt`) shows two mechanisms; the first draft of the solvability
+  note described only the independent claimant draw and was corrected to include the structural driver-name reuse.
+- **V2 unchanged, prompts stay frozen, false rejects documented as a known cost**
+  (`reports/phase2/verifiers.txt`): V2 rejects 19 correct adjudicate answers (13 from a wrongly stated
+  `other_party`, 6 missing reason codes).
+- **Spend approved:** $12.26 (ledger `runs/spend.jsonl`).
+- **Frozen:** `config/policy.yaml` (`status: frozen`, derived from `matrix-dev-full-1`) committed and tagged
+  `floors-v1` before Phase 3. Changing floors, budgets or the keep/drop rule afterwards needs a new decision entry.

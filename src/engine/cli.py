@@ -260,6 +260,9 @@ def floors(
         False, "--write", help="Write the proposal to config/policy.yaml (status: proposed)."
     ),
     budget_rule: str = typer.Option("cheapest", help="cheapest | premium: which tied config sets the budget"),
+    freeze: bool = typer.Option(
+        False, "--freeze", help="With --write: mark the policy frozen (sign-off given)."
+    ),
 ) -> None:
     """Derive per-task accuracy floors and latency budgets from the dev matrix (SPEC 7.2). Not frozen."""
     from engine import runinfo
@@ -275,8 +278,9 @@ def floors(
     result = derive_floors(cells, budget_rule)
     typer.echo(format_floors(result))
     if write:
-        write_policy_yaml(result, [run_id], runinfo.git_sha())
-        typer.echo("wrote config/policy.yaml (status: proposed). Tag floors-v1 only after sign-off.")
+        write_policy_yaml(result, [run_id], runinfo.git_sha(), budget_rule=budget_rule, frozen=freeze)
+        state = "frozen" if freeze else "proposed"
+        typer.echo(f"wrote config/policy.yaml (status: {state}). Tag floors-v1 only after sign-off.")
 
 
 @app.command()
@@ -327,6 +331,15 @@ def phase2_report(
 
     for path in write_all(run_id, repeat):
         typer.echo(f"wrote {path.relative_to(path.parents[2]).as_posix()}")
+
+
+@app.command("audit-names")
+def audit_names() -> None:
+    """Count tickets where two people share a first name (caller vs driver or claimant); no data change."""
+    from engine.datagen.audit_names import audit, format_audit
+
+    counts, ids = audit()
+    typer.echo(format_audit(counts, ids))
 
 
 @app.command("replay-check")

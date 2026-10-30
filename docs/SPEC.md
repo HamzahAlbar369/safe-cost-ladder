@@ -275,8 +275,11 @@ A task is a success iff the grader marks it correct AND total latency ≤ that t
 ### §7.2 Floors and budgets (`engine floors`, frozen and committed as tag `floors-v1` before Phase 3)
 - Accuracy floor per task = accuracy of the most accurate single config on dev for that task − tolerance
   (adjudicate 1 pt; extract, intent, faq 2 pts).
-- Latency budget per task = p95 latency of that same most-accurate config on dev ("never slower than always-premium"),
-  rounded up to 0.5 s.
+- Latency budget per task = p95 latency on dev of the reference config, rounded up to 0.5 s ("never slower than
+  always-premium"). When several configs tie for the best accuracy, the reference is the **most expensive** tied
+  config (by Cost without caching (headline)); the accuracy floor is unchanged by ties. (Decided at Phase 2 sign-off,
+  D2.9: the earlier "cheapest tied config" tie-break set budgets from Haiku's p95, which made even the always-best
+  baseline B1 fail its own intent budget; `engine floors --budget-rule cheapest|premium` computes both.)
 - Fallback if per-task floors prove unworkable: one global floor = most accurate config overall − 2 pts (log in DECISIONS.md).
 
 ### §7.3 Policies compared

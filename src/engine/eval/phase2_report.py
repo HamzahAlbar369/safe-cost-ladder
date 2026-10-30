@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 
 from engine import runinfo
+from engine.datagen.audit_names import audit, format_audit
 from engine.eval import replay
 from engine.eval.analysis import analyse
 from engine.eval.analysis_text import format_analysis, format_floors
@@ -47,6 +48,10 @@ def write_all(run_id: str, repeat: int, out: Path = OUT) -> list[Path]:
         files[f"evaluate_{rule}.txt"] = f"budget rule: {rule}\n\n" + format_analysis(
             analyse(cells, tickets, floors)
         )
+    counts, flagged = audit()
+    files["name_collisions.txt"] = "\n\n".join(
+        [format_audit(counts, flagged), collision_impact(cells, flagged["dev"])]
+    )
     paths = []
     for name, body in files.items():
         path = out / name
@@ -72,3 +77,20 @@ def write_all(run_id: str, repeat: int, out: Path = OUT) -> list[Path]:
         )
         paths.append(path)
     return paths
+
+
+def collision_impact(cells: list, flagged_dev: list[str]) -> str:
+    """Dev accuracy of each model family on the tickets with a visible name clash vs all other tickets of the
+    same tasks (adjudicate tickets only: the clash lines occur in claim narratives)."""
+    clash = set(flagged_dev)
+    lines = [
+        f"Dev outcome on the {len(clash)} visible-clash tickets vs other adjudicate tickets (all efforts)",
+        f"{'model':<8}{'clash n':>9}{'clash acc':>11}{'other n':>9}{'other acc':>11}",
+    ]
+    for model in ("haiku", "sonnet", "opus"):
+        mine = [c for c in cells if c.config_id.startswith(model) and c.task == "adjudicate"]
+        a = [c for c in mine if c.ticket_id in clash]
+        b = [c for c in mine if c.ticket_id not in clash]
+        acc = lambda xs: sum(c.correct for c in xs) / len(xs) if xs else 0.0  # noqa: E731
+        lines.append(f"{model:<8}{len(a):>9}{acc(a):>11.3f}{len(b):>9}{acc(b):>11.3f}")
+    return "\n".join(lines)

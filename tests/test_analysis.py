@@ -167,3 +167,18 @@ def test_premium_budget_rule_uses_the_most_expensive_tied_config():
     strict = run_policy(lambda t: ("opus-high",), ts, index, derive_floors(cells, "cheapest"))
     relaxed = run_policy(lambda t: ("opus-high",), ts, index, derive_floors(cells, "premium"))
     assert not any(o.success for o in strict) and all(o.success for o in relaxed)
+
+
+def test_policy_yaml_records_status_and_budget_rule(tmp_path):
+    import yaml
+
+    from engine.eval.floors import write_policy_yaml
+
+    floors = derive_floors(all_cells(lambda t, c: {}), "premium")
+    path = tmp_path / "policy.yaml"
+    write_policy_yaml(floors, ["r"], "sha", path, budget_rule="premium", frozen=True)
+    doc = yaml.safe_load(path.read_text("utf-8"))
+    assert doc["status"] == "frozen" and doc["budget_rule"] == "premium"
+    assert doc["latency_budget_config"]["faq"] == "opus-high"
+    write_policy_yaml(floors, ["r"], "sha", path)
+    assert yaml.safe_load(path.read_text("utf-8"))["status"] == "proposed"

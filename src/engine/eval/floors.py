@@ -91,14 +91,25 @@ def derive_floors(cells: list[Cell], budget_rule: str = "cheapest") -> Floors:
     return Floors(per_task=per_task)
 
 
-def write_policy_yaml(floors: Floors, run_ids: list[str], git_sha: str, path: Path = POLICY_YAML) -> None:
+def write_policy_yaml(
+    floors: Floors,
+    run_ids: list[str],
+    git_sha: str,
+    path: Path = POLICY_YAML,
+    *,
+    budget_rule: str = "cheapest",
+    frozen: bool = False,
+) -> None:
     doc = {
-        "status": "proposed",  # becomes "frozen" only with Hamzah's sign-off and the floors-v1 tag
+        # "frozen" only with Hamzah's sign-off, committed before any optimisation and tagged floors-v1
+        "status": "frozen" if frozen else "proposed",
         "derived_from": {"runs": run_ids, "git_sha": git_sha, "split": "dev"},
+        "budget_rule": budget_rule,
         "floors": {
             t: {"accuracy": f.floor, "best_config": f.best_config} for t, f in floors.per_task.items()
         },
         "latency_budget_s": {t: f.budget_s for t, f in floors.per_task.items()},
+        "latency_budget_config": {t: f.budget_config for t, f in floors.per_task.items()},
         "cost_of_error_usd": COST_OF_ERROR_USD,
         "retry_budget": RETRY_BUDGET,
     }

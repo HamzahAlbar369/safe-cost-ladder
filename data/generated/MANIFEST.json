@@ -1,7 +1,7 @@
 {
   "fiction": "FICTIONAL insurer; synthetic tickets. Rules follow SAMA-issued instruments (see data/rules/SOURCES.md).",
   "seed": 20261030,
-  "generator_git_sha": "9468303f54ccf00e27b650b9e355441fc9d92609-dirty",
+  "generator_git_sha": "4fcfc775a389075aa0f231ba1f624cea8d9b32c1",
   "rules_sha256": {
     "rules.yaml": "afbd64a57ef353ee84b1810736bc761adeb4461a8d8ebd7af207aa084e67bca6",
     "rules_v2.yaml": "52276a85241b538722a2273bcb60306e9beda6a1bc9327b85cfe346db916d5f8"

@@ -22,9 +22,10 @@ def tree_status() -> str:
     return _git("status", "--porcelain")
 
 
-# Files the harness itself writes while running (run logs, the spend ledger, recorded responses). They cannot
-# change what code or prompts a run used, so they do not make the tree "dirty" for the paid-run rule (D2.6).
-OUTPUT_PREFIXES = ("runs/", "cassettes/")
+# Files the harness itself writes (run logs, the spend ledger, recorded responses, generated reports). They
+# cannot change what code or prompts a run used, so they do not make the tree "dirty" for the paid-run
+# rule (D2.6).
+OUTPUT_PREFIXES = ("runs/", "cassettes/", "reports/")
 
 
 def code_changes() -> list[str]:

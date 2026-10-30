@@ -1,0 +1,95 @@
+run: matrix-dev-full-1 | split: dev | git: 7ab4c84a1dbef5ead6177c10ec4b3dd20d13a95d | config_hash: 1201126a080c897a
+
+budget rule: premium
+
+Policies (dev; success = correct AND within the task latency budget; CPST = cost per successful task)
+B1: always-best (opus-low)
+    accuracy 0.998  success 0.955  p50 2.05s  p95 4.93s  oracle gap captured 0%  meets every floor: yes
+    CPST, Cost without caching (headline): $0.03533 [0.03457, 0.03618]   total $13.50
+    CPST, Cost with caching (actual):      $0.00452 [0.00427, 0.00479]   total $1.73
+    CPST change vs B1 (headline): +0.0% [+0.0, +0.0]%
+B2: always-cheapest (haiku-low)
+    accuracy 0.973  success 0.963  p50 1.56s  p95 6.17s  oracle gap captured 100%  meets every floor: NO
+    CPST, Cost without caching (headline): $0.00103 [0.00100, 0.00106]   total $0.40
+    CPST, Cost with caching (actual):      $0.00030 [0.00028, 0.00033]   total $0.12
+    CPST change vs B1 (headline): +97.1% [+97.0, +97.2]%
+B3: best static config per task (tuned on dev)
+    accuracy 0.993  success 0.985  p50 1.55s  p95 4.49s  oracle gap captured 51%  meets every floor: yes
+    CPST, Cost without caching (headline): $0.01785 [0.01608, 0.01966]   total $7.03
+    CPST, Cost with caching (actual):      $0.00308 [0.00273, 0.00343]   total $1.21
+    CPST change vs B1 (headline): +49.5% [+44.7, +54.3]%
+B4: cheapest single config meeting every floor (opus-low)
+    accuracy 0.998  success 0.955  p50 2.05s  p95 4.93s  oracle gap captured 0%  meets every floor: yes
+    CPST, Cost without caching (headline): $0.03533 [0.03457, 0.03618]   total $13.50
+    CPST, Cost with caching (actual):      $0.00452 [0.00427, 0.00479]   total $1.73
+    CPST change vs B1 (headline): +0.0% [+0.0, +0.0]%
+B5: naive cascade (haiku-low -> best on V0 failure)
+    accuracy 0.973  success 0.963  p50 1.56s  p95 6.17s  oracle gap captured 100%  meets every floor: NO
+    CPST, Cost without caching (headline): $0.00103 [0.00100, 0.00106]   total $0.40
+    CPST, Cost with caching (actual):      $0.00030 [0.00028, 0.00033]   total $0.12
+    CPST change vs B1 (headline): +97.1% [+97.0, +97.2]%
+Oracle: cheapest correct config within budget, per ticket
+    accuracy 0.998  success 0.995  p50 1.52s  p95 5.79s  oracle gap captured 100%  meets every floor: yes
+    CPST, Cost without caching (headline): $0.00113 [0.00099, 0.00131]   total $0.45
+    CPST, Cost with caching (actual):      $0.00032 [0.00028, 0.00036]   total $0.13
+    CPST change vs B1 (headline): +96.8% [+96.3, +97.2]%
+
+Per task accuracy / success / CPST (headline) / p95 s
+B1: always-best (opus-low)
+    faq         n=100  acc 1.000  success 0.940  CPST $0.03134  p95 2.64s
+    intent      n=60   acc 1.000  success 0.917  CPST $0.03229  p95 4.71s
+    extract     n=60   acc 1.000  success 0.917  CPST $0.03469  p95 5.99s
+    adjudicate  n=180  acc 0.994  success 0.989  CPST $0.03857  p95 5.15s
+B2: always-cheapest (haiku-low)
+    faq         n=100  acc 0.990  success 0.980  CPST $0.00076  p95 1.79s
+    intent      n=60   acc 0.950  success 0.950  CPST $0.00078  p95 1.50s
+    extract     n=60   acc 0.983  success 0.967  CPST $0.00083  p95 2.10s
+    adjudicate  n=180  acc 0.967  success 0.956  CPST $0.00133  p95 6.88s
+B3: best static config per task (tuned on dev)
+    faq         n=100  acc 0.990  success 0.980  CPST $0.00076  p95 1.79s
+    intent      n=60   acc 1.000  success 1.000  CPST $0.00075  p95 1.41s
+    extract     n=60   acc 0.983  success 0.967  CPST $0.00083  p95 2.10s
+    adjudicate  n=180  acc 0.994  success 0.989  CPST $0.03857  p95 5.15s
+B4: cheapest single config meeting every floor (opus-low)
+    faq         n=100  acc 1.000  success 0.940  CPST $0.03134  p95 2.64s
+    intent      n=60   acc 1.000  success 0.917  CPST $0.03229  p95 4.71s
+    extract     n=60   acc 1.000  success 0.917  CPST $0.03469  p95 5.99s
+    adjudicate  n=180  acc 0.994  success 0.989  CPST $0.03857  p95 5.15s
+B5: naive cascade (haiku-low -> best on V0 failure)
+    faq         n=100  acc 0.990  success 0.980  CPST $0.00076  p95 1.79s
+    intent      n=60   acc 0.950  success 0.950  CPST $0.00078  p95 1.50s
+    extract     n=60   acc 0.983  success 0.967  CPST $0.00083  p95 2.10s
+    adjudicate  n=180  acc 0.967  success 0.956  CPST $0.00133  p95 6.88s
+Oracle: cheapest correct config within budget, per ticket
+    faq         n=100  acc 1.000  success 1.000  CPST $0.00075  p95 1.73s
+    intent      n=60   acc 1.000  success 1.000  CPST $0.00074  p95 1.41s
+    extract     n=60   acc 1.000  success 0.983  CPST $0.00081  p95 2.10s
+    adjudicate  n=180  acc 0.994  success 0.994  CPST $0.00158  p95 6.40s
+
+Per language accuracy / success
+B1: always-best (opus-low): en acc 0.996 success 0.950 (n=280); ar acc 1.000 success 0.967 (n=120)
+B2: always-cheapest (haiku-low): en acc 0.979 success 0.964 (n=280); ar acc 0.958 success 0.958 (n=120)
+B3: best static config per task (tuned on dev): en acc 0.993 success 0.982 (n=280); ar acc 0.992 success 0.992 (n=120)
+B4: cheapest single config meeting every floor (opus-low): en acc 0.996 success 0.950 (n=280); ar acc 1.000 success 0.967 (n=120)
+B5: naive cascade (haiku-low -> best on V0 failure): en acc 0.979 success 0.964 (n=280); ar acc 0.958 success 0.958 (n=120)
+Oracle: cheapest correct config within budget, per ticket: en acc 0.996 success 0.993 (n=280); ar acc 1.000 success 1.000 (n=120)
+
+Pareto ladder per task (dominated configs removed; cost = mean Cost without caching (headline))
+  faq        haiku-low (acc 0.990, $0.0007, p95 1.8s) -> haiku-medium (acc 1.000, $0.0008, p95 1.8s)
+             dominated: haiku-high, sonnet-low, sonnet-medium, sonnet-high, opus-low, opus-medium, opus-high
+  intent     haiku-low (acc 0.950, $0.0007, p95 1.5s) -> haiku-medium (acc 0.967, $0.0007, p95 1.4s) -> haiku-high (acc 1.000, $0.0008, p95 1.4s)
+             dominated: sonnet-low, sonnet-medium, sonnet-high, opus-low, opus-medium, opus-high
+  extract    haiku-low (acc 0.983, $0.0008, p95 2.1s) -> haiku-medium (acc 1.000, $0.0008, p95 3.0s)
+             dominated: haiku-high, sonnet-medium, sonnet-low, sonnet-high, opus-low, opus-medium, opus-high
+  adjudicate haiku-low (acc 0.967, $0.0013, p95 6.9s) -> haiku-medium (acc 0.972, $0.0013, p95 8.4s) -> sonnet-high (acc 0.983, $0.0220, p95 8.2s) -> opus-low (acc 0.994, $0.0381, p95 5.2s)
+             dominated: opus-medium, opus-high, sonnet-medium, haiku-high, sonnet-low
+
+Oracle choice counts per task (tickets sent to each config)
+  faq        {'haiku-low': 81, 'haiku-high': 12, 'haiku-medium': 7}
+  intent     {'haiku-high': 45, 'haiku-low': 14, 'haiku-medium': 1}
+  extract    {'haiku-low': 58, 'haiku-medium': 1, 'haiku-high': 1}
+  adjudicate {'haiku-low': 145, 'haiku-medium': 30, 'sonnet-low': 3, 'haiku-high': 2}
+
+Router go/no-go headroom (SPEC 7.7; upper bound; B1-B5 policies that meet every floor)
+  best non-router policy: B3: best static config per task (tuned on dev) (CPST $0.01785)
+  oracle CPST $0.00113; headroom 93.7% vs the 5% keep threshold -> GO

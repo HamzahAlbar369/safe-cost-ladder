@@ -1,0 +1,30 @@
+status: proposed
+derived_from:
+  runs:
+  - matrix-dev-full-1
+  git_sha: 7ab4c84a1dbef5ead6177c10ec4b3dd20d13a95d
+  split: dev
+floors:
+  faq:
+    accuracy: 0.98
+    best_config: haiku-medium
+  intent:
+    accuracy: 0.98
+    best_config: haiku-high
+  extract:
+    accuracy: 0.98
+    best_config: haiku-medium
+  adjudicate:
+    accuracy: 0.984444
+    best_config: opus-low
+latency_budget_s:
+  faq: 2.5
+  intent: 4.5
+  extract: 3.5
+  adjudicate: 8.5
+cost_of_error_usd:
+  faq: 0.5
+  intent: 0.5
+  extract: 5.0
+  adjudicate: 50.0
+retry_budget: 1

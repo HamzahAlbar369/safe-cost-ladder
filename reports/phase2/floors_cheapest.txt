@@ -1,0 +1,15 @@
+run: matrix-dev-full-1 | split: dev | git: 7ab4c84a1dbef5ead6177c10ec4b3dd20d13a95d | config_hash: 1201126a080c897a
+
+budget rule: cheapest
+
+Floors and latency budgets (SPEC 7.2; proposed, NOT frozen)
+task          n   best config  best acc   tol   floor    budget cfg   p95 s  budget s
+faq         100  haiku-medium     1.000  0.02   0.980  haiku-medium    1.83       2.0
+intent       60    haiku-high     1.000  0.02   0.980    haiku-high    1.41       1.5
+extract      60  haiku-medium     1.000  0.02   0.980  haiku-medium    2.96       3.0
+adjudicate  180      opus-low     0.994  0.01   0.984      opus-low    5.15       5.5
+Configs tied for best accuracy (tie-break: lower Cost without caching (headline)) and their p95:
+  faq        haiku-medium p95 1.83s $0.0008, haiku-high p95 1.77s $0.0008, sonnet-low p95 2.19s $0.0147, sonnet-medium p95 2.03s $0.0148, sonnet-high p95 2.94s $0.0148, opus-low p95 2.64s $0.0295, opus-medium p95 2.16s $0.0295, opus-high p95 2.31s $0.0296
+  intent     haiku-high p95 1.41s $0.0008, sonnet-low p95 1.81s $0.0148, sonnet-medium p95 2.06s $0.0148, sonnet-high p95 2.22s $0.0148, opus-low p95 4.71s $0.0296, opus-medium p95 4.41s $0.0296, opus-high p95 4.49s $0.0296
+  extract    haiku-medium p95 2.96s $0.0008, haiku-high p95 2.68s $0.0009, sonnet-medium p95 2.62s $0.0159, sonnet-low p95 3.09s $0.0159, sonnet-high p95 6.43s $0.0159, opus-low p95 5.99s $0.0318, opus-medium p95 5.96s $0.0318, opus-high p95 3.30s $0.0320
+  adjudicate opus-low p95 5.15s $0.0381, opus-medium p95 6.21s $0.0409, opus-high p95 8.03s $0.0417

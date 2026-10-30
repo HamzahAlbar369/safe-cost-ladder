@@ -1,0 +1,64 @@
+{
+ "run": "matrix-dev-full-1",
+ "git": "7ab4c84a1dbef5ead6177c10ec4b3dd20d13a95d",
+ "config_hash": "1201126a080c897a",
+ "config": "opus-low",
+ "failures": [
+  {
+   "ticket_id": "dev-0378",
+   "task": "adjudicate",
+   "level": "L4",
+   "language": "en",
+   "template_family": "en_agent",
+   "design": "od_driver_unauthorised",
+   "text": "Agent summary - caller Faisal.\n- Policy: OMI-6131101\n- Cover: comprehensive\n- Policy end: 5 Oct 2026\n- Claim type: own damage\n- Other party: identified, insured\n- Accident date: 2 Feb 2026\n- Report by: Najm\n- Report no.: NJ-68540499\n- Fault share: 25%\n- Assessed repair cost: SAR 15,800\n- Sum insured: SAR 96,000\n- Claim filed: 17/02/2026\n- Customer says: On 2 Feb 2026 another car hit mine in Hail. The car was being driven by Faisal from work. Attached are the Najm accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment. My claim reference from the app is CLM-38045. It was raining a little that evening.",
+   "gold": {
+    "decision": "deny",
+    "payout_sar": 0,
+    "reasons": [
+     "R5_OD_unauthorised_driver"
+    ],
+    "inputs": {
+     "claim_type": "own_damage",
+     "cover": "COMP",
+     "accident_date": "2026-02-02",
+     "other_party": "insured",
+     "fault_share": 25,
+     "damage_amount_sar": 15800
+    }
+   },
+   "model_output": {
+    "inputs": {
+     "claim_type": "own_damage",
+     "cover": "COMP",
+     "accident_date": "2026-02-02",
+     "other_party": "insured",
+     "fault_share": 25,
+     "damage_amount_sar": 15800,
+     "sum_insured_sar": 96000,
+     "total_loss": false
+    },
+    "reasons": [
+     "R3_OWN_DAMAGE",
+     "SUBROGATION"
+    ],
+    "decision": "approve",
+    "payout_sar": 15550
+   },
+   "wrong_fields": [
+    "decision",
+    "payout"
+   ],
+   "verdicts": [
+    "V0-V2 passed"
+   ],
+   "trace": [
+    "R0: peril in scope (collision) -> False peril=collision",
+    "R1: accident after policy end date -> False accident 2026-02-02 vs policy end 2026-10-05",
+    "R5: CMIR 7.2 licence valid (expired only: renewed on or before the business-day-50 date) -> False status=valid, renewed=None",
+    "R5: CMIR 7.4 driver authorised (CMIR 1.8) -> True driver=unauthorised_colleague",
+    "R5: CMIR 7.16 violation proven to cause the accident -> False violations=[], caused=False"
+   ]
+  }
+ ]
+}

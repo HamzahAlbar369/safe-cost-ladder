@@ -1,0 +1,30 @@
+run: matrix-dev-full-1 | split: dev | git: 7ab4c84a1dbef5ead6177c10ec4b3dd20d13a95d | config_hash: 1201126a080c897a
+
+matrix-dev-full-1: 3600 cells, 0 problems
+
+Per config (latency = request sent -> response received; queue wait excluded)
+   config          n        acc      parse      trunc      p50_s      p95_s    qwait95    out_tok    $cached   $nocache
+haiku-high        400      0.985      1.000          0       1.71       9.42       3.97        634     0.1662     0.4449
+haiku-low        400      0.973      1.000          0       1.56       6.17       3.34        388     0.1170     0.3958
+haiku-medium        400      0.983      1.000          0       1.73       7.21       3.13        474     0.1343     0.4130
+opus-high        400      0.998      1.000          0       2.35       6.81       1.44        180     2.4016    14.1704
+ opus-low        400      0.998      1.000          0       2.05       4.93       1.27         96     1.7271    13.4959
+opus-medium        400      0.998      1.000          0       2.27       5.72       1.36        158     2.2258    13.9946
+sonnet-high        400      0.993      0.998          0       1.70       6.89       0.84        228     1.3934     7.2778
+sonnet-low        400      0.985      0.998          1       1.55       4.68       0.00        121     0.9629     6.8473
+sonnet-medium        400      0.988      0.995          2       1.56       5.71       0.14        170     1.1592     7.0436
+
+Accuracy per config x task (n in brackets)
+   config             faq          intent         extract      adjudicate
+haiku-high     1.000 (100)     1.000 (60)     1.000 (60)     0.967 (180)
+sonnet-medium     1.000 (100)     1.000 (60)     1.000 (60)     0.972 (180)
+haiku-low     0.990 (100)     0.950 (60)     0.983 (60)     0.967 (180)
+sonnet-low     1.000 (100)     1.000 (60)     1.000 (60)     0.967 (180)
+haiku-medium     1.000 (100)     0.967 (60)     1.000 (60)     0.972 (180)
+ opus-low     1.000 (100)     1.000 (60)     1.000 (60)     0.994 (180)
+sonnet-high     1.000 (100)     1.000 (60)     1.000 (60)     0.983 (180)
+opus-medium     1.000 (100)     1.000 (60)     1.000 (60)     0.994 (180)
+opus-high     1.000 (100)     1.000 (60)     1.000 (60)     0.994 (180)
+
+Totals over 3600 cells: Cost with caching (actual) $10.2874 | Cost without caching (headline) $64.0834
+Warm-up calls (not in metrics): 12, $0.2384

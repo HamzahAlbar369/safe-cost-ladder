@@ -1,0 +1,4 @@
+run: matrix-dev-full-1 | split: dev | git: 7ab4c84a1dbef5ead6177c10ec4b3dd20d13a95d | config_hash: 1201126a080c897a
+
+replay reproduces the live run exactly (per-call cost, latency, tokens, parse flag, metrics)
+

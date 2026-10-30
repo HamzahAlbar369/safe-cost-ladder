@@ -1,0 +1,62 @@
+{
+ "run": "matrix-dev-full-1",
+ "git": "7ab4c84a1dbef5ead6177c10ec4b3dd20d13a95d",
+ "config_hash": "1201126a080c897a",
+ "config": "opus-medium",
+ "failures": [
+  {
+   "ticket_id": "dev-0084",
+   "task": "adjudicate",
+   "level": "L5",
+   "language": "en",
+   "template_family": "en_form",
+   "design": "excluded_and_missing",
+   "text": "[Web form submission]\nPolicy number: OMI-4453543\nCover type: comprehensive\nExpiry date: 2026-09-14\nClaim type: own damage\nOther party: identified, insured\nDate of accident: 2026-01-14\nReporting authority: Najm\nAccident report number: NJ-00708004\nMy fault share: 25%\nSum insured: 81,000 SAR\nDate submitted: 2026-01-26\nDescription: On 2026-01-14 another car hit mine in Taif. So far I only have a workshop quote of 35,600 SAR, no damage assessment report. The driver did not have a driving licence. I have attached the Najm report, the vehicle registration, a copy of the driving licence and photos of the damage. the Taqdeer assessment is still not ready.",
+   "gold": {
+    "decision": "deny",
+    "payout_sar": 0,
+    "reasons": [
+     "R5_OD_invalid_licence"
+    ],
+    "inputs": {
+     "claim_type": "own_damage",
+     "cover": "COMP",
+     "accident_date": "2026-01-14",
+     "other_party": "insured",
+     "fault_share": 25,
+     "damage_amount_sar": 35600
+    }
+   },
+   "model_output": {
+    "inputs": {
+     "claim_type": "own_damage",
+     "cover": "COMP",
+     "accident_date": "2026-01-14",
+     "other_party": "insured",
+     "fault_share": 25,
+     "damage_amount_sar": null,
+     "sum_insured_sar": 81000,
+     "total_loss": false
+    },
+    "reasons": [
+     "R7_MISSING_damage_assessment"
+    ],
+    "decision": "need_info",
+    "payout_sar": 0
+   },
+   "wrong_fields": [
+    "decision"
+   ],
+   "verdicts": [
+    "V0-V2 passed"
+   ],
+   "trace": [
+    "R0: peril in scope (collision) -> False peril=collision",
+    "R1: accident after policy end date -> False accident 2026-01-14 vs policy end 2026-09-14",
+    "R5: CMIR 7.2 licence valid (expired only: renewed on or before the business-day-50 date) -> True status=none, renewed=None",
+    "R5: CMIR 7.4 driver authorised (CMIR 1.8) -> False driver=insured",
+    "R5: CMIR 7.16 violation proven to cause the accident -> False violations=[], caused=False"
+   ]
+  }
+ ]
+}

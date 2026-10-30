@@ -91,6 +91,7 @@ tests/
 ```
 uv sync
 uv run engine smoke                 # Phase 0: 9 configs × 5 items; effort, tokens, latency, cache
+uv run engine policy                # re-render policy docs + SOURCES.md
 uv run engine gen                   # generate + QA all splits, write MANIFEST.json
 uv run engine matrix --split dev    # record 9-config matrix (paid; estimates first)
 uv run engine floors                # derive + freeze per-task floors and latency budgets
@@ -126,4 +127,4 @@ simplest thing that passes the gate · negative results reported honestly.
   bring-your-own-tasks. Never cut: held-out protocol, replay, report, secret hygiene.
 - Human sign-off required (stop and wait for Hamzah's explicit OK) before: starting each phase's
   build, every paid run, tagging floors-v1, tagging freeze-*, running engine final, and marking
-  any phase done. At each gate, list the human checks for that phase from SPEC §11.9.
+  any phase done. At each gate, list the human checks for that phase from the SPEC §10 gate row.

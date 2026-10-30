@@ -141,3 +141,69 @@ def write_review(dev: list[Ticket]) -> None:
         lines += ["Review: ☐ correct ☐ label error — note:", ""]
     REVIEW.parent.mkdir(parents=True, exist_ok=True)
     REVIEW.write_text("\n".join(lines), encoding="utf-8", newline="\n")
+    write_review_batches(items)
+
+
+# --- blind review batches (same 50 items) -------------------------------------------------------------
+
+N_BATCHES = 5
+BATCH_SEED = f"{G.SEED}:review-batches"
+
+
+def review_batches(items: list[Ticket]) -> list[list[Ticket]]:
+    """Assign the review items to 5 batches of 10: 6 EN + 4 AR each, every task type in every batch.
+
+    Items are shuffled with a recorded seed, rarest task first; each goes to the batch with room for its
+    language that has the fewest items of its task (ties: fewest items, then lowest index). Each batch is then
+    shuffled so the order gives nothing away."""
+    rng = random.Random(BATCH_SEED)
+    caps = {lang: sum(t.language == lang for t in items) // N_BATCHES for lang in ("en", "ar")}
+    task_n = {task: sum(t.task_type == task for t in items) for task in {t.task_type for t in items}}
+    pool = sorted(items, key=lambda t: t.id)
+    rng.shuffle(pool)
+    pool.sort(key=lambda t: task_n[t.task_type])  # stable: rarest task first, random order within a task
+    batches: list[list[Ticket]] = [[] for _ in range(N_BATCHES)]
+    for t in pool:
+        open_ = [b for b in batches if sum(x.language == t.language for x in b) < caps[t.language]]
+        best = min(open_, key=lambda b: (sum(x.task_type == t.task_type for x in b), len(b)))
+        best.append(t)
+    for b in batches:
+        rng.shuffle(b)
+    return batches
+
+
+def write_review_batches(items: list[Ticket]) -> None:
+    note = (
+        "> FICTIONAL insurer and synthetic tickets; dev split only (held-out is never shown). Items: the 50"
+        f" from dev_review.md (selection seed `{G.SEED}:review`), batched with seed `{BATCH_SEED}`."
+    )
+    for n, batch in enumerate(review_batches(items), 1):
+        blind = [
+            f"# Review batch {n} — blind (no gold)",
+            "",
+            note,
+            "",
+            f"Write your answer for each item, then compare with `batch_{n}_gold.md`.",
+            "",
+        ]
+        gold = [f"# Review batch {n} — gold and rule trace", "", note, ""]
+        for t in batch:
+            lang = {"en": "English", "ar": "Arabic"}[t.language]
+            blind += [
+                f"## {t.id} · {lang} · {t.task_type}",
+                "",
+                "```text",
+                t.text,
+                "```",
+                "",
+                "My answer:",
+                "",
+            ]
+            gold += [f"## {t.id}", "", f"**Gold:** `{t.gold.model_dump_json()}`", ""]
+            if isinstance(t.gold, AdjudicateGold):
+                gold += _trace_table(t) + [""]
+            gold += ["Verdict: ☐ agree ☐ label error — note:", ""]
+        for kind, lines in (("blind", blind), ("gold", gold)):
+            (REVIEW.parent / f"batch_{n}_{kind}.md").write_text(
+                "\n".join(lines), encoding="utf-8", newline="\n"
+            )

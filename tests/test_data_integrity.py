@@ -53,3 +53,36 @@ def test_dev_and_shifted_parse_as_tickets():
     for split in ("dev", "shifted"):  # held-out is not parsed here
         for line in publish.split_path(split).read_text(encoding="utf-8").splitlines():
             Ticket.model_validate_json(line)
+
+
+def _dev() -> list[Ticket]:
+    lines = publish.split_path("dev").read_text(encoding="utf-8").splitlines()
+    return [Ticket.model_validate_json(line) for line in lines]
+
+
+def test_review_covers_every_adjudication_level_and_decision():
+    adj = [t for t in publish.pick_review(_dev()) if t.task_type == "adjudicate"]
+    assert {t.level for t in adj} == {"L3", "L4", "L5"}
+    assert {t.gold.decision for t in adj} == {"approve", "partial", "deny", "need_info"}
+
+
+def test_review_batches_partition_the_review_items():
+    items = publish.pick_review(_dev())
+    batches = publish.review_batches(items)
+    assert [len(b) for b in batches] == [10] * 5
+    assert sorted(t.id for b in batches for t in b) == sorted(t.id for t in items)
+    for b in batches:
+        assert sum(t.language == "en" for t in b) == 6 and sum(t.language == "ar" for t in b) == 4
+        assert {t.task_type for t in b} == {"faq", "intent", "extract", "adjudicate"}
+
+
+def test_blind_batches_show_no_gold_level_or_trace_and_match_gold_files():
+    for n in range(1, 6):
+        blind = (publish.REVIEW.parent / f"batch_{n}_blind.md").read_text(encoding="utf-8")
+        gold = (publish.REVIEW.parent / f"batch_{n}_gold.md").read_text(encoding="utf-8")
+        for leak in ('"decision"', '"answer"', '"intent"', "Gold:", "| R", " L3", " L4", " L5", "rules v"):
+            assert leak not in blind, (n, leak)
+        ids_blind = [ln.split(" · ")[0][3:] for ln in blind.splitlines() if ln.startswith("## ")]
+        ids_gold = [ln[3:] for ln in gold.splitlines() if ln.startswith("## ")]
+        assert ids_blind == ids_gold and len(ids_blind) == 10
+        assert all(i.startswith("dev-") for i in ids_blind)

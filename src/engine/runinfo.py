@@ -14,7 +14,7 @@ class DirtyTree(RuntimeError):
 def _git(*args: str) -> str:
     return subprocess.run(
         ["git", *args], cwd=ROOT, capture_output=True, text=True, check=True, encoding="utf-8"
-    ).stdout.strip()
+    ).stdout.rstrip("\n")  # keep leading spaces: porcelain status columns are positional
 
 
 def tree_status() -> str:
@@ -24,7 +24,7 @@ def tree_status() -> str:
 
 def git_sha() -> str:
     try:
-        return _git("rev-parse", "HEAD") + ("-dirty" if tree_status() else "")
+        return _git("rev-parse", "HEAD").strip() + ("-dirty" if tree_status() else "")
     except (OSError, subprocess.CalledProcessError):
         return "unknown"
 

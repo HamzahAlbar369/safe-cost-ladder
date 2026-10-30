@@ -53,3 +53,17 @@ def test_jev_refuses_dirty_tree(dirty, tmp_ledger, tmp_store, monkeypatch):
 
 def test_git_sha_marks_dirty(dirty):
     assert runinfo.git_sha().endswith("-dirty")
+
+
+def test_dirty_message_keeps_full_paths(monkeypatch):
+    monkeypatch.setattr(runinfo, "tree_status", lambda: " M docs/DECISIONS.md\n?? src/new.py")
+    with pytest.raises(runinfo.DirtyTree, match=r"\(docs/DECISIONS.md, src/new.py\)"):
+        runinfo.require_clean_tree()
+
+
+def test_porcelain_leading_space_survives(monkeypatch):
+    import subprocess
+    from types import SimpleNamespace
+
+    monkeypatch.setattr(subprocess, "run", lambda *a, **k: SimpleNamespace(stdout=" M docs/SPEC.md\n"))
+    assert runinfo._git("status", "--porcelain") == " M docs/SPEC.md"

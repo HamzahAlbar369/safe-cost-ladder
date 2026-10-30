@@ -573,3 +573,19 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   before every commit impractical in the time left.
 - **Remote:** pushed to the private origin on 2026-10-31 (fast-forward `33f03e1..0196989`, tag `floors-v1`);
   `git ls-remote` shows remote `main` and `floors-v1` at `0196989`.
+
+### D3.2 · O1 adjudicate: parallel second opinion with a 6.0 s deadline (approved by Hamzah)
+- **Decision:** adjudicate runs `haiku-low` and `haiku-medium` (V3 second opinion, SPEC §6.3) in parallel. O1 waits
+  for `haiku-medium` at most **D = 6.0 s** from the start, but never cuts `haiku-low` short. If the second opinion
+  is in hand, `haiku-low`'s answer is accepted iff both pass V0-V2 and agree (decision, payout ±1 SAR); if it is
+  late, iff `haiku-low` passes V0-V2. Otherwise escalate to `opus-low`. Late calls are charged in full.
+  faq / intent / extract use the cheapest config meeting the floor (B3's pick), with no verification.
+  "O1 as specified (no deadline)" is kept as an ablation row. Code: `src/engine/policy/cascade.py`.
+- **Why:** without a deadline, waiting for `haiku-medium` (adjudicate p95 8.44 s) and then `opus-low` pushed
+  correct answers past the 8.5 s budget: adjudicate success 161/180 with 178/180 correct.
+- **Evidence (`reports/phase3/o1.txt`, run `matrix-dev-full-1`, dev only):** deadline table none / 6.0 / 5.0 s →
+  correct 178 / 178 / 178, success 161 / 170 / 170, adjudicate CPST (headline) $0.00607 / $0.00529 / $0.00508.
+- **Correction to the table shown at plan time:** that scratch table decided at D even when `haiku-low` was still
+  running, throwing away a second opinion that had already arrived; it showed D = 5.0 losing 2 correct answers
+  (176). With the rule as implemented above, D = 5.0 keeps 178 correct. **D = 6.0 stays as approved**; the stated
+  reason for rejecting 5.0 no longer holds and is for Hamzah to revisit.

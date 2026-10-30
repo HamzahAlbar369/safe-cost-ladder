@@ -47,3 +47,4 @@ markers = ["slow: over ~10 s (committed-matrix replay, data regeneration, gold s
 "src/engine/smoke_fixtures.py" = ["E501"]  # bilingual probe text, kept verbatim
 "src/engine/datagen/templates/bank_*.py" = ["E501"]  # bilingual phrase banks, kept verbatim
 "src/engine/eval/analysis_text.py" = ["E501"]  # report layout strings
+"src/engine/eval/phase3_report.py" = ["E501"]  # report layout strings

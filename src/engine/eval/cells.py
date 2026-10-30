@@ -42,6 +42,9 @@ class Cell(BaseModel):
     thinking_tokens: int | None
     stop_reason: str | None
     replayed: bool
+    # adjudicate answer as the model stated it (V3 second opinion compares these); None if absent/unparsed
+    decision: str | None = None
+    payout_sar: float | None = None
 
 
 def read_calls(run_id: str) -> list[ModelCall]:
@@ -114,4 +117,18 @@ def _cell(ticket: Ticket, call: ModelCall, response: LLMResponse, rules) -> Cell
         thinking_tokens=call.thinking_tokens,
         stop_reason=response.stop_reason,
         replayed=call.replayed,
+        **_adjudicate_answer(task, out),
     )
+
+
+def _adjudicate_answer(task: str, out) -> dict:
+    if task != "adjudicate" or not isinstance(out, dict):
+        return {}
+    payout = out.get("payout_sar")
+    decision = out.get("decision")
+    return {
+        "decision": decision if isinstance(decision, str) else None,
+        "payout_sar": float(payout)
+        if isinstance(payout, int | float) and not isinstance(payout, bool)
+        else None,
+    }

@@ -333,6 +333,15 @@ def phase2_report(
         typer.echo(f"wrote {path.relative_to(path.parents[2]).as_posix()}")
 
 
+@app.command("phase3-report")
+def phase3_report(run_id: str = typer.Option("matrix-dev-full-1")) -> None:
+    """Write reports/phase3/* (O1, ablations, routers) by replay of the dev matrix; no API calls."""
+    from engine.eval.phase3_report import REPORTS, write
+
+    for path in write(run_id, REPORTS):
+        typer.echo(f"wrote {path.relative_to(path.parents[2]).as_posix()}")
+
+
 @app.command("audit-names")
 def audit_names() -> None:
     """Count tickets where two people share a first name (caller vs driver or claimant); no data change."""

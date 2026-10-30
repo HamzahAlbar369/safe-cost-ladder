@@ -1,0 +1,56 @@
+{
+ "request_hash": "35e8724eab95207e7ab2a7e424ea3c7e7ad17f5744646813034e7fd0c62dbb2c",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "I have comprehensive cover. Someone reversed into me in a mall car park on 2026-10-25 and I am reporting it today, 2026-10-27. The workshop estimated 6,500 SAR for my car. I don't have the accident report number yet. My licence is valid and the car is for personal use.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "How much reasoning does answering this insurance customer ticket require?",
+    "criteria": {
+     "simple": "A single fact lookup or classifying what the customer wants.",
+     "moderate": "Pulling several specific fields (numbers, dates, ids) out of the message.",
+     "complex": "Deciding a claim by applying several policy rules and possibly computing a payout."
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does answering this ticket require computing a monetary amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information the insurer needs to decide this ticket clearly missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.04,
+     "moderate": 0.8,
+     "complex": 0.16
+    },
+    "confidence": 0.7
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.21
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.82
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 484,
+  "output_tokens": 79,
+  "cost_usd": 0.000020328,
+  "latency_ms": 315.2
+ },
+ "recorded_at": "2026-10-30T13:06:57.123818Z"
+}

@@ -1,0 +1,29 @@
+{
+ "request_hash": "50a324f693e38bd9a9141793517cc0b851cf108256f3e614697a7f0e3676d489",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "TASK: faq\nHi, what deductible do I pay on my comprehensive policy if the report says I was 75% at fault?",
+  "max_tokens": 32000,
+  "schema_name": "faq",
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "a63ea01d5e63e9d36be5a709552ea59b6d2aeafe4841df374bf084e8990fe4df"
+ },
+ "response": {
+  "text": "{\"answer\": 2000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 47,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 2725,
+   "output_tokens": 11,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1532.6,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T13:06:02.195213Z"
+}

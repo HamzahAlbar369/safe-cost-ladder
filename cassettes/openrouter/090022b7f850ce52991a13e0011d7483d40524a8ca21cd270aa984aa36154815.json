@@ -1,0 +1,56 @@
+{
+ "request_hash": "090022b7f850ce52991a13e0011d7483d40524a8ca21cd270aa984aa36154815",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Policy OMI-4471-2209. Someone hit my car at a roundabout on 3 September 2026. The accident report number is AR-558120 and the garage estimate is 12,400 SAR. I was found 25% at fault.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "How much reasoning does answering this insurance customer ticket require?",
+    "criteria": {
+     "simple": "A single fact lookup or classifying what the customer wants.",
+     "moderate": "Pulling several specific fields (numbers, dates, ids) out of the message.",
+     "complex": "Deciding a claim by applying several policy rules and possibly computing a payout."
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does answering this ticket require computing a monetary amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information the insurer needs to decide this ticket clearly missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.11,
+     "moderate": 0.48,
+     "complex": 0.41
+    },
+    "confidence": 0.22
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.76
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.71
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 474,
+  "output_tokens": 79,
+  "cost_usd": 0.000019908,
+  "latency_ms": 286.6
+ },
+ "recorded_at": "2026-10-30T13:06:56.445583Z"
+}

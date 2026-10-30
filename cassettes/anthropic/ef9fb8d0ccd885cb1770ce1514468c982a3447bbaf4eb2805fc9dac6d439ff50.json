@@ -1,0 +1,29 @@
+{
+ "request_hash": "ef9fb8d0ccd885cb1770ce1514468c982a3447bbaf4eb2805fc9dac6d439ff50",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "TASK: adjudicate\nComprehensive policy, valid until 2027-02-01. Accident on 2026-10-12, reported 2026-10-20. Driver holds a valid licence; private use. Accident report AR-771203 shows 50% fault. Garage damage estimate for my own car: 18,000 SAR. Please process my claim.",
+  "max_tokens": 32000,
+  "schema_name": "adjudicate",
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "a63ea01d5e63e9d36be5a709552ea59b6d2aeafe4841df374bf084e8990fe4df"
+ },
+ "response": {
+  "text": "{\"decision\":\"approve\",\"payout_sar\":17000,\"reasons\":[\"R3\"],\"inputs\":{\"coverage\":\"COMP\",\"fault_share\":50,\"damage_sar\":18000,\"own_damage_limit_sar\":60000,\"deductible_sar\":1000,\"days_to_report\":8,\"policy_valid_on_accident_date\":true,\"valid_licence\":true,\"commercial_use\":false,\"documents\":[\"accident_report_number AR-771203\",\"damage_estimate\"]}}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 119,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 2725,
+   "output_tokens": 376,
+   "thinking_tokens": 217
+  },
+  "latency_ms": 3357.3,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T13:06:11.575598Z"
+}

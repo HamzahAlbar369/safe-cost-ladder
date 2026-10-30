@@ -1,0 +1,56 @@
+{
+ "request_hash": "c2f7fad674d0e424d8b51bf32cdba29b9a264d090f1c4875374275b1e1e0a8f1",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "عندي تأمين شامل. واحد رجع بسيارته علي في مواقف المول يوم 2026-10-25 وأبلغ عنه اليوم 2026-10-27. الورشة قدرت الضرر على سيارتي بـ 6,500 ريال. ما عندي رقم تقرير الحادث للحين. رخصتي سارية والسيارة للاستخدام الشخصي.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "How much reasoning does answering this insurance customer ticket require?",
+    "criteria": {
+     "simple": "A single fact lookup or classifying what the customer wants.",
+     "moderate": "Pulling several specific fields (numbers, dates, ids) out of the message.",
+     "complex": "Deciding a claim by applying several policy rules and possibly computing a payout."
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does answering this ticket require computing a monetary amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information the insurer needs to decide this ticket clearly missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.09,
+     "moderate": 0.84,
+     "complex": 0.07
+    },
+    "confidence": 0.76
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.23
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.85
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 555,
+  "output_tokens": 79,
+  "cost_usd": 0.00002331,
+  "latency_ms": 371.4
+ },
+ "recorded_at": "2026-10-30T13:06:58.844123Z"
+}

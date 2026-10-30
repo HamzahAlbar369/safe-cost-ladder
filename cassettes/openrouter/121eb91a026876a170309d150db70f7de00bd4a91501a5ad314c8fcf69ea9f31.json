@@ -1,0 +1,56 @@
+{
+ "request_hash": "121eb91a026876a170309d150db70f7de00bd4a91501a5ad314c8fcf69ea9f31",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "الوثيقة OMI-4471-2209. صدمني شخص عند الدوار بتاريخ 3 سبتمبر 2026. رقم تقرير الحادث AR-558120 وتقدير الورشة 12,400 ريال. نسبة خطئي 25%.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "How much reasoning does answering this insurance customer ticket require?",
+    "criteria": {
+     "simple": "A single fact lookup or classifying what the customer wants.",
+     "moderate": "Pulling several specific fields (numbers, dates, ids) out of the message.",
+     "complex": "Deciding a claim by applying several policy rules and possibly computing a payout."
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does answering this ticket require computing a monetary amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information the insurer needs to decide this ticket clearly missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.07,
+     "moderate": 0.85,
+     "complex": 0.08
+    },
+    "confidence": 0.77
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.36
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.79
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 498,
+  "output_tokens": 79,
+  "cost_usd": 0.000020916,
+  "latency_ms": 285.8
+ },
+ "recorded_at": "2026-10-30T13:06:58.105298Z"
+}

@@ -1,0 +1,29 @@
+{
+ "request_hash": "8574946cf3edf3bde012a2a267cedcba909110bfc141f8b2b30a5608f39afc60",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "TASK: intent\nالسلام عليكم، رفعت مطالبة الأسبوع اللي فات وأبي أعرف وش صار عليها.",
+  "max_tokens": 32000,
+  "schema_name": "intent",
+  "thinking": "default",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "a63ea01d5e63e9d36be5a709552ea59b6d2aeafe4841df374bf084e8990fe4df"
+ },
+ "response": {
+  "text": "{\"intent\": \"claim_status\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 57,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 2725,
+   "output_tokens": 14,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1591.4,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T13:05:28.189110Z"
+}

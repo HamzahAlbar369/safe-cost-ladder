@@ -1,0 +1,56 @@
+{
+ "request_hash": "262b3717bd25cd697e82ed2e47770e8573efae3bf8b7f70844f5b1f9825e3672",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Hello, I filed a claim last week and I want to know what happened with it.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "How much reasoning does answering this insurance customer ticket require?",
+    "criteria": {
+     "simple": "A single fact lookup or classifying what the customer wants.",
+     "moderate": "Pulling several specific fields (numbers, dates, ids) out of the message.",
+     "complex": "Deciding a claim by applying several policy rules and possibly computing a payout."
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does answering this ticket require computing a monetary amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information the insurer needs to decide this ticket clearly missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "simple",
+    "probabilities": {
+     "simple": 0.94,
+     "moderate": 0.06,
+     "complex": 0
+    },
+    "confidence": 0.91
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.05
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.85
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 421,
+  "output_tokens": 78,
+  "cost_usd": 0.000017682,
+  "latency_ms": 350.8
+ },
+ "recorded_at": "2026-10-30T13:06:56.134032Z"
+}

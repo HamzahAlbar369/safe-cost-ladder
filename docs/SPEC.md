@@ -172,8 +172,8 @@ All JSONL; one record per line; never mutate a committed run file (write a new r
 - `user` = task type + ticket text only. Nothing dynamic (ids, timestamps) in the static block.
 - Output caps: strict JSON schema in the prompt and a per-task `max_tokens` (set from Phase 0 measurements with
   headroom for thinking; truncation = failure, logged).
-- Caches are assumed per (model, effort) until §2.3 check 5 says otherwise; warm-up one request per config before
-  parallel runs.
+- Caches are per model: §2.3 check 5 (run `smoke-20261030T130454Z`, DECISIONS D0.6) showed an effort change does not
+  invalidate the cached system prefix. Warm up one request per model before parallel runs.
 
 ### §6.3 Verification
 | Level | Check | Applies to |
@@ -195,7 +195,10 @@ Verifier false-accept rate (wrong answer passing all checks) is measured per tas
 Thresholds for both routers tuned on dev out-of-fold data only.
 
 ### §6.5 Record/replay
-Every API call goes through `llm/client.py`. Key = sha256 of (model, effort, system, user, max_tokens, schema).
+Every API call goes through `llm/client.py`. Key = sha256 of (model, effort, system, user, max_tokens, schema,
+thinking mode, repeat index); `thinking` = omitted|adaptive, `repeat` = 0 except for deliberate identical repeats
+(cache probes). The system prompt enters the key and the cassette as its sha256 (approved 2026-10-30, DECISIONS.md).
+Jev calls use their own key: sha256 of (model, state, questions, repeat).
 Modes: `live` (call + record), `replay` (cassette only; miss = error), `auto` (replay if present). Recorded latency
 is stored and reused in replay; replayed results are labelled `replayed=true` and reports say "simulated".
 

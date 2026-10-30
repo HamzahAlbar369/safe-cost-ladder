@@ -1,0 +1,29 @@
+{
+ "request_hash": "f67f52b9f2c8edf98f709d94ce883d471c9211321d0638e03ef965c3be833628",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "TASK: adjudicate\nComprehensive policy, valid until 2027-02-01. Accident on 2026-10-12, reported 2026-10-20. Driver holds a valid licence; private use. Accident report AR-771203 shows 50% fault. Garage damage estimate for my own car: 18,000 SAR. Please process my claim.",
+  "max_tokens": 32000,
+  "schema_name": "adjudicate",
+  "thinking": "default",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "a63ea01d5e63e9d36be5a709552ea59b6d2aeafe4841df374bf084e8990fe4df"
+ },
+ "response": {
+  "text": "{\"decision\": \"approve\", \"payout_sar\": 17000, \"reasons\": [\"R1\", \"R2\", \"R3\", \"R5\", \"R6\", \"R7\"], \"inputs\": {\"coverage\": \"COMP\", \"fault_share\": 50, \"damage_sar\": 18000, \"own_damage_limit_sar\": 60000, \"deductible_sar\": 1000, \"days_to_report\": 8, \"policy_expired\": false, \"licence_valid\": true, \"commercial_use\": false, \"documents\": [\"accident_report_number\", \"damage_estimate\"], \"accident_report_number\": \"AR-771203\"}}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 119,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 2725,
+   "output_tokens": 652,
+   "thinking_tokens": 459
+  },
+  "latency_ms": 3296.2,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T13:05:55.655352Z"
+}

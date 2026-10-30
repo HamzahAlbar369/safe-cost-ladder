@@ -1,0 +1,29 @@
+{
+ "request_hash": "6e4c5cf15c42d2a0d9e11844ed54f2f9c850a024c755668d10e1786ee08f1cd0",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "TASK: adjudicate\nعندي تأمين شامل. واحد رجع بسيارته علي في مواقف المول يوم 2026-10-25 وأبلغ عنه اليوم 2026-10-27. الورشة قدرت الضرر على سيارتي بـ 6,500 ريال. ما عندي رقم تقرير الحادث للحين. رخصتي سارية والسيارة للاستخدام الشخصي.",
+  "max_tokens": 32000,
+  "schema_name": "adjudicate",
+  "thinking": "default",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "a63ea01d5e63e9d36be5a709552ea59b6d2aeafe4841df374bf084e8990fe4df"
+ },
+ "response": {
+  "text": "{\"decision\": \"need_info\", \"payout_sar\": 0, \"reasons\": [\"R7\"], \"inputs\": {\"coverage\": \"COMP\", \"damage_sar\": 6500, \"days_to_report\": 2, \"documents\": {\"accident_report_number\": \"missing\", \"damage_estimate\": \"present\"}, \"licence_valid\": true, \"personal_use\": true}}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 154,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 2725,
+   "output_tokens": 278,
+   "thinking_tokens": 160
+  },
+  "latency_ms": 2149.0,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T13:05:39.065757Z"
+}

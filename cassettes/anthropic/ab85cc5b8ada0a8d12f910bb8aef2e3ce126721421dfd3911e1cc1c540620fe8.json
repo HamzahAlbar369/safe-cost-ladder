@@ -1,0 +1,29 @@
+{
+ "request_hash": "ab85cc5b8ada0a8d12f910bb8aef2e3ce126721421dfd3911e1cc1c540620fe8",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "low",
+  "user": "TASK: faq\nHi, what deductible do I pay on my comprehensive policy if the report says I was 75% at fault?",
+  "max_tokens": 4000,
+  "schema_name": "faq",
+  "thinking": "default",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "32c7da579836ea40a8470218f7860bd5a530417db3bca51b55469b81cb7c6478"
+ },
+ "response": {
+  "text": "{\"answer\": \"The policy document provided to me is incomplete (it cuts off before the coverage, deductible and fault sections), so I cannot confirm the deductible for a 75% at-fault comprehensive claim.\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 499,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 0,
+   "output_tokens": 72,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 7509.6,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T13:05:16.808432Z"
+}

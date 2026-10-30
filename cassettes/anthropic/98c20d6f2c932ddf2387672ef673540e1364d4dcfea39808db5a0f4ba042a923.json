@@ -1,0 +1,29 @@
+{
+ "request_hash": "98c20d6f2c932ddf2387672ef673540e1364d4dcfea39808db5a0f4ba042a923",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "TASK: extract\nPolicy OMI-4471-2209. Someone hit my car at a roundabout on 3 September 2026. The accident report number is AR-558120 and the garage estimate is 12,400 SAR. I was found 25% at fault.",
+  "max_tokens": 32000,
+  "schema_name": "extract",
+  "thinking": "default",
+  "cache": true,
+  "repeat": 0,
+  "system_sha256": "a63ea01d5e63e9d36be5a709552ea59b6d2aeafe4841df374bf084e8990fe4df"
+ },
+ "response": {
+  "text": "{\"policy_number\": \"OMI-4471-2209\", \"accident_date\": \"2026-09-03\", \"report_number\": \"AR-558120\", \"damage_amount_sar\": 12400, \"fault_share\": 25}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 87,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 2725,
+   "output_tokens": 131,
+   "thinking_tokens": 62
+  },
+  "latency_ms": 1924.8,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T13:05:52.335461Z"
+}

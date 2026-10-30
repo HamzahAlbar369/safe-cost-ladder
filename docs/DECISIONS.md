@@ -416,3 +416,26 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
 - **Gate (SPEC §10 row 1):** rules.yaml reviewed and sourced (D1.5, D1.8, D1.10, D1.11); rules-engine tests pass; all
   §4.4 checks pass plus the D1.10–D1.12 scans (MANIFEST `qa`); MANIFEST committed with a clean generator SHA;
   held-out sealed with its hash recorded. No paid calls in Phase 1.
+
+## Phase 2 — Harness, matrix, floors (2026-10-30)
+
+### D2.1 · Task prompts, output schemas and graders (Hamzah approved the prompts with one change)
+- **Prompts** (`src/engine/tasks/prompts.py`): one static system block for all tasks (role + reading rules + faq /
+  intent / extract / adjudicate instructions + the full English v1 policy document), the same bytes for every
+  model and effort. User turn = `Task: <task>` + ticket text only. Arabic tickets are answered against the English
+  policy. Extract: absent field = null; a vague relative date means `accident_date` null (D1.12). Intent: the nine
+  rules.yaml definitions, overlaps included. Adjudicate lists the reason codes from rules.yaml.
+- **Schemas** (`tasks/schemas.py`) for `output_config.format`, adaptive thinking sent explicitly (D0.8). Adjudicate
+  emits `inputs` and `reasons` before `decision` and `payout_sar` (facts first). **FAQ change (Hamzah):** `answer`
+  is an integer or an enum of the canonical strings; the enum is derived from the generator's FAQ answers plus
+  `out_of_scope`, giving `no`, `out_of_scope`, `yes`, and the faq instructions list them. No list-type FAQ gold value
+  exists in any split, so none is in the enum.
+- **`max_tokens`:** faq 2048, intent 2048, extract 3072, adjudicate 6144 (largest smoke output incl. thinking was 652).
+- **Graders** (`tasks/graders.py`, SPEC §3.1): Arabic-Indic digits, thousands separators, dates to ISO, case fold;
+  payout within ±1 SAR; a malformed output is wrong, never an exception.
+- **Test:** every gold output in dev / held-out / shifted validates against its task schema and grades 100% against
+  itself (adjudicate `inputs`, which is not graded, is projected to the schema's keys first). Counts only are ever
+  asserted or printed, never ids or values (held-out stays unseen). Result: dev 400/400, held-out 400/400,
+  shifted 200/200 on both checks.
+- **Latency measurement (Hamzah):** `latency_ms` = request sent to response received; queue/pacer wait is recorded
+  separately as `queue_wait_ms` and excluded from p95 and the latency budgets (to be added with the matrix runner).

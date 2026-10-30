@@ -67,12 +67,13 @@ Insurer: **"Oasis Motor Insurance (fictional demo insurer)"**. Policy document r
 | `extract` | Free-text claim message | `{"policy_number","accident_date","report_number","damage_amount_sar","fault_share"}` (null if absent) | all fields exact after normalisation; field-level accuracy also reported | medium ($5) |
 | `adjudicate` | Claim narrative | `{"decision": approve|partial|deny|need_info, "payout_sar": int, "reasons": [rule_ids], "inputs": {...}}` | decision exact AND payout within ±1 SAR | high ($50) |
 
-Decision definitions (also in `rules.yaml` → `decisions`; D1.5): **approve** = the full claimed damage is paid;
-**partial** = payout > 0 but reduced by fault share, a cap or the deductible; **deny** = payout 0 (exclusion,
-no cover, late report, 0% fault, or damage at or below the deductible); **need_info** = payout 0 because a
-required item is missing or contradictory. Every claim has a `claim_type`: `own_damage` (the policyholder's own
-car, R3/R8) or `third_party` (another party claims against the policyholder, R4). `reasons` is reported but not graded.
-FAQ answers are a number, `yes`/`no`, an enum value, or `out_of_scope` for non-insurance questions (D1.3).
+Decision definitions (also in `rules.yaml` → `decisions`; D1.8): **approve** = payable, reduced only by the
+deductible (if any); **partial** = payable but reduced by the fault share or a cap (sum insured or the third-party
+cap); **deny** = payout 0 (out of scope, policy not in force, exclusion, no own-damage cover, late report, 0% fault,
+or loss at or below the deductible, CMIR 7.3); **need_info** = payout 0 because a required document is missing or
+two stated values contradict each other. Every claim has a `claim_type`: `own_damage` (R3/R8, CMIR) or
+`third_party_claim` (R4/R5, UP). `reasons` is reported but not graded. FAQ answers are a number, `yes`/`no`, an
+enum value, or `out_of_scope` for non-insurance questions (D1.3).
 
 Intent labels (9; D1.5): `new_claim, claim_status, coverage_question, document_submission, complaint,
 policy_change, payment_issue, fault_dispute, other`. Overlap definitions live in `rules.yaml` → `intents`:
@@ -100,32 +101,35 @@ The skew toward easy traffic is deliberate and declared: it mirrors real support
 ## §4 Data generation (`engine gen`)
 
 ### §4.1 Rules file — single source of truth (`data/rules/rules.yaml`)
-Simplified, fictional rules (Hamzah reviews wording before generation). Structure informed by the SAMA Unified
-Compulsory Motor Insurance Policy; the insurer and all wording are fictional and our own (D1.5). Every threshold
-below is a named parameter in the YAML; values shown are v1.
-- R0 Scope: injury/death, theft, fire and flood are out of scope (claim → deny; ticket intent → `other`).
-- R1 Cover types: `TPL` (damage to third parties only) and `COMP` (own vehicle + third parties). An own-damage
-  claim under TPL → deny.
-- R2 Fault share of the policyholder ∈ {0, 25, 50, 75, 100} %, taken from the accident report.
-- R3 Own damage (COMP): covered = min(repair estimate, vehicle market value); repair estimate > market value =
-  total loss. Deductible = max(SAR 1,000, 5% of covered). Payout = covered − deductible (0 if negative → deny).
-- R4 Third-party claim against the policyholder: payout = damage × fault share, capped at a fictional TPL cap
-  (set low enough to trigger). 0% fault → deny.
-- R5 Policy validity and exclusions, in this order: policy expired on the accident date → deny; intoxication,
-  fled the scene, drifting/racing or fraud → deny (any claim type); own-damage claim with an invalid licence or
-  commercial use of a private policy → deny. Third-party claim with a violation (invalid licence, wrong direction,
-  red light, use outside the schedule) → paid per R4 plus reason `R5_recovery_right`. A licence that had expired
-  counts as valid if it was renewed within 50 days of the accident.
-- R6 Reporting window: reported > 15 days after the accident → deny unless an accepted justification is stated.
-- R7 Required documents: accident report number AND damage estimate; missing or contradictory → `need_info`.
-- R8 Unknown or uninsured other party (hit-and-run, uninsured vehicle): COMP pays own damage per R3; TPL denies.
-  The report may come from Najm or the traffic police (any rule accepts either).
-- Precedence (first match decides): R0 → R5 expiry → R5 absolute exclusions → R1/R8 cover → R5 own-damage
-  exclusions → R6 → R7 → payout (R3 or R4) → decision from payout. The YAML states the order explicitly.
-- FAQ-only parameters (not used in adjudication): replacement-car days, towing limit, 3/5/15 working-day
-  timelines (acknowledge / decide / settle), report-to-Najm-within-24-hours.
+Fictional insurer; rules follow SAMA-issued instruments administered by the Insurance Authority: the Unified
+Compulsory Motor Insurance Policy (UP), the Comprehensive Motor Insurance Rules (CMIR) and the Claims' Settlement
+Instructions (CSI). Every rule, parameter and item carries a `source:` (D1.8); the generated table is
+`data/rules/SOURCES.md`. Values shown are v1.
+- R0 Desk scope (insurer-specific): injury/death, theft, fire, flood → intent `other` (no R0 adjudication items).
+- R1 Cover: `TPL` (liability to third parties) and `COMP` (own vehicle + third parties). Own damage under TPL →
+  deny (UP 6.1). Accident after the policy end date → deny.
+- R2 Fault share ∈ {0, 25, 50, 75, 100} % from the Najm or traffic-police report.
+- R3 Own damage (COMP, CMIR 5.3/5.4): base = sum insured on technical total loss or repair > ETL% (60) × sum
+  insured, else min(repair, sum insured). Deductible applied = fixed deductible (SAR 1,000) × fault %; 0 if not
+  liable or hit-and-run; full if no other party; also on total loss. Payout = base − deductible applied. Repair
+  estimate ≤ full fixed deductible → deny (7.3).
+- R4 Third-party claim (UP): payout = damage × fault share, cap SAR 10,000,000; 0% fault → deny.
+- R5 Exclusions: third-party claim → deny for UP Art. 6 cases (fled scene, DUI, drifting/racing, deliberate,
+  misrepresentation); paid + `RECOVERY_RIGHT` for UP Art. 5 cases (invalid licence with 50-day grace, wrong
+  direction, red light, use outside purpose). Own damage → deny for CMIR Art. 7 (all listed; sampler generates 7.2
+  licence with 50-business-day grace, 7.3, 7.4 unauthorised driver, 7.16 violation proven to have caused the accident).
+- R6 Reporting window (insurer-specific): > 15 days → deny unless an accepted justification is stated.
+- R7 Required documents (CSI): accident report, registration, licence copy, damage photos, damage assessment;
+  missing or contradictory → `need_info`.
+- R8 Other party ∈ {insured, uninsured, unknown, none}: COMP + unknown → no deductible, no subrogation; TPL +
+  unknown/uninsured → deny own damage. Report from Najm or the traffic police.
+- Precedence (first match decides) is listed in the YAML and SOURCES.md.
+- FAQ-only facts (`faq_only`): licence grace 50 days (TPL) vs 50 business days (COMP), no deductible when not
+  liable, no deduction for prior use, towing SAR 500 / 1,000, settlement < SAR 2,000 in 5 working days else 15 days,
+  missing-documents notice 3 working days, total-loss report 7 working days, replacement car = optional add-on,
+  claim statuses, options when the other party is 100% at fault.
 `render_policy.py` turns rules.yaml into the policy document (EN + AR); `rules_engine.py` computes gold labels
-from the same file. `rules_v2.yaml` changes 2–3 values (e.g. deductible, window) for the policy-change scenario.
+from the same file. `rules_v2.yaml` changes only insurer-specific values (fixed deductible, ETL %, reporting window; D1.8).
 
 ### §4.2 Pipeline
 1. **Sample** case facts per level with a seeded RNG (seed recorded in MANIFEST).
@@ -158,6 +162,7 @@ non-insurance questions (`faq` → `out_of_scope`, `intent` → `other`); garble
 | Check | Threshold |
 |---|---|
 | Schema validity | 100% |
+| Decision-label distribution per split in MANIFEST (D1.8) | any label < 10% of adjudication items is flagged |
 | Exact duplicates across splits | 0 |
 | Near-duplicates across splits (char 5-gram Jaccard ≥ 0.8) | 0 |
 | Composition vs §4.3 | within ±3 pts |

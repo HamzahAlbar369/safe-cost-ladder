@@ -1,13 +1,13 @@
-# FICTIONAL. Policy-change scenario (SPEC §8): rules v2 = rules.yaml with ONLY the values below changed.
-# Loaders merge `overrides` into the base file; everything not listed here is identical to v1.
+# Policy-change scenario (SPEC §8): rules v2 = rules.yaml with ONLY the insurer-specific values below changed
+# (D1.8). Regulatory values (UP / CMIR / CSI) never change here. Loaders merge `overrides` into the base file.
 # Used for the 40 rules_v2 items in the shifted split; the system is pointed at the v2 policy document via
-# config only (no code change).
+# config only (no code change). Insurer FICTIONAL; values illustrative.
 
 base: rules.yaml
 version: v2
 
 overrides:
   params:
-    deductible_floor_sar: 1500     # v1: 1000
-    reporting_window_days: 10      # v1: 15
-    tpl_cap_sar: 35000             # v1: 50000
+    fixed_deductible_sar: {value: 1500}   # v1: 1000
+    etl_pct: {value: 50}                  # v1: 60
+    reporting_window_days: {value: 10}    # v1: 15

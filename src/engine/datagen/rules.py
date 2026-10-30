@@ -1,7 +1,8 @@
-"""Typed loader for data/rules/rules*.yaml (SPEC §4.1). FICTIONAL rules; single source of truth."""
+"""Typed loader for data/rules/rules*.yaml (SPEC §4.1). Insurer FICTIONAL; rules sourced per item (D1.8)."""
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 from typing import Any, Literal
 
@@ -14,14 +15,54 @@ RULES_DIR = ROOT / "data" / "rules"
 RULES_V1 = RULES_DIR / "rules.yaml"
 RULES_V2 = RULES_DIR / "rules_v2.yaml"
 
+INSTRUMENTS = ("UP", "CMIR", "CSI")
+INSURER_SPECIFIC = "insurer-specific (illustrative)"
+_ART = r"(?:UP|CMIR|CSI) (?:Art\. \d+(?:\.\d+)*(?:, \d+(?:\.\d+)*)*|\(article TBC\))"
+SOURCE_RE = re.compile(
+    rf"^(?:{_ART}|interpretation of {_ART}|insurer-specific \(illustrative\)|reported, unverified)$"
+)
+
+
+def source_kind(source: str) -> str:
+    """The D1.8 form a source string takes (for the sources table)."""
+    if source.startswith("interpretation of"):
+        return "interpretation"
+    if source in (INSURER_SPECIFIC, "reported, unverified"):
+        return source
+    return "article TBC" if "(article TBC)" in source else "article"
+
 
 class Strict(BaseModel):
     model_config = ConfigDict(frozen=True, extra="forbid")
 
 
-class Label(Strict):
+class Sourced(Strict):
+    source: str
+
+    @model_validator(mode="after")
+    def _source_form(self) -> Sourced:
+        if not SOURCE_RE.match(self.source):
+            raise ValueError(f"source {self.source!r} is not one of the D1.8 forms")
+        return self
+
+
+class Label(Sourced):
     en: str
     ar: str
+    generated: bool = True  # False = listed for fidelity, never produced by the sampler
+
+
+class Param(Sourced):
+    value: Any
+    note: str = ""
+
+
+class Instrument(Strict):
+    name: str
+    issuer: str
+    checked: str
+    url: str = ""
+    in_force: str = ""
 
 
 class Fiction(Strict):
@@ -31,31 +72,26 @@ class Fiction(Strict):
     label_ar: str
 
 
-class Params(Strict):
+class Values(Strict):
+    """Typed view of `params` values used by the rules engine."""
+
     currency: Literal["SAR"]
-    fault_shares: tuple[int, ...]
-    deductible_floor_sar: int
-    deductible_pct: int
-    tpl_cap_sar: int
-    reporting_window_days: int
-    licence_renewal_grace_days: int
     rounding: Literal["half_up_whole_sar"]
-
-
-class FaqOnly(Strict):
-    replacement_car_days: int
-    towing_limit_sar: int
-    acknowledge_working_days: int
-    decision_working_days: int
-    settlement_working_days: int
-    report_within_hours: int
-    fault_objection_days: int
+    fault_shares: tuple[int, ...]
+    tp_payout_proportional_to_fault: bool
+    tpl_cap_sar: int
+    tp_licence_grace_days: int
+    od_licence_grace_business_days: int
+    business_days: tuple[Literal["sun", "mon", "tue", "wed", "thu", "fri", "sat"], ...]
+    fixed_deductible_sar: int
+    etl_pct: int
+    reporting_window_days: int
 
 
 class Exclusions(Strict):
-    absolute: tuple[str, ...]
-    own_damage: tuple[str, ...]
-    third_party_recovery: tuple[str, ...]
+    third_party_deny: dict[str, Label]
+    third_party_recovery: dict[str, Label]
+    own_damage_deny: dict[str, Label]
 
 
 class Justifications(Strict):
@@ -63,7 +99,18 @@ class Justifications(Strict):
     not_accepted: dict[str, Label]
 
 
-class Clause(Strict):
+class Decision(Sourced):
+    text: str
+
+
+class Step(Sourced):
+    step: str
+    applies: str
+    decision: Literal["deny", "need_info", "from_payout"]
+    reason: str
+
+
+class Clause(Sourced):
     en: str
     ar: str
     items: str | None = None  # dotted path to an enumeration rendered as a list
@@ -71,7 +118,7 @@ class Clause(Strict):
 
 class Section(Strict):
     id: str
-    title: Label
+    title: dict[Literal["en", "ar"], str]
     clauses: tuple[Clause, ...]
 
 
@@ -83,21 +130,24 @@ class Document(Strict):
 
 class RuleSet(Strict):
     version: str
+    instruments: dict[Literal["UP", "CMIR", "CSI"], Instrument]
     fiction: Fiction
-    params: Params
-    faq_only: FaqOnly
+    params: dict[str, Param]
+    faq_only: dict[str, Param]
     cover_types: dict[Literal["TPL", "COMP"], Label]
-    claim_types: dict[Literal["own_damage", "third_party"], Label]
-    other_party_status: dict[Literal["identified_insured", "identified_uninsured", "unknown"], Label]
+    claim_types: dict[Literal["own_damage", "third_party_claim"], Label]
+    other_party: dict[Literal["insured", "uninsured", "unknown", "none"], Label]
     report_sources: dict[Literal["najm", "traffic_police"], Label]
     out_of_scope_perils: dict[str, Label]
-    violations: dict[str, Label]
+    licence_status: dict[Literal["valid", "none", "expired", "wrong_class", "forfeited"], Label]
+    authorised_drivers: dict[str, Label]
     exclusions: Exclusions
     late_report_justifications: Justifications
-    required_documents: dict[Literal["report_number", "damage_estimate"], Label]
-    decisions: dict[Literal["approve", "partial", "deny", "need_info"], str]
-    precedence: tuple[dict[str, str], ...]
+    required_documents: dict[str, Label]
+    decisions: dict[Literal["approve", "partial", "deny", "need_info"], Decision]
+    precedence: tuple[Step, ...]
     reason_codes: dict[str, str]
+    intents_source: str
     intents: dict[str, str]
     adversarial: dict[str, dict[str, Any]]
     formats: dict[str, Any]
@@ -105,35 +155,35 @@ class RuleSet(Strict):
 
     @model_validator(mode="after")
     def _consistent(self) -> RuleSet:
-        p = self.params
-        if p.fault_shares != (0, 25, 50, 75, 100):
+        v = self.values()  # validates every engine parameter's type
+        if v.fault_shares != (0, 25, 50, 75, 100):
             raise ValueError("fault_shares must be 0/25/50/75/100 (SPEC §4.1 R2)")
-        for group in (
-            self.exclusions.absolute,
-            self.exclusions.own_damage,
-            self.exclusions.third_party_recovery,
-        ):
-            unknown = set(group) - set(self.violations)
-            if unknown:
-                raise ValueError(f"exclusion without a violation label: {sorted(unknown)}")
+        if not 0 < v.etl_pct <= 100:
+            raise ValueError("etl_pct must be in (0, 100]")
         if len(self.intents) != 9:
             raise ValueError("SPEC §3.1 defines 9 intent labels")
-        for code in [*self.exclusions.absolute]:
-            if f"R5_{code}" not in self.reason_codes:
-                raise ValueError(f"missing reason code R5_{code}")
-        for code in self.exclusions.own_damage:
-            if f"R5_od_{code}" not in self.reason_codes:
-                raise ValueError(f"missing reason code R5_od_{code}")
+        if not SOURCE_RE.match(self.intents_source) or not SOURCE_RE.match(self.formats.get("source", "")):
+            raise ValueError("intents_source and formats.source must use a D1.8 source form")
+        expected = (
+            [f"R5_TP_{k}" for k in self.exclusions.third_party_deny]
+            + [f"R5_OD_{k}" for k, lab in self.exclusions.own_damage_deny.items() if lab.generated]
+            + [f"R7_MISSING_{k}" for k in self.required_documents]
+        )
+        missing = [c for c in expected if c not in self.reason_codes and c != "R5_OD_below_deductible"]
+        if missing:
+            raise ValueError(f"missing reason codes: {missing}")
         return self
 
+    def values(self) -> Values:
+        return Values.model_validate({k: p.value for k, p in self.params.items()})
+
+    def faq_values(self) -> dict[str, Any]:
+        return {k: p.value for k, p in self.faq_only.items()}
+
     def enumeration(self, dotted: str) -> dict[str, Label]:
-        """Resolve a document `items:` path (e.g. `exclusions.absolute`) to {key: Label}."""
-        if dotted.startswith("exclusions."):
-            keys = getattr(self.exclusions, dotted.split(".", 1)[1])
-            return {k: self.violations[k] for k in keys}
-        if dotted.startswith("late_report_justifications."):
-            return getattr(self.late_report_justifications, dotted.split(".", 1)[1])
-        value = getattr(self, dotted)
+        """Resolve a document `items:` path (e.g. `exclusions.third_party_deny`) to {key: Label}."""
+        head, _, tail = dotted.partition(".")
+        value = getattr(getattr(self, head), tail) if tail else getattr(self, head)
         if not isinstance(value, dict):
             raise ValueError(f"not an enumeration: {dotted}")
         return value
@@ -146,24 +196,22 @@ def _deep_merge(base: dict[str, Any], over: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
-def _read(path: Path) -> dict[str, Any]:
-    return yaml.safe_load(path.read_text(encoding="utf-8"))
+def _check_override_keys(name: str, base: dict[str, Any], over: dict[str, Any], path: str = "") -> None:
+    for key, value in over.items():
+        if key not in base:
+            raise ValueError(f"{name}: override of unknown key {path + key!r}")
+        if isinstance(value, dict) and isinstance(base[key], dict):
+            _check_override_keys(name, base[key], value, f"{path}{key}.")
 
 
 def load_raw(path: Path) -> dict[str, Any]:
     """A rules file, with `base:` + `overrides:` files merged onto their base (rules_v2.yaml)."""
-    data = _read(path)
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
     if "base" not in data:
         return data
     base = load_raw(path.parent / data["base"])
     over = data.get("overrides", {})
-    for key in over:
-        if key not in base:
-            raise ValueError(f"{path.name}: override of unknown section {key!r}")
-        if isinstance(over[key], dict):
-            unknown = set(over[key]) - set(base[key])
-            if unknown:
-                raise ValueError(f"{path.name}: override of unknown key(s) {sorted(unknown)} in {key}")
+    _check_override_keys(path.name, base, over)
     merged = _deep_merge(base, over)
     merged["version"] = data["version"]
     return merged

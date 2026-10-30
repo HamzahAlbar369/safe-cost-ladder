@@ -204,3 +204,52 @@ precedence step, so changing one is a one-line edit plus `engine policy`.
 8. **Fictional ID formats:** policy `OMI-<7 digits>`, report `NJ-<8 digits>` (Najm) / `TP-<8 digits>` (police).
 9. `rules_v2.yaml` is an override file (base + 3 changed values) so v1/v2 cannot drift; a test asserts that only
    those three values differ.
+
+### D1.8 · Stage A approved with grounding changes (Hamzah, 2026-10-30) — supersedes D1.5/D1.7 where they differ
+- **Sources (verified by Hamzah 2026-10-30):** Unified Compulsory Motor Insurance Policy (UP, in force 2023-04-01);
+  Comprehensive Motor Insurance Rules (CMIR, SAMA Decision 3/S/445, 21/04/1445H); Instructions for Motor Insurance
+  Claims' Settlement (CSI, SAMA circular, 14 May 2023). Regulator wording: "SAMA-issued, administered by the
+  Insurance Authority". The insurer stays fictional.
+- **Every rule, parameter, enumeration item and document clause carries `source:`** in one of these forms:
+  `<instrument> Art. N` · `interpretation of <instrument> Art. N` · `<instrument> (article TBC)` ·
+  `insurer-specific (illustrative)` · `reported, unverified`. The loader rejects any other form. The rule → source
+  table is generated from the YAML: `data/rules/SOURCES.md` (`engine policy`).
+- **Third party (UP):** Art. 6 exclusions → deny (fled scene, DUI, drifting/racing, deliberate, misrepresentation).
+  Art. 5 recovery cases → paid + `RECOVERY_RIGHT`. Own vehicle under TPL → deny (Art. 6.1). Cap SAR 10,000,000.
+  Licence grace 50 calendar days. Payout = damage × fault share (tagged as interpretation).
+- **Own damage (CMIR), replaces draft R3:**
+  - Base = sum insured on a technical total loss or when repair > ETL% × sum insured; otherwise min(repair, sum insured).
+  - No deduction for prior use (5.3.4).
+  - Deductible applied = fixed deductible × fault % (5.4.3); 0 if not liable (5.4.4); full if there is no other
+    party (5.4.5). The fixed deductible is set per policy (5.4.7) and also applies to a total loss (interpretation of 5.4.2).
+  - Deny if the repair estimate ≤ the full fixed deductible (7.3, literal reading).
+  - The "doubles at fault ≥ 75%" rule is removed.
+  - All CMIR Art. 7 exclusions are listed; the sampler generates only 7.2, 7.3, 7.4 and 7.16 (`generated: true`).
+- **R8:** other party ∈ {insured, unknown, uninsured, none}. COMP + unknown → deductible 0, no subrogation.
+  TPL + unknown/uninsured → deny own damage. The report may come from Najm or the traffic police (tagged
+  "reported, unverified").
+- **R7 documents (CSI):** accident report, registration, licence copy, damage photos, damage assessment report;
+  any missing → need_info. **R6:** 15 days, insurer-specific, with the justification clause.
+- **Decisions (supersede D1.7 #1; own damage can now be `approve`):** approve = payable, reduced only by the
+  deductible; partial = reduced by fault share or a cap; deny = payout 0; need_info. `claim_type` ∈
+  {`own_damage`, `third_party_claim`}.
+- **FAQ gold** follows Hamzah's list (`faq_only`). Dropped: the 5-day fault-objection draft, the 24-hour Najm report,
+  the old 3/5/15 timelines and replacement-car days. A replacement car is now an optional add-on, not part of the
+  base policy.
+- **rules_v2** changes only insurer-specific values: fixed deductible 1,000 → 1,500, ETL 60% → 50%, window 15 → 10
+  days. A test asserts that every changed value is tagged insurer-specific.
+- **MANIFEST** will report the decision-label distribution per split and flag any label under 10% of adjudication items.
+- **What we could and could not check (2026-10-30):** the IA PDF returned 404 and the UP rulebook page returned only
+  the blank schedule, so UP article numbers are as cited by Hamzah. CMIR Art. 5.3–5.6 and 7.1–7.21 were checked
+  against `rulebook.sama.gov.sa/en/entiresection/8038`, but only through a machine summary, not the verbatim text.
+  Points for Hamzah:
+  (a) that summary words 7.2 as "forfeited/expired licences (unless renewed within 50 business days)", which could
+  mean forfeited licences also get the grace period; we follow Hamzah's reading (forfeited and wrong class get no grace);
+  (b) 5.4.5 says the company *may* charge the deductible when there is no other party; we apply it in full and tag it
+  as an interpretation;
+  (c) Art. 1.8 (Driver) was not in that version;
+  (d) CSI items carry "(article TBC)" until article numbers are supplied;
+  (e) the towing amounts are tagged "reported, unverified".
+- **R0 note:** a real comprehensive policy usually covers theft and fire. Here R0 is an insurer-specific desk scope
+  (collision only). The sampler will use R0 for intent tickets (`other`) and will not generate R0 adjudication
+  denials, so the data never claims that a comprehensive policy denies theft.

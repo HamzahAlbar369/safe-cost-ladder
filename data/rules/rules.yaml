@@ -1,157 +1,264 @@
-# FICTIONAL. Single source of truth for the policy document the models read AND the gold labels (SPEC §4.1).
-# Oasis Motor Insurance is a fictional demo insurer. Structure informed by the SAMA Unified Compulsory Motor
-# Insurance Policy (https://rulebook.sama.gov.sa/en/node/7886); every value and every sentence here is our own
-# and invented for testing. Nothing here is a real Najm, SAMA or insurer rule. Decisions: DECISIONS.md D1.5.
+# Single source of truth for the policy document the models read AND the gold labels (SPEC §4.1).
+# The insurer (Oasis Motor Insurance) is FICTIONAL. Rules follow the SAMA-issued instruments below (articles
+# cited per item); insurer-specific terms are illustrative. Wording is our own. Not legal advice.
 #
-# Consumers: src/engine/datagen/render_policy.py (policy document, EN + AR) and
-# src/engine/datagen/rules_engine.py (gold labels). Change a value here, never in code.
+# Every rule, parameter and enumeration item carries `source:` in one of these forms (D1.8):
+#   "<instrument> Art. N"                    the article states it
+#   "interpretation of <instrument> Art. N"  our reading of the article (a choice we made)
+#   "<instrument> (article TBC)"             instrument confirmed by Hamzah, article number not yet cited
+#   "insurer-specific (illustrative)"        a value or term the fictional insurer chose
+#   "reported, unverified"                   from secondary sources; not checked against an instrument
+# Consumers: src/engine/datagen/render_policy.py (documents + sources table), rules_engine.py (gold labels).
 
 version: v1
+
+instruments:
+  UP:
+    name: "Unified Compulsory Motor Insurance Policy"
+    issuer: "SAMA-issued, administered by the Insurance Authority"
+    in_force: "2023-04-01"
+    url: "https://rulebook.sama.gov.sa/en/node/7886"
+    checked: "Article numbers as cited by Hamzah (verified 2026-10-30); the rulebook page returned only the blank schedule to our fetcher, so not re-checked here."
+  CMIR:
+    name: "Comprehensive Motor Insurance Rules (SAMA Decision 3/S/445, 21/04/1445H)"
+    issuer: "SAMA-issued, administered by the Insurance Authority"
+    url: "https://www.ia.gov.sa/Documents/Rules/en/Comprehensive_Motor_Insurance_Rules.pdf"
+    checked: "Art. 5.3, 5.4, 5.5, 5.6 and 7.1-7.21 checked 2026-10-30 against https://rulebook.sama.gov.sa/en/entiresection/8038 (machine summary). Art. 1.8 was not in that version: cited by Hamzah."
+  CSI:
+    name: "Instructions for Motor Insurance Claims' Settlement (SAMA circular, 14 May 2023)"
+    issuer: "SAMA-issued, administered by the Insurance Authority"
+    checked: "Cited by Hamzah (verified 2026-10-30); article numbers not yet cited."
 
 fiction:
   insurer_en: "Oasis Motor Insurance"
   insurer_ar: "واحة لتأمين المركبات"
   label_en: >-
-    FICTIONAL. Oasis Motor Insurance is a fictional demo insurer created for a hackathon. These rules were
-    invented to test AI systems. They are not real Najm, SAMA or insurer rules and must not be used for any
-    real claim.
+    FICTIONAL INSURER. Rules follow the SAMA Unified Compulsory Motor Insurance Policy and Comprehensive Motor
+    Insurance Rules (articles cited), administered by the Insurance Authority; insurer-specific terms and the
+    insurer are illustrative. Not legal advice.
   label_ar: >-
-    وثيقة وهمية. "واحة لتأمين المركبات" شركة تأمين وهمية أُنشئت لأغراض مسابقة تقنية. وُضعت هذه القواعد لاختبار
-    أنظمة الذكاء الاصطناعي، وهي ليست قواعد حقيقية لنجم أو للبنك المركزي السعودي أو لأي شركة تأمين، ولا يجوز
-    استخدامها في أي مطالبة حقيقية.
+    شركة تأمين وهمية. تتبع القواعد الوثيقة الموحدة للتأمين الإلزامي على المركبات وقواعد التأمين الشامل على
+    المركبات الصادرة عن البنك المركزي السعودي (مع ذكر المواد)، والتي تشرف عليها هيئة التأمين؛ أما الشروط الخاصة
+    بالشركة والشركة نفسها فهي توضيحية. ليست استشارة قانونية.
 
-# --- Parameters used by the rules engine. Every threshold is here. -------------------------------------------
+# --- Parameters used by the rules engine. ----------------------------------------------------------------------
 params:
-  currency: SAR
-  fault_shares: [0, 25, 50, 75, 100]      # R2: policyholder's share, percent
-  deductible_floor_sar: 1000              # R3: deductible = max(floor, pct% of covered amount)
-  deductible_pct: 5                       # R3
-  tpl_cap_sar: 50000                      # R4: fictional cap per accident, low enough to trigger
-  reporting_window_days: 15               # R6: report_date - accident_date > this -> late
-  licence_renewal_grace_days: 50          # R5: expired licence still valid if renewed within this many days
-  rounding: half_up_whole_sar             # all SAR amounts round half up to a whole riyal
+  currency: {value: SAR, source: "insurer-specific (illustrative)"}
+  rounding: {value: half_up_whole_sar, source: "insurer-specific (illustrative)"}
+  fault_shares:
+    value: [0, 25, 50, 75, 100]
+    source: "reported, unverified"
+    note: "Najm assigns liability in 25% steps (secondary sources)."
+  tp_payout_proportional_to_fault:
+    value: true
+    source: "interpretation of UP (article TBC)"
+    note: "Third-party payout = damage x policyholder's fault share."
+  tpl_cap_sar:
+    value: 10000000
+    source: "UP (article TBC)"
+    note: "Per accident. Never binds on synthetic claims; kept for fidelity."
+  tp_licence_grace_days:
+    value: 50
+    source: "UP Art. 5"
+    note: "Calendar days after the accident; no recovery right if the expired licence was renewed in time."
+  od_licence_grace_business_days:
+    value: 50
+    source: "CMIR Art. 7.2"
+    note: "Business days after the accident; wrong class or forfeited licence gets no grace."
+  business_days:
+    value: [sun, mon, tue, wed, thu]
+    source: "interpretation of CMIR Art. 7.2"
+    note: "Saudi working week; public holidays ignored (simplification)."
+  fixed_deductible_sar:
+    value: 1000
+    source: "insurer-specific (illustrative)"
+    note: "Amount set in the schedule (CMIR Art. 5.4.1), fixed for the policy period (CMIR Art. 5.4.7)."
+  etl_pct:
+    value: 60
+    source: "insurer-specific (illustrative)"
+    note: "Economic total loss when repair > etl_pct% of sum insured; % set in the schedule."
+  reporting_window_days:
+    value: 15
+    source: "insurer-specific (illustrative)"
 
-# --- FAQ-only parameters: published in the policy, never used in adjudication. ------------------------------
+# --- FAQ-only facts: published in the policy, never used in adjudication. --------------------------------------
 faq_only:
-  replacement_car_days: 10                # COMP only, per accident
-  towing_limit_sar: 500                   # per accident, both cover types
-  acknowledge_working_days: 3             # acknowledge claim + list missing documents
-  decision_working_days: 5                # accept/deny once all documents are in
-  settlement_working_days: 15             # pay an accepted claim (individual customers)
-  report_within_hours: 24                 # report the accident to Najm or the traffic police
-  fault_objection_days: 5                 # object to the fault share with the reporting authority
+  tp_licence_grace_days_faq: {value: 50, source: "UP Art. 5", note: "calendar days (TPL)"}
+  od_licence_grace_business_days_faq: {value: 50, source: "CMIR Art. 7.2", note: "business days (COMP)"}
+  deductible_when_not_liable_sar: {value: 0, source: "CMIR Art. 5.4.4"}
+  deduction_for_prior_use: {value: "no", source: "CMIR Art. 5.3.4"}
+  towing_city_sar: {value: 500, source: "reported, unverified", note: "per claim; insurer may set higher. CMIR Art. 5.5 covers towing."}
+  towing_outside_city_sar: {value: 1000, source: "reported, unverified", note: "per claim; insurer may set higher."}
+  small_claim_threshold_sar: {value: 2000, source: "CSI (article TBC)"}
+  small_claim_settle_working_days: {value: 5, source: "CSI (article TBC)"}
+  other_claim_settle_days: {value: 15, source: "CSI (article TBC)"}
+  missing_docs_notice_working_days: {value: 3, source: "CSI (article TBC)", note: "individual customers"}
+  total_loss_report_working_days: {value: 7, source: "CSI (article TBC)", note: "from complete documents"}
+  replacement_car_in_base_policy: {value: "no", source: "insurer-specific (illustrative)", note: "optional add-on needing prior approval (CMIR Art. 5.6)"}
+  claim_statuses: {value: [Incomplete, Outstanding, Settled, Rejected], source: "CSI (article TBC)"}
+  at_fault_other_party_options:
+    value: "claim from the other party's insurer, or own COMP insurer pays with no deductible and subrogates"
+    source: "interpretation of CMIR Art. 5.4.4"
 
-# --- Enumerations. Each value has EN and AR labels used by the document and the templates. ------------------
+# --- Enumerations (EN + AR labels; each item sourced). -----------------------------------------------------------
 cover_types:
-  TPL: {en: "Third-Party Liability (TPL)", ar: "التأمين ضد الغير (TPL)"}
-  COMP: {en: "Comprehensive (COMP)", ar: "التأمين الشامل (COMP)"}
+  TPL: {en: "Third-Party Liability (TPL)", ar: "التأمين ضد الغير (TPL)", source: "UP (article TBC)"}
+  COMP: {en: "Comprehensive (COMP)", ar: "التأمين الشامل (COMP)", source: "CMIR (article TBC)"}
 
 claim_types:
-  own_damage: {en: "own-damage claim (damage to the policyholder's own vehicle)", ar: "مطالبة أضرار ذاتية (أضرار مركبة حامل الوثيقة)"}
-  third_party: {en: "third-party claim (another party claims against the policyholder)", ar: "مطالبة طرف ثالث (طرف آخر يطالب حامل الوثيقة)"}
+  own_damage: {en: "own-damage claim (the policyholder's own vehicle)", ar: "مطالبة أضرار ذاتية (مركبة حامل الوثيقة)", source: "insurer-specific (illustrative)"}
+  third_party_claim: {en: "third-party claim (another party claims against the policyholder)", ar: "مطالبة طرف ثالث (طرف آخر يطالب حامل الوثيقة)", source: "insurer-specific (illustrative)"}
 
-other_party_status:
-  identified_insured: {en: "identified and insured", ar: "معروف ومؤمَّن عليه"}
-  identified_uninsured: {en: "identified but uninsured", ar: "معروف وغير مؤمَّن عليه"}
-  unknown: {en: "unknown (for example hit-and-run)", ar: "مجهول (مثل الصدم والهروب)"}
+other_party:
+  insured: {en: "identified and insured", ar: "معروف ومؤمَّن عليه", source: "insurer-specific (illustrative)"}
+  uninsured: {en: "identified but uninsured", ar: "معروف وغير مؤمَّن عليه", source: "insurer-specific (illustrative)"}
+  unknown: {en: "unknown (hit-and-run)", ar: "مجهول (صدم وهروب)", source: "interpretation of CMIR Art. 5.4.4"}
+  none: {en: "no other party (single-vehicle accident)", ar: "لا يوجد طرف آخر (حادث مركبة واحدة)", source: "interpretation of CMIR Art. 5.4.5"}
 
 report_sources:
-  najm: {en: "Najm", ar: "نجم"}
-  traffic_police: {en: "the traffic police", ar: "المرور"}
+  najm: {en: "Najm", ar: "نجم", source: "reported, unverified"}
+  traffic_police: {en: "the traffic police", ar: "المرور", source: "reported, unverified"}
 
-out_of_scope_perils:
-  injury_or_death: {en: "bodily injury or death", ar: "الإصابات الجسدية أو الوفاة"}
-  theft: {en: "theft of the vehicle", ar: "سرقة المركبة"}
-  fire: {en: "fire", ar: "الحريق"}
-  flood: {en: "flood", ar: "السيول والفيضانات"}
+out_of_scope_perils:   # R0: this fictional desk handles collision damage only
+  injury_or_death: {en: "bodily injury or death", ar: "الإصابات الجسدية أو الوفاة", source: "insurer-specific (illustrative)"}
+  theft: {en: "theft of the vehicle", ar: "سرقة المركبة", source: "insurer-specific (illustrative)"}
+  fire: {en: "fire", ar: "الحريق", source: "insurer-specific (illustrative)"}
+  flood: {en: "flood", ar: "السيول والفيضانات", source: "insurer-specific (illustrative)"}
 
-violations:
-  intoxication: {en: "driving under the influence of alcohol or drugs", ar: "القيادة تحت تأثير الكحول أو المخدرات"}
-  fled_scene: {en: "leaving the accident scene before the report was made", ar: "مغادرة موقع الحادث قبل إعداد التقرير"}
-  racing_or_drifting: {en: "racing or drifting (tafheet)", ar: "السباق أو التفحيط"}
-  fraud: {en: "fraud or deliberate false information in the claim", ar: "الاحتيال أو تقديم معلومات كاذبة عمدًا في المطالبة"}
-  invalid_licence: {en: "the driver had no valid driving licence", ar: "عدم حيازة السائق رخصة قيادة سارية"}
-  commercial_use: {en: "commercial use of a vehicle insured under a private policy (paid rides, deliveries)", ar: "الاستخدام التجاري لمركبة مؤمَّنة بوثيقة خاصة (نقل الركاب بأجر أو التوصيل)"}
-  wrong_direction: {en: "driving against the direction of traffic", ar: "القيادة عكس اتجاه السير"}
-  red_light: {en: "crossing a red light", ar: "قطع الإشارة الحمراء"}
+licence_status:
+  valid: {en: "valid licence for the vehicle class", ar: "رخصة سارية لفئة المركبة", source: "CMIR Art. 7.2"}
+  none: {en: "no driving licence", ar: "لا توجد رخصة قيادة", source: "CMIR Art. 7.2"}
+  expired: {en: "licence expired on the accident date", ar: "رخصة منتهية في تاريخ الحادث", source: "CMIR Art. 7.2"}
+  wrong_class: {en: "licence not valid for this vehicle class", ar: "رخصة لا تناسب فئة المركبة", source: "CMIR Art. 7.2"}
+  forfeited: {en: "licence withdrawn or suspended", ar: "رخصة مسحوبة أو موقوفة", source: "CMIR Art. 7.2"}
+
+authorised_drivers:   # CMIR Art. 1.8 "Driver" + named drivers; anyone else -> Art. 7.4
+  insured: {en: "the insured", ar: "المؤمَّن له", source: "CMIR Art. 1.8"}
+  named_driver: {en: "a named driver on the schedule", ar: "سائق مسمّى في الجدول", source: "CMIR Art. 1.8"}
+  relative: {en: "a relative of the insured", ar: "أحد أقارب المؤمَّن له", source: "CMIR Art. 1.8"}
+  domestic_worker: {en: "the insured's domestic worker", ar: "العامل المنزلي لدى المؤمَّن له", source: "CMIR Art. 1.8"}
+  sponsored_driver: {en: "a driver sponsored by the insured", ar: "سائق على كفالة المؤمَّن له", source: "CMIR Art. 1.8"}
 
 exclusions:
-  absolute: [intoxication, fled_scene, racing_or_drifting, fraud]      # deny, any claim type
-  own_damage: [invalid_licence, commercial_use]                         # deny own-damage claims only
-  third_party_recovery: [invalid_licence, wrong_direction, red_light, commercial_use]  # pay + recovery right
+  third_party_deny:      # deny a third-party claim
+    fled_scene: {en: "the driver fled the accident scene", ar: "هروب السائق من موقع الحادث", source: "UP Art. 6"}
+    intoxication: {en: "driving under the influence of alcohol or drugs", ar: "القيادة تحت تأثير الكحول أو المخدرات", source: "UP Art. 6"}
+    racing_or_drifting: {en: "drifting (tafheet) or racing", ar: "التفحيط أو السباق", source: "UP Art. 6"}
+    deliberate: {en: "the accident was caused deliberately", ar: "تعمّد التسبب في الحادث", source: "UP Art. 6"}
+    misrepresentation: {en: "material misrepresentation in the claim", ar: "تقديم معلومات جوهرية غير صحيحة في المطالبة", source: "UP Art. 6"}
+  third_party_recovery:  # pay the third party; insurer keeps a right of recovery (RECOVERY_RIGHT)
+    invalid_licence: {en: "the driver had no valid licence (an expired licence renewed within the grace period counts as valid)", ar: "عدم حيازة السائق رخصة سارية (الرخصة المنتهية المجدَّدة خلال المهلة تُعدّ سارية)", source: "UP Art. 5"}
+    wrong_direction: {en: "driving against the direction of traffic", ar: "القيادة عكس اتجاه السير", source: "UP Art. 5"}
+    red_light: {en: "crossing a red light", ar: "قطع الإشارة الحمراء", source: "UP Art. 5"}
+    use_outside_purpose: {en: "using the vehicle for a purpose other than the one in the policy", ar: "استخدام المركبة في غير الغرض المحدد في الوثيقة", source: "UP Art. 5"}
+  own_damage_deny:       # CMIR Art. 7 (all listed); `generated: true` = the sampler produces it (D1.8)
+    optional_cover_declined: {en: "loss under an optional cover the insured declined", ar: "خسارة تقع ضمن تغطية اختيارية رفضها المؤمَّن له", source: "CMIR Art. 7.1", generated: false}
+    invalid_licence: {en: "no valid licence for the vehicle class, or a withdrawn licence; an expired licence counts as valid if renewed within the grace period", ar: "عدم وجود رخصة سارية لفئة المركبة أو رخصة مسحوبة؛ وتُعدّ الرخصة المنتهية سارية إذا جُدّدت خلال المهلة", source: "CMIR Art. 7.2", generated: true}
+    below_deductible: {en: "the assessed loss is at or below the deductible", ar: "الخسارة المقدَّرة مساوية لمبلغ التحمل أو أقل منه", source: "CMIR Art. 7.3", generated: true}
+    unauthorised_driver: {en: "the vehicle was driven by someone other than the insured or an authorised driver", ar: "قيادة المركبة من شخص غير المؤمَّن له أو السائق المصرَّح له", source: "CMIR Art. 7.4", generated: true}
+    mechanical_failure: {en: "manufacturing defects or mechanical or electrical failure", ar: "عيوب التصنيع أو الأعطال الميكانيكية أو الكهربائية", source: "CMIR Art. 7.5", generated: false}
+    tyres_rims_mirrors: {en: "damage to tyres, rims or mirrors alone, unless caused in a covered accident", ar: "أضرار الإطارات أو الجنوط أو المرايا وحدها ما لم تقع في حادث مغطى", source: "CMIR Art. 7.6", generated: false}
+    cargo_belongings: {en: "loss of cargo or personal belongings in the vehicle", ar: "فقدان الحمولة أو المتعلقات الشخصية داخل المركبة", source: "CMIR Art. 7.7", generated: false}
+    trailer: {en: "damage to a trailer not named in the schedule", ar: "أضرار مقطورة غير مذكورة في الجدول", source: "CMIR Art. 7.8", generated: false}
+    theft_running_unlocked: {en: "theft from a running or unlocked vehicle", ar: "السرقة من مركبة تعمل أو غير مقفلة", source: "CMIR Art. 7.9", generated: false}
+    aftermarket_accessories: {en: "accessories not fitted by the manufacturer", ar: "الملحقات غير المركّبة من المصنّع", source: "CMIR Art. 7.10", generated: false}
+    use_violating_restrictions: {en: "use that breaks the policy's limits on use", ar: "الاستخدام المخالف لقيود الاستخدام في الوثيقة", source: "CMIR Art. 7.11", generated: false}
+    overloading: {en: "carrying more passengers or load than permitted, causing the accident", ar: "تجاوز عدد الركاب أو الحمولة المسموح بها بما تسبب في الحادث", source: "CMIR Art. 7.12", generated: false}
+    racing_speed_trials: {en: "racing, speed trials or testing", ar: "السباقات أو اختبارات السرعة أو التجارب", source: "CMIR Art. 7.13", generated: false}
+    impaired_driver: {en: "a driver impaired by alcohol, drugs or medicines", ar: "سائق تحت تأثير الكحول أو المخدرات أو الأدوية", source: "CMIR Art. 7.14", generated: false}
+    working_machinery: {en: "use of the vehicle as working machinery", ar: "استخدام المركبة آلةً للعمل", source: "CMIR Art. 7.15", generated: false}
+    traffic_violation_cause: {en: "drifting, crossing a red light or driving against traffic, when the report shows it caused the accident", ar: "التفحيط أو قطع الإشارة الحمراء أو القيادة عكس السير، إذا أثبت التقرير أنه سبب الحادث", source: "CMIR Art. 7.16", generated: true}
+    restricted_area: {en: "use inside restricted areas such as airports or seaports", ar: "الاستخدام داخل المناطق المحظورة كالمطارات والموانئ", source: "CMIR Art. 7.17", generated: false}
+    criminal_acts: {en: "criminal or hostile acts by the insured or driver", ar: "الأفعال الجنائية أو العدائية من المؤمَّن له أو السائق", source: "CMIR Art. 7.18", generated: false}
+    deliberate: {en: "an accident caused deliberately", ar: "حادث متعمَّد", source: "CMIR Art. 7.19", generated: false}
+    war_terrorism: {en: "war, terrorism, nuclear incidents or rebellion", ar: "الحرب أو الإرهاب أو الحوادث النووية أو التمرد", source: "CMIR Art. 7.20", generated: false}
+    off_road_desert: {en: "driving in the desert or on unpaved roads outside cities", ar: "القيادة في الصحراء أو الطرق غير المعبّدة خارج المدن", source: "CMIR Art. 7.21", generated: false}
 
-late_report_justifications:
+late_report_justifications:   # R6, insurer-specific
   accepted:
-    hospitalisation: {en: "the customer was in hospital", ar: "تنويم العميل في المستشفى"}
-    travel_outside_kingdom: {en: "the customer was travelling outside the Kingdom", ar: "سفر العميل خارج المملكة"}
-    official_report_delay: {en: "the reporting authority delayed the accident report", ar: "تأخر جهة الإبلاغ في إصدار تقرير الحادث"}
+    hospitalisation: {en: "the customer was in hospital", ar: "تنويم العميل في المستشفى", source: "insurer-specific (illustrative)"}
+    travel_outside_kingdom: {en: "the customer was travelling outside the Kingdom", ar: "سفر العميل خارج المملكة", source: "insurer-specific (illustrative)"}
+    official_report_delay: {en: "the reporting authority delayed the accident report", ar: "تأخر جهة الإبلاغ في إصدار تقرير الحادث", source: "insurer-specific (illustrative)"}
   not_accepted:
-    busy: {en: "being busy at work", ar: "الانشغال بالعمل"}
-    forgot: {en: "forgetting", ar: "النسيان"}
-    unaware_of_deadline: {en: "not knowing the deadline", ar: "عدم معرفة المهلة"}
+    busy: {en: "being busy at work", ar: "الانشغال بالعمل", source: "insurer-specific (illustrative)"}
+    forgot: {en: "forgetting", ar: "النسيان", source: "insurer-specific (illustrative)"}
+    unaware_of_deadline: {en: "not knowing the deadline", ar: "عدم معرفة المهلة", source: "insurer-specific (illustrative)"}
 
-required_documents:
-  report_number: {en: "the accident report number (Najm or traffic police)", ar: "رقم تقرير الحادث (نجم أو المرور)"}
-  damage_estimate: {en: "a damage estimate in SAR", ar: "تقدير للأضرار بالريال"}
+required_documents:   # R7
+  accident_report: {en: "the accident report (Najm or traffic police)", ar: "تقرير الحادث (نجم أو المرور)", source: "CSI (article TBC)"}
+  registration: {en: "the vehicle registration", ar: "استمارة المركبة", source: "CSI (article TBC)"}
+  licence_copy: {en: "a copy of the driving licence", ar: "صورة رخصة القيادة", source: "CSI (article TBC)"}
+  damage_photos: {en: "photos of the damage", ar: "صور الأضرار", source: "CSI (article TBC)"}
+  damage_assessment: {en: "a damage assessment report (for example Taqdeer)", ar: "تقرير تقدير الأضرار (مثل تقدير)", source: "CSI (article TBC)"}
 
-# --- Decisions (gold depends on these exact definitions). ----------------------------------------------------
+# --- Decisions (gold depends on these exact definitions; D1.8 supersedes D1.7 #1). ------------------------------
 decisions:
-  approve: "payout > 0 and equals the full damage amount claimed"
-  partial: "payout > 0 but reduced by fault share, a cap or the deductible"
-  deny: "payout 0: out of scope, policy expired, exclusion, no cover, late report, 0% fault, or damage at or below the deductible"
-  need_info: "payout 0: a required document is missing or two stated values contradict each other"
+  approve: {text: "payable; reduced only by the deductible (if any)", source: "insurer-specific (illustrative)"}
+  partial: {text: "payable but reduced by the fault share or a cap (sum insured or the third-party cap)", source: "insurer-specific (illustrative)"}
+  deny: {text: "payout 0: out of scope, policy not in force, exclusion, no own-damage cover, late report, 0% fault, or loss at or below the deductible", source: "insurer-specific (illustrative)"}
+  need_info: {text: "payout 0 for now: a required document is missing or two stated values contradict each other", source: "insurer-specific (illustrative)"}
 
-# --- Order of application. The first step that fires decides; payout steps run only if nothing fired. -------
+# --- Order of application: the first step that fires decides; payout steps run only if nothing fired. ----------
 precedence:
-  - {step: R0, fires: "claim is for an out-of-scope peril", decision: deny, reason: R0_out_of_scope}
-  - {step: R5, fires: "accident_date > policy_end_date", decision: deny, reason: R5_policy_expired}
-  - {step: R5, fires: "any exclusions.absolute applies", decision: deny, reason: "R5_<violation>"}
-  - {step: R8, fires: "own_damage, cover TPL, other party unknown or uninsured", decision: deny, reason: R8_no_own_cover}
-  - {step: R1, fires: "own_damage, cover TPL", decision: deny, reason: R1_tpl_no_own_damage}
-  - {step: R5, fires: "own_damage and any exclusions.own_damage applies", decision: deny, reason: "R5_od_<violation>"}
-  - {step: R6, fires: "report_date - accident_date > reporting_window_days and no accepted justification", decision: deny, reason: R6_late_report}
-  - {step: R7, fires: "report_number or damage_estimate missing, or two stated values conflict", decision: need_info, reason: "R7_missing_<doc> | R7_conflicting_info"}
-  - {step: R3, fires: "own_damage (COMP)", decision: from_payout, reason: "R3_own_damage (+ R3_total_loss, R8_unknown_party)"}
-  - {step: R4, fires: "third_party", decision: from_payout, reason: "R4_third_party (+ R4_cap_applied, R5_recovery_right)"}
+  - {step: R0, applies: "claim is for an out-of-scope peril", decision: deny, reason: R0_OUT_OF_SCOPE, source: "insurer-specific (illustrative)"}
+  - {step: R1, applies: "accident date after the policy end date", decision: deny, reason: R1_POLICY_NOT_IN_FORCE, source: "insurer-specific (illustrative)"}
+  - {step: R5, applies: "third_party_claim and any exclusions.third_party_deny", decision: deny, reason: "R5_TP_<key>", source: "UP Art. 6"}
+  - {step: R8, applies: "own_damage under TPL, other party unknown or uninsured", decision: deny, reason: R8_NO_OWN_COVER, source: "UP Art. 6.1"}
+  - {step: R1, applies: "own_damage under TPL", decision: deny, reason: R1_TPL_NO_OWN_DAMAGE, source: "UP Art. 6.1"}
+  - {step: R5, applies: "own_damage under COMP and any exclusions.own_damage_deny except below_deductible", decision: deny, reason: "R5_OD_<key>", source: "CMIR Art. 7"}
+  - {step: R6, applies: "reported more than reporting_window_days after the accident, no accepted justification", decision: deny, reason: R6_LATE_REPORT, source: "insurer-specific (illustrative)"}
+  - {step: R7, applies: "a required document is missing", decision: need_info, reason: "R7_MISSING_<doc>", source: "CSI (article TBC)"}
+  - {step: R7, applies: "two stated values for the same item contradict each other", decision: need_info, reason: R7_CONFLICT, source: "insurer-specific (illustrative)"}
+  - {step: R3, applies: "own_damage and repair estimate <= fixed_deductible_sar (full, not fault-scaled)", decision: deny, reason: R3_BELOW_DEDUCTIBLE, source: "CMIR Art. 7.3"}
+  - {step: R3, applies: "own_damage under COMP", decision: from_payout, reason: "R3_OWN_DAMAGE (+ R3_TOTAL_LOSS, SUBROGATION, R8_UNKNOWN_PARTY)", source: "CMIR Art. 5.3, 5.4"}
+  - {step: R4, applies: "third_party_claim; 0% fault -> deny", decision: from_payout, reason: "R4_THIRD_PARTY (+ R4_NO_FAULT, R4_CAP, RECOVERY_RIGHT)", source: "interpretation of UP (article TBC)"}
 
 reason_codes:
-  R0_out_of_scope: "claim is for an out-of-scope peril"
-  R5_policy_expired: "policy had expired on the accident date"
-  R5_intoxication: "absolute exclusion: intoxication"
-  R5_fled_scene: "absolute exclusion: left the scene"
-  R5_racing_or_drifting: "absolute exclusion: racing or drifting"
-  R5_fraud: "absolute exclusion: fraud"
-  R8_no_own_cover: "unknown or uninsured other party and TPL cover: nothing covers the own vehicle"
-  R1_tpl_no_own_damage: "TPL does not cover the policyholder's own vehicle"
-  R5_od_invalid_licence: "own-damage exclusion: no valid licence"
-  R5_od_commercial_use: "own-damage exclusion: commercial use under a private policy"
-  R6_late_report: "reported after the window without an accepted justification"
-  R6_justified: "reported late with an accepted justification (informational)"
-  R7_missing_report_number: "accident report number missing"
-  R7_missing_damage_estimate: "damage estimate missing"
-  R7_conflicting_info: "two stated values contradict each other"
-  R3_own_damage: "own-damage payout computed"
-  R3_total_loss: "repair estimate above market value: total loss, paid on market value"
-  R3_below_deductible: "covered amount at or below the deductible: payout 0"
-  R8_unknown_party: "unknown or uninsured other party: own damage paid under COMP, no fault share needed"
-  R4_third_party: "third-party payout computed from fault share"
-  R4_cap_applied: "third-party payout capped at the TPL cap"
-  R4_no_fault: "policyholder 0% at fault: nothing payable"
-  R5_recovery_right: "third party paid; insurer keeps a right to recover from the insured or driver"
+  R0_OUT_OF_SCOPE: "out-of-scope peril for this desk"
+  R1_POLICY_NOT_IN_FORCE: "policy had ended before the accident date"
+  R5_TP_fled_scene: "third-party claim denied: fled the scene"
+  R5_TP_intoxication: "third-party claim denied: alcohol or drugs"
+  R5_TP_racing_or_drifting: "third-party claim denied: drifting or racing"
+  R5_TP_deliberate: "third-party claim denied: deliberate accident"
+  R5_TP_misrepresentation: "third-party claim denied: material misrepresentation"
+  R8_NO_OWN_COVER: "TPL with unknown or uninsured other party: nothing covers the own vehicle"
+  R1_TPL_NO_OWN_DAMAGE: "TPL never covers the policyholder's own vehicle"
+  R5_OD_invalid_licence: "own damage denied: CMIR 7.2 licence"
+  R5_OD_unauthorised_driver: "own damage denied: CMIR 7.4 driver not authorised"
+  R5_OD_traffic_violation_cause: "own damage denied: CMIR 7.16 violation caused the accident"
+  R6_LATE_REPORT: "reported after the window without an accepted justification"
+  R6_JUSTIFIED: "late, with an accepted justification (informational)"
+  R7_MISSING_accident_report: "accident report missing"
+  R7_MISSING_registration: "vehicle registration missing"
+  R7_MISSING_licence_copy: "driving licence copy missing"
+  R7_MISSING_damage_photos: "damage photos missing"
+  R7_MISSING_damage_assessment: "damage assessment report missing"
+  R7_CONFLICT: "two stated values contradict each other"
+  R3_BELOW_DEDUCTIBLE: "assessed loss at or below the fixed deductible (CMIR 7.3)"
+  R3_OWN_DAMAGE: "own-damage payout computed"
+  R3_TOTAL_LOSS: "technical or economic total loss: base = sum insured"
+  R3_SUM_INSURED_CAP: "repair estimate above the sum insured: capped"
+  SUBROGATION: "other party insured and partly or fully at fault: insurer may recover from that party's insurer"
+  R8_UNKNOWN_PARTY: "hit-and-run: no deductible, no subrogation"
+  R4_THIRD_PARTY: "third-party payout = damage x fault share"
+  R4_NO_FAULT: "policyholder 0% at fault: nothing payable"
+  R4_CAP: "third-party payout capped"
+  RECOVERY_RIGHT: "third party paid; insurer keeps a right of recovery against the insured or driver (UP Art. 5)"
 
-# --- Ticket intents (9). Overlap definitions decide borderline tickets. --------------------------------------
+# --- Ticket intents (9). Overlap definitions decide borderline tickets. ----------------------------------------
+intents_source: "insurer-specific (illustrative)"
 intents:
   new_claim: "customer wants to open a claim and no claim exists yet"
-  claim_status: "customer asks about the progress of an existing claim"
+  claim_status: "customer asks about the progress or status of an existing claim"
   coverage_question: "customer asks what the policy covers or how a rule works, without a specific claim action"
   document_submission: "a claim already exists and the customer is sending or offering a document for it"
   complaint: "customer is unhappy with service, delay or treatment and wants it recorded or escalated"
   policy_change: "change to the policy itself: details, vehicle, driver, cancellation, premium or renewal"
   payment_issue: "the claim payout only: IBAN or bank details, payout delay, wrong payout amount"
   fault_dispute: "customer objects to the fault share in the accident report"
-  other: "anything else, including out-of-scope perils (injury/death, theft, fire, flood) and non-insurance messages"
+  other: "anything else, incl. out-of-scope perils (injury/death, theft, fire, flood) and non-insurance messages"
 
-# --- Adversarial / out-of-scope items (shifted split only; D1.3). ---------------------------------------------
+# --- Evaluation design, not insurer rules (D1.3); exempt from `source`. ----------------------------------------
 adversarial:
   prompt_injection:
     tasks: [adjudicate]
@@ -166,13 +273,13 @@ adversarial:
     tasks: [faq, intent, extract, adjudicate]
     behaviour: "normal gold; length and digressions do not change the answer"
 
-# --- Fictional identifier formats (used by templates and extraction). ---------------------------------------
 formats:
+  source: "insurer-specific (illustrative)"
   policy_number: "OMI-<7 digits>"
   report_number: {najm: "NJ-<8 digits>", traffic_police: "TP-<8 digits>"}
 
-# --- Policy document (rendered by render_policy.py). {name} = a value from params / faq_only; a clause with
-# `items:` renders that enumeration's labels as a list. Wording is ours. -------------------------------------
+# --- Policy document (rendered by render_policy.py). {name} = a param / faq_only value; `items:` renders an
+# enumeration's labels as a list. Each clause has a `source`. Wording is ours. -----------------------------------
 document:
   title_en: "{insurer_en} — Motor Policy Wording ({version})"
   title_ar: "{insurer_ar} — وثيقة تأمين المركبات ({version})"
@@ -180,119 +287,173 @@ document:
     - id: decisions
       title: {en: "1. How claims are decided", ar: "1. كيف تُقرَّر المطالبات"}
       clauses:
-        - en: "Every claim is either an own-damage claim (damage to the policyholder's own vehicle) or a third-party claim (another party claims against the policyholder)."
-          ar: "كل مطالبة إما مطالبة أضرار ذاتية (أضرار مركبة حامل الوثيقة) أو مطالبة طرف ثالث (طرف آخر يطالب حامل الوثيقة)."
-        - en: "Approve: the full damage amount claimed is paid."
-          ar: "الموافقة: يُدفع كامل مبلغ الأضرار المطالَب به."
-        - en: "Partial: an amount is paid, reduced by the fault share, a cap or the deductible."
-          ar: "الموافقة الجزئية: يُدفع مبلغ مخفَّض بسبب نسبة الخطأ أو الحد الأقصى أو مبلغ التحمل."
-        - en: "Deny: nothing is paid (out of scope, policy expired, exclusion, no cover, late report, 0% fault, or damage at or below the deductible)."
-          ar: "الرفض: لا يُدفع شيء (خارج النطاق، أو انتهاء الوثيقة، أو استثناء، أو عدم وجود تغطية، أو تأخر الإبلاغ، أو نسبة خطأ 0%، أو أضرار لا تتجاوز مبلغ التحمل)."
+        - en: "Every claim is either an own-damage claim (the policyholder's own vehicle) or a third-party claim (another party claims against the policyholder)."
+          ar: "كل مطالبة إما مطالبة أضرار ذاتية (مركبة حامل الوثيقة) أو مطالبة طرف ثالث (طرف آخر يطالب حامل الوثيقة)."
+          source: "insurer-specific (illustrative)"
+        - en: "Approve: the claim is payable and is reduced only by the deductible, if any."
+          ar: "الموافقة: المطالبة مستحقة ولا يُخصم منها إلا مبلغ التحمل إن وُجد."
+          source: "insurer-specific (illustrative)"
+        - en: "Partial: the claim is payable but reduced by the fault share or by a cap (the sum insured or the third-party limit)."
+          ar: "الموافقة الجزئية: المطالبة مستحقة لكنها مخفَّضة بنسبة الخطأ أو بحد أقصى (مبلغ التأمين أو حد مسؤولية الغير)."
+          source: "insurer-specific (illustrative)"
+        - en: "Deny: nothing is paid (out of scope, policy not in force, exclusion, no own-damage cover, late report, 0% fault, or loss at or below the deductible)."
+          ar: "الرفض: لا يُدفع شيء (خارج النطاق، أو الوثيقة غير سارية، أو استثناء، أو لا تغطية للأضرار الذاتية، أو تأخر الإبلاغ، أو نسبة خطأ 0%، أو خسارة لا تتجاوز مبلغ التحمل)."
+          source: "insurer-specific (illustrative)"
         - en: "Need info: nothing is paid yet because a required document is missing or two stated values contradict each other."
           ar: "طلب معلومات: لا يُدفع شيء حاليًا لنقص مستند مطلوب أو لتعارض قيمتين مذكورتين."
-        - en: "All amounts are in Saudi riyals (SAR) and are rounded half up to a whole riyal."
+          source: "insurer-specific (illustrative)"
+        - en: "All amounts are in Saudi riyals (SAR), rounded half up to a whole riyal."
           ar: "جميع المبالغ بالريال السعودي، وتُقرَّب إلى أقرب ريال صحيح (النصف يُقرَّب للأعلى)."
+          source: "insurer-specific (illustrative)"
     - id: R0
-      title: {en: "2. What this policy does not handle", ar: "2. ما لا تشمله هذه الوثيقة"}
+      title: {en: "2. What this claims desk does not handle", ar: "2. ما لا يتولاه مكتب المطالبات هذا"}
       clauses:
-        - en: "Claims for the following are out of scope and are denied; customers are referred to the competent authority:"
-          ar: "المطالبات المتعلقة بما يلي خارج نطاق هذه الوثيقة وتُرفض، ويُحال العميل إلى الجهة المختصة:"
+        - en: "This desk handles vehicle collision damage only. Claims for the following are outside these rules and are denied here; the customer is referred to the relevant team:"
+          ar: "يتولى هذا المكتب أضرار تصادم المركبات فقط. المطالبات المتعلقة بما يلي خارج هذه القواعد وتُرفض هنا، ويُحال العميل إلى الفريق المختص:"
           items: out_of_scope_perils
+          source: "insurer-specific (illustrative)"
     - id: R1
-      title: {en: "3. Cover types", ar: "3. أنواع التغطية"}
+      title: {en: "3. Cover types and policy period", ar: "3. أنواع التغطية ومدة الوثيقة"}
       clauses:
-        - en: "Third-Party Liability (TPL) covers damage the policyholder causes to other people's vehicles and property. It never covers the policyholder's own vehicle."
-          ar: "التأمين ضد الغير (TPL) يغطي الأضرار التي يسببها حامل الوثيقة لمركبات الآخرين وممتلكاتهم، ولا يغطي مركبة حامل الوثيقة نفسها أبدًا."
-        - en: "Comprehensive (COMP) covers the policyholder's own vehicle and third-party damage."
-          ar: "التأمين الشامل (COMP) يغطي مركبة حامل الوثيقة وأضرار الغير."
-        - en: "An own-damage claim under a TPL policy is denied."
-          ar: "تُرفض مطالبة الأضرار الذاتية إذا كانت الوثيقة تأمينًا ضد الغير (TPL)."
+        - en: "Third-Party Liability (TPL) covers the policyholder's liability for damage to other people's vehicles and property. It does not cover the policyholder's own vehicle; an own-damage claim under TPL is denied."
+          ar: "التأمين ضد الغير (TPL) يغطي مسؤولية حامل الوثيقة عن أضرار مركبات الآخرين وممتلكاتهم، ولا يغطي مركبة حامل الوثيقة؛ وتُرفض مطالبة الأضرار الذاتية في هذا النوع."
+          source: "UP Art. 6.1"
+        - en: "Comprehensive (COMP) covers the policyholder's own vehicle under section 7 and third-party claims under section 5."
+          ar: "التأمين الشامل (COMP) يغطي مركبة حامل الوثيقة وفق البند 7 ومطالبات الطرف الثالث وفق البند 5."
+          source: "interpretation of CMIR (article TBC)"
+        - en: "If the accident happened after the policy end date, the policy was not in force and the claim is denied. A policy is in force up to and including its end date."
+          ar: "إذا وقع الحادث بعد تاريخ انتهاء الوثيقة فالوثيقة غير سارية وتُرفض المطالبة. وتبقى الوثيقة سارية حتى تاريخ انتهائها شاملًا ذلك اليوم."
+          source: "insurer-specific (illustrative)"
     - id: R2
       title: {en: "4. Fault share", ar: "4. نسبة الخطأ"}
       clauses:
-        - en: "The policyholder's fault share is taken from the accident report and is one of {fault_shares_text} percent."
-          ar: "تؤخذ نسبة خطأ حامل الوثيقة من تقرير الحادث، وتكون إحدى النسب التالية: {fault_shares_text} بالمئة."
-        - en: "A customer who disagrees with the fault share must object to the reporting authority within {fault_objection_days} days; the insurer applies the share in the report."
-          ar: "على العميل المعترض على نسبة الخطأ أن يعترض لدى جهة الإبلاغ خلال {fault_objection_days:ar_day}، وتطبّق الشركة النسبة الواردة في التقرير."
-    - id: R3
-      title: {en: "5. Own-damage claims (COMP only)", ar: "5. مطالبات الأضرار الذاتية (التأمين الشامل فقط)"}
-      clauses:
-        - en: "The covered amount is the repair estimate or the vehicle's market value, whichever is lower. If the repair estimate is above the market value, the vehicle is a total loss and the covered amount is the market value."
-          ar: "المبلغ المغطى هو تقدير الإصلاح أو القيمة السوقية للمركبة، أيهما أقل. وإذا تجاوز تقدير الإصلاح القيمة السوقية تُعدّ المركبة خسارة كلية ويكون المبلغ المغطى هو القيمة السوقية."
-        - en: "Deductible = the higher of SAR {deductible_floor_sar:,} and {deductible_pct}% of the covered amount."
-          ar: "مبلغ التحمل = الأعلى من {deductible_floor_sar:,} ريال و{deductible_pct}% من المبلغ المغطى."
-        - en: "Payout = covered amount − deductible. If the covered amount is at or below the deductible, the payout is 0 and the claim is denied."
-          ar: "مبلغ التعويض = المبلغ المغطى − مبلغ التحمل. وإذا كان المبلغ المغطى مساويًا لمبلغ التحمل أو أقل منه يكون التعويض صفرًا وتُرفض المطالبة."
-        - en: "The policyholder's fault share does not change an own-damage payout."
-          ar: "لا تؤثر نسبة خطأ حامل الوثيقة في مبلغ تعويض الأضرار الذاتية."
+        - en: "The policyholder's fault share is taken from the accident report (Najm or the traffic police) and is one of {fault_shares_text} percent."
+          ar: "تؤخذ نسبة خطأ حامل الوثيقة من تقرير الحادث (نجم أو المرور)، وتكون إحدى النسب التالية: {fault_shares_text} بالمئة."
+          source: "reported, unverified"
     - id: R4
-      title: {en: "6. Third-party claims against the policyholder", ar: "6. مطالبات الطرف الثالث ضد حامل الوثيقة"}
+      title: {en: "5. Third-party claims against the policyholder", ar: "5. مطالبات الطرف الثالث ضد حامل الوثيقة"}
       clauses:
-        - en: "Payout = the third party's damage × the policyholder's fault share, capped at SAR {tpl_cap_sar:,} per accident."
-          ar: "مبلغ التعويض = أضرار الطرف الثالث × نسبة خطأ حامل الوثيقة، بحد أقصى {tpl_cap_sar:,} ريال للحادث الواحد."
+        - en: "Payout = the third party's damage × the policyholder's fault share, up to SAR {tpl_cap_sar:,} per accident. This applies under TPL and COMP."
+          ar: "مبلغ التعويض = أضرار الطرف الثالث × نسبة خطأ حامل الوثيقة، بحد أقصى {tpl_cap_sar:,} ريال للحادث الواحد، في التأمين ضد الغير والتأمين الشامل."
+          source: "interpretation of UP (article TBC)"
         - en: "If the policyholder's fault share is 0%, nothing is payable and the claim is denied."
           ar: "إذا كانت نسبة خطأ حامل الوثيقة 0% فلا يُدفع شيء وتُرفض المطالبة."
-    - id: R5
-      title: {en: "7. Policy validity and exclusions", ar: "7. سريان الوثيقة والاستثناءات"}
+          source: "interpretation of UP (article TBC)"
+    - id: R5_TP
+      title: {en: "6. Third-party claims: exclusions and right of recovery", ar: "6. مطالبات الطرف الثالث: الاستثناءات وحق الرجوع"}
       clauses:
-        - en: "If the policy had expired on the accident date, the claim is denied. A policy is valid up to and including its end date."
-          ar: "إذا كانت الوثيقة منتهية في تاريخ الحادث تُرفض المطالبة. وتبقى الوثيقة سارية حتى تاريخ انتهائها شاملًا ذلك اليوم."
-        - en: "Any claim, of either type, is denied if any of the following applies:"
-          ar: "تُرفض أي مطالبة، من أي نوع، إذا انطبق أي مما يلي:"
-          items: exclusions.absolute
-        - en: "An own-damage claim is also denied if any of the following applies:"
-          ar: "وتُرفض مطالبة الأضرار الذاتية أيضًا إذا انطبق أي مما يلي:"
-          items: exclusions.own_damage
-        - en: "A third-party claim is still paid under section 6 when any of the following applies, but the insurer keeps the right to recover the amount from the policyholder or the driver:"
-          ar: "تُدفع مطالبة الطرف الثالث وفق البند 6 حتى إذا انطبق أي مما يلي، مع احتفاظ الشركة بحق الرجوع على حامل الوثيقة أو السائق بالمبلغ:"
+        - en: "A third-party claim is denied if any of the following applies:"
+          ar: "تُرفض مطالبة الطرف الثالث إذا انطبق أي مما يلي:"
+          items: exclusions.third_party_deny
+          source: "UP Art. 6"
+        - en: "A third-party claim is still paid under section 5 if any of the following applies, and the insurer keeps a right to recover the amount from the policyholder or the driver:"
+          ar: "تُدفع مطالبة الطرف الثالث وفق البند 5 حتى إذا انطبق أي مما يلي، مع احتفاظ الشركة بحق الرجوع على حامل الوثيقة أو السائق بالمبلغ:"
           items: exclusions.third_party_recovery
-        - en: "A driving licence that had expired on the accident date still counts as valid if the driver renewed it within {licence_renewal_grace_days} days after the accident."
-          ar: "تُعدّ رخصة القيادة المنتهية في تاريخ الحادث سارية إذا جدّدها السائق خلال {licence_renewal_grace_days:ar_day} من تاريخ الحادث."
+          source: "UP Art. 5"
+        - en: "For this section, a licence that had expired on the accident date counts as valid if it was renewed within {tp_licence_grace_days} days after the accident."
+          ar: "لأغراض هذا البند، تُعدّ الرخصة المنتهية في تاريخ الحادث سارية إذا جُدّدت خلال {tp_licence_grace_days:ar_day} من تاريخ الحادث."
+          source: "UP Art. 5"
+    - id: R3
+      title: {en: "7. Own-damage claims (COMP only)", ar: "7. مطالبات الأضرار الذاتية (التأمين الشامل فقط)"}
+      clauses:
+        - en: "Total loss: if the assessment report declares a technical total loss, or the repair estimate is above {etl_pct}% of the sum insured, the base amount is the sum insured. Otherwise the base amount is the repair estimate, capped at the sum insured."
+          ar: "الخسارة الكلية: إذا نص تقرير التقدير على خسارة كلية فنية، أو تجاوز تقدير الإصلاح {etl_pct}% من مبلغ التأمين، يكون المبلغ الأساسي هو مبلغ التأمين. وإلا يكون المبلغ الأساسي هو تقدير الإصلاح بحد أقصى مبلغ التأمين."
+          source: "CMIR Art. 5.3"
+        - en: "Nothing is deducted for the vehicle's prior use or wear."
+          ar: "لا يُخصم أي مبلغ مقابل استخدام المركبة أو استهلاكها السابق."
+          source: "CMIR Art. 5.3.4"
+        - en: "The deductible is SAR {fixed_deductible_sar:,}, as stated in the schedule, and stays fixed for the policy period."
+          ar: "مبلغ التحمل {fixed_deductible_sar:,} ريال كما في جدول الوثيقة، ويبقى ثابتًا طوال مدة الوثيقة."
+          source: "CMIR Art. 5.4.1, 5.4.7"
+        - en: "Deductible applied = the deductible × the policyholder's fault share. If the policyholder is not liable (0%), no deductible is applied."
+          ar: "مبلغ التحمل المطبَّق = مبلغ التحمل × نسبة خطأ حامل الوثيقة. وإذا لم يكن حامل الوثيقة مسؤولًا (0%) فلا يُطبَّق أي مبلغ تحمل."
+          source: "CMIR Art. 5.4.3, 5.4.4"
+        - en: "If there is no other party (single-vehicle accident), the full deductible is applied. If the other party is unknown (hit-and-run), no deductible is applied."
+          ar: "إذا لم يوجد طرف آخر (حادث مركبة واحدة) يُطبَّق مبلغ التحمل كاملًا. وإذا كان الطرف الآخر مجهولًا (صدم وهروب) فلا يُطبَّق أي مبلغ تحمل."
+          source: "interpretation of CMIR Art. 5.4.4, 5.4.5"
+        - en: "Payout = base amount − deductible applied. The deductible also applies to a total loss."
+          ar: "مبلغ التعويض = المبلغ الأساسي − مبلغ التحمل المطبَّق. ويُطبَّق مبلغ التحمل على الخسارة الكلية أيضًا."
+          source: "interpretation of CMIR Art. 5.4.2"
+        - en: "If the repair estimate is at or below the full deductible (SAR {fixed_deductible_sar:,}), the claim is denied, whatever the fault share."
+          ar: "إذا كان تقدير الإصلاح مساويًا لمبلغ التحمل الكامل ({fixed_deductible_sar:,} ريال) أو أقل منه تُرفض المطالبة أيًّا كانت نسبة الخطأ."
+          source: "CMIR Art. 7.3"
+        - en: "If an identified, insured other party is 100% at fault, the customer may claim from that party's insurer, or this insurer pays with no deductible and recovers from the other party's insurer."
+          ar: "إذا كان الطرف الآخر معروفًا ومؤمَّنًا عليه ومسؤولًا بنسبة 100%، يجوز للعميل مطالبة شركة تأمين ذلك الطرف، أو تدفع هذه الشركة دون مبلغ تحمل ثم ترجع على شركة تأمين الطرف الآخر."
+          source: "interpretation of CMIR Art. 5.4.4"
+    - id: R5_OD
+      title: {en: "8. Own-damage exclusions", ar: "8. استثناءات الأضرار الذاتية"}
+      clauses:
+        - en: "An own-damage claim is not paid in any of these cases:"
+          ar: "لا تُدفع مطالبة الأضرار الذاتية في أي من الحالات التالية:"
+          items: exclusions.own_damage_deny
+          source: "CMIR Art. 7"
+        - en: "Licence: an expired licence counts as valid if it was renewed within {od_licence_grace_business_days} business days (Sunday to Thursday) after the accident. A licence for the wrong vehicle class, or a withdrawn or suspended licence, gets no grace period."
+          ar: "الرخصة: تُعدّ الرخصة المنتهية سارية إذا جُدّدت خلال {od_licence_grace_business_days:ar_workday} (من الأحد إلى الخميس) بعد الحادث. ولا مهلة للرخصة التي لا تناسب فئة المركبة أو الرخصة المسحوبة أو الموقوفة."
+          source: "CMIR Art. 7.2"
+        - en: "Authorised drivers are:"
+          ar: "السائقون المصرَّح لهم هم:"
+          items: authorised_drivers
+          source: "CMIR Art. 1.8, 7.4"
+    - id: R8
+      title: {en: "9. Unknown, uninsured or no other party", ar: "9. الطرف الآخر المجهول أو غير المؤمَّن عليه أو عدم وجوده"}
+      clauses:
+        - en: "Under COMP, own damage is paid under section 7 whatever the other party's status. For a hit-and-run there is no deductible and no recovery from another party."
+          ar: "في التأمين الشامل تُدفع الأضرار الذاتية وفق البند 7 أيًّا كان وضع الطرف الآخر. وفي حالة الصدم والهروب لا يُطبَّق مبلغ تحمل ولا يوجد رجوع على طرف آخر."
+          source: "interpretation of CMIR Art. 5.4.4"
+        - en: "Under TPL, if the other party is unknown or uninsured, nothing covers the policyholder's own vehicle and the claim is denied."
+          ar: "في التأمين ضد الغير، إذا كان الطرف الآخر مجهولًا أو غير مؤمَّن عليه، فلا يغطي شيء مركبة حامل الوثيقة وتُرفض المطالبة."
+          source: "UP Art. 6.1"
+        - en: "The accident report may come from Najm or from the traffic police, whichever attended."
+          ar: "يجوز أن يصدر تقرير الحادث من نجم أو من المرور، أيهما باشر الحادث."
+          source: "reported, unverified"
     - id: R6
-      title: {en: "8. Reporting window", ar: "8. مهلة الإبلاغ"}
+      title: {en: "10. Reporting window", ar: "10. مهلة الإبلاغ"}
       clauses:
         - en: "A claim must be reported to the insurer within {reporting_window_days} days of the accident. A claim reported on day {reporting_window_days} is on time."
           ar: "يجب إبلاغ الشركة بالمطالبة خلال {reporting_window_days:ar_day} من تاريخ الحادث، والمطالبة المبلَّغ عنها في اليوم {reporting_window_days} تُعدّ في الموعد."
+          source: "insurer-specific (illustrative)"
         - en: "A claim reported later is denied unless the customer states one of these accepted reasons:"
           ar: "تُرفض المطالبة المبلَّغ عنها بعد ذلك ما لم يذكر العميل أحد الأسباب المقبولة التالية:"
           items: late_report_justifications.accepted
+          source: "insurer-specific (illustrative)"
         - en: "Other reasons are not accepted, for example:"
           ar: "ولا تُقبل الأسباب الأخرى، ومنها:"
           items: late_report_justifications.not_accepted
+          source: "insurer-specific (illustrative)"
     - id: R7
-      title: {en: "9. Required documents", ar: "9. المستندات المطلوبة"}
+      title: {en: "11. Required documents", ar: "11. المستندات المطلوبة"}
       clauses:
-        - en: "Every claim needs both of the following:"
-          ar: "تحتاج كل مطالبة إلى ما يلي معًا:"
+        - en: "Every claim needs all of the following:"
+          ar: "تحتاج كل مطالبة إلى جميع ما يلي:"
           items: required_documents
-        - en: "If either is missing, or if two stated values for the same item contradict each other, the decision is need info and no payout is computed."
-          ar: "إذا نقص أي منهما، أو تعارضت قيمتان مذكورتان للعنصر نفسه، يكون القرار طلب معلومات ولا يُحسب أي تعويض."
-        - en: "A report from Najm or from the traffic police is accepted, whichever attended the accident."
-          ar: "يُقبل تقرير نجم أو تقرير المرور، أيهما باشر الحادث."
-    - id: R8
-      title: {en: "10. Unknown or uninsured other party", ar: "10. الطرف الآخر المجهول أو غير المؤمَّن عليه"}
-      clauses:
-        - en: "If the other party is unknown (for example hit-and-run) or uninsured, a COMP policy pays the own damage under section 5. No fault share is needed for this."
-          ar: "إذا كان الطرف الآخر مجهولًا (مثل الصدم والهروب) أو غير مؤمَّن عليه، تدفع وثيقة التأمين الشامل الأضرار الذاتية وفق البند 5، ولا يُشترط وجود نسبة خطأ لذلك."
-        - en: "Under a TPL policy nothing covers the policyholder's own vehicle, so the claim is denied."
-          ar: "وفي وثيقة التأمين ضد الغير لا يغطي شيء مركبة حامل الوثيقة، فتُرفض المطالبة."
+          source: "CSI (article TBC)"
+        - en: "If any is missing, or if two stated values for the same item contradict each other, the decision is need info and no payout is computed."
+          ar: "إذا نقص أي منها، أو تعارضت قيمتان مذكورتان للعنصر نفسه، يكون القرار طلب معلومات ولا يُحسب أي تعويض."
+          source: "insurer-specific (illustrative)"
     - id: order
-      title: {en: "11. Order of application", ar: "11. ترتيب تطبيق القواعد"}
+      title: {en: "12. Order of application", ar: "12. ترتيب تطبيق القواعد"}
       clauses:
-        - en: "Rules are checked in this order, and the first one that leads to a decision decides: out of scope (2) → policy expired (7) → exclusions for any claim (7) → cover type and unknown other party (3, 10) → own-damage exclusions (7) → reporting window (8) → required documents (9) → payout (5 or 6)."
-          ar: "تُطبَّق القواعد بهذا الترتيب، وأول قاعدة تؤدي إلى قرار هي الحاسمة: خارج النطاق (2) ← انتهاء الوثيقة (7) ← الاستثناءات لأي مطالبة (7) ← نوع التغطية والطرف المجهول (3، 10) ← استثناءات الأضرار الذاتية (7) ← مهلة الإبلاغ (8) ← المستندات المطلوبة (9) ← حساب التعويض (5 أو 6)."
+        - en: "Rules are checked in this order, and the first one that leads to a decision decides: out of scope (2) → policy not in force (3) → third-party exclusions (6) → own damage under TPL (3, 9) → own-damage exclusions (8) → reporting window (10) → required documents (11) → loss at or below the deductible (7) → payout (5 or 7)."
+          ar: "تُطبَّق القواعد بهذا الترتيب، وأول قاعدة تؤدي إلى قرار هي الحاسمة: خارج النطاق (2) ← الوثيقة غير سارية (3) ← استثناءات الطرف الثالث (6) ← الأضرار الذاتية في التأمين ضد الغير (3، 9) ← استثناءات الأضرار الذاتية (8) ← مهلة الإبلاغ (10) ← المستندات المطلوبة (11) ← خسارة لا تتجاوز مبلغ التحمل (7) ← حساب التعويض (5 أو 7)."
+          source: "insurer-specific (illustrative)"
     - id: service
-      title: {en: "12. Service standards and other benefits", ar: "12. معايير الخدمة والمزايا الأخرى"}
+      title: {en: "13. Service standards and other benefits", ar: "13. معايير الخدمة والمزايا الأخرى"}
       clauses:
-        - en: "Report every accident to Najm or the traffic police within {report_within_hours} hours."
-          ar: "أبلغ نجم أو المرور عن أي حادث خلال {report_within_hours:ar_hour}."
-        - en: "The insurer acknowledges a claim and lists any missing documents within {acknowledge_working_days} working days."
-          ar: "تؤكد الشركة استلام المطالبة وتحدد المستندات الناقصة خلال {acknowledge_working_days:ar_workday}."
-        - en: "Once all documents are in, the insurer accepts or denies the claim within {decision_working_days} working days."
-          ar: "بعد اكتمال المستندات تقبل الشركة المطالبة أو ترفضها خلال {decision_working_days:ar_workday}."
-        - en: "An accepted claim is paid within {settlement_working_days} working days (individual customers)."
-          ar: "تُدفع المطالبة المقبولة خلال {settlement_working_days:ar_workday} (للأفراد)."
-        - en: "COMP includes a replacement car for up to {replacement_car_days} days per accident. TPL does not."
-          ar: "يشمل التأمين الشامل سيارة بديلة لمدة تصل إلى {replacement_car_days:ar_day} لكل حادث، ولا يشملها التأمين ضد الغير."
-        - en: "Towing is covered up to SAR {towing_limit_sar:,} per accident under both cover types."
-          ar: "يُغطّى سحب المركبة بحد أقصى {towing_limit_sar:,} ريال لكل حادث في نوعي التغطية."
+        - en: "If documents are missing, the insurer tells individual customers within {missing_docs_notice_working_days} working days."
+          ar: "إذا نقصت مستندات تُبلغ الشركة العملاء الأفراد خلال {missing_docs_notice_working_days:ar_workday}."
+          source: "CSI (article TBC)"
+        - en: "Claims below SAR {small_claim_threshold_sar:,} are settled within {small_claim_settle_working_days} working days; other claims within {other_claim_settle_days} days."
+          ar: "تُسوّى المطالبات التي تقل عن {small_claim_threshold_sar:,} ريال خلال {small_claim_settle_working_days:ar_workday}، والمطالبات الأخرى خلال {other_claim_settle_days:ar_day}."
+          source: "CSI (article TBC)"
+        - en: "A total-loss report is issued within {total_loss_report_working_days} working days of complete documents."
+          ar: "يصدر تقرير الخسارة الكلية خلال {total_loss_report_working_days:ar_workday} من اكتمال المستندات."
+          source: "CSI (article TBC)"
+        - en: "Claim statuses: {claim_statuses_text}."
+          ar: "حالات المطالبة: {claim_statuses_text}."
+          source: "CSI (article TBC)"
+        - en: "Towing is covered per claim up to SAR {towing_city_sar:,} inside a city and SAR {towing_outside_city_sar:,} outside a city."
+          ar: "يُغطّى سحب المركبة لكل مطالبة بحد أقصى {towing_city_sar:,} ريال داخل المدينة و{towing_outside_city_sar:,} ريال خارجها."
+          source: "reported, unverified"
+        - en: "A replacement car is not part of this policy. It is an optional add-on that needs the insurer's prior approval."
+          ar: "السيارة البديلة ليست ضمن هذه الوثيقة، وهي إضافة اختيارية تحتاج إلى موافقة مسبقة من الشركة."
+          source: "insurer-specific (illustrative)"

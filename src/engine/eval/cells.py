@@ -28,6 +28,8 @@ class Cell(BaseModel):
     fields: dict[str, bool]
     parsed_ok: bool  # V0 passed (finished normally, valid JSON, schema-valid, in range)
     verified: bool  # V0-V2 all passed (the verifier would accept this answer)
+    failed_checks: tuple[str, ...] = ()  # which of V0 / V1 / V2 rejected the answer
+    check_reasons: tuple[str, ...] = ()  # why, one entry per failed check
     truncated: bool  # stop_reason max_tokens
     cost_usd: float  # Cost with caching (actual)
     cost_usd_nocache: float  # Cost without caching (headline)
@@ -98,6 +100,8 @@ def _cell(ticket: Ticket, call: ModelCall, response: LLMResponse, rules) -> Cell
         fields=g.fields,
         parsed_ok=parsed,
         verified=accepted(verdicts),
+        failed_checks=tuple(v.level for v in verdicts if not v.passed),
+        check_reasons=tuple(f"{v.level}: {'; '.join(v.reasons)}" for v in verdicts if not v.passed),
         truncated=response.stop_reason == "max_tokens",
         cost_usd=call.cost_usd,
         cost_usd_nocache=call.cost_usd_nocache,

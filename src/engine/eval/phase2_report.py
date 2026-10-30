@@ -16,6 +16,7 @@ from engine.eval.floors import derive_floors
 from engine.eval.matrix import config_hash
 from engine.eval.report_text import format_report
 from engine.eval.solvability import failures
+from engine.eval.verifier_report import format_verifier_report
 from engine.llm.pricing import ROOT
 
 OUT = ROOT / "reports" / "phase2"
@@ -30,7 +31,10 @@ def write_all(run_id: str, repeat: int, out: Path = OUT) -> list[Path]:
     cells, problems = build_cells([run_id], tickets)
     if problems:
         raise RuntimeError(f"{len(problems)} cells without a response, e.g. {problems[0]}")
-    files: dict[str, str] = {"cells_report.txt": format_report(run_id)}
+    files: dict[str, str] = {
+        "cells_report.txt": format_report(run_id),
+        "verifiers.txt": format_verifier_report(cells, tickets),
+    }
     mismatches = replay.compare(run_id, tickets, repeat)
     files["replay_check.txt"] = (
         "replay reproduces the live run exactly (per-call cost, latency, tokens, parse flag, metrics)\n"

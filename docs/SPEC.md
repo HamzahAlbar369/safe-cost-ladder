@@ -120,10 +120,11 @@ Instructions (CSI). Every rule, parameter and item carries a `source:` (D1.8); t
   direction, red light, use outside purpose). Own damage → deny for CMIR Art. 7 (all listed; sampler generates 7.2
   licence with 50-business-day grace, 7.3, 7.4 unauthorised driver, 7.16 violation proven to have caused the accident).
 - R6 Reporting window (insurer-specific): accident day = day 0; reported after day 15 → deny unless an accepted
-  justification is stated. Licence grace counts the same way (day 0 = accident; renewal on or before day/business
-  day 50 is within grace); business days = Sunday–Thursday (Saudi week), public holidays ignored (D1.10).
+  justification is stated. Licence grace counts the same way (day 0 = accident; TPL: renewal on or before calendar
+  day 50; COMP: on or before the calendar date of business day 50, weekend days included; D1.11); business days = Sunday–Thursday (Saudi week), public holidays ignored (D1.10).
 - R7 Required documents (CSI), for the vehicle being claimed for: accident report, registration, licence copy,
-  damage photos, damage assessment; any missing (a garage quote does not replace the assessment) or two
+  damage photos, damage assessment (third-party claim: the claimant's registration, assessment and photos, the
+  at-fault driver's licence; D1.11); any missing (a garage quote does not replace the assessment) or two
   contradicting assessment values → `need_info`.
 - R8 Other party ∈ {insured, uninsured, unknown, none}: COMP + unknown → no deductible, no subrogation; TPL +
   unknown/uninsured → deny own damage. Report from Najm or the traffic police.
@@ -136,7 +137,8 @@ Instructions (CSI). Every rule, parameter and item carries a `source:` (D1.8); t
 from the same file. `rules_v2.yaml` changes only insurer-specific values (fixed deductible, ETL %, reporting window; D1.8).
 
 ### §4.2 Pipeline
-1. **Sample** case facts per level with a seeded RNG (seed recorded in MANIFEST).
+1. **Sample** case facts per level with a seeded RNG (seed recorded in MANIFEST); one stream per slot and a
+   separate stream for the id order, so a change to one item never re-draws the others (D1.11).
 2. **Compute gold** with `rules_engine.py`.
 3. **Realise text** from template families: 8 per language (6 for dev/held-out, 2 held back for the shifted
    split only; D1.2), each usable by all four tasks and every label. Code: `src/engine/datagen/templates/`.
@@ -168,6 +170,8 @@ non-insurance questions (`faq` → `out_of_scope`, `intent` → `other`); garble
 | Schema validity | 100% |
 | Decision-label distribution per split in MANIFEST (D1.8) | any label < 10% of adjudication items is flagged |
 | No ticket has the customer claiming from the other party's insurer; no mangled mixed-script tokens (D1.10) | 0 |
+| Fact consistency: no ticket states two fault shares or policy numbers, or an amount/date outside its case (D1.11) | 0 |
+| Policy documents (v1/v2, EN/AR, SOURCES.md): unresolved `{…}` placeholders (D1.11) | 0 |
 | Exact duplicates across splits | 0 |
 | Near-duplicates across splits (char 5-gram Jaccard ≥ 0.8) | 0 |
 | Composition vs §4.3 | within ±3 pts |

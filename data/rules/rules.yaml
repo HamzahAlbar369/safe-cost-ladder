@@ -5,7 +5,7 @@
 # Every rule, parameter and enumeration item carries `source:` in one of these forms (D1.8):
 #   "<instrument> Art. N"                    the article states it
 #   "interpretation of <instrument> Art. N"  our reading of the article (a choice we made)
-#   "<instrument> (article TBC)"             instrument confirmed, article number not yet cited
+#   "CMIR, SAMA Decision 3/S/445"  (CMIR cited as a whole where no single article applies)
 #   "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"  (CSI, cited as a whole)
 #   "CMIR Policy Schedule, per-claim coverage limit (insurer may agree higher)"  (towing)
 #   "insurer-specific (illustrative)"        a value or term the fictional insurer chose
@@ -36,11 +36,11 @@ fiction:
   insurer_ar: "واحة لتأمين المركبات"
   label_en: >-
     FICTIONAL INSURER. Rules follow the SAMA Unified Compulsory Motor Insurance Policy and Comprehensive Motor
-    Insurance Rules (articles cited), administered by the Insurance Authority; insurer-specific terms and the
+    Insurance Rules (sources cited for each clause), administered by the Insurance Authority; insurer-specific terms and the
     insurer are illustrative. Not legal advice.
   label_ar: >-
     شركة تأمين وهمية. تتبع القواعد الوثيقة الموحدة للتأمين الإلزامي على المركبات وقواعد التأمين الشامل على
-    المركبات الصادرة عن البنك المركزي السعودي (مع ذكر المواد)، والتي تشرف عليها هيئة التأمين؛ أما الشروط الخاصة
+    المركبات الصادرة عن البنك المركزي السعودي (مع ذكر مصدر كل بند)، والتي تشرف عليها هيئة التأمين؛ أما الشروط الخاصة
     بالشركة والشركة نفسها فهي توضيحية. ليست استشارة قانونية.
 
 # --- Parameters used by the rules engine. ----------------------------------------------------------------------
@@ -105,7 +105,7 @@ faq_only:
 # --- Enumerations (EN + AR labels; each item sourced). -----------------------------------------------------------
 cover_types:
   TPL: {en: "Third-Party Liability (TPL)", ar: "التأمين ضد الغير (TPL)", source: "UP Art. 3"}
-  COMP: {en: "Comprehensive (COMP)", ar: "التأمين الشامل (COMP)", source: "CMIR (article TBC)"}
+  COMP: {en: "Comprehensive (COMP)", ar: "التأمين الشامل (COMP)", source: "CMIR, SAMA Decision 3/S/445"}
 
 claim_types:
   own_damage: {en: "own-damage claim (the policyholder's own vehicle)", ar: "مطالبة أضرار ذاتية (مركبة حامل الوثيقة)", source: "insurer-specific (illustrative)"}
@@ -322,7 +322,7 @@ document:
           source: "UP Art. 6.1"
         - en: "Comprehensive (COMP) covers the policyholder's own vehicle under section 7 and third-party claims under section 5."
           ar: "التأمين الشامل (COMP) يغطي مركبة حامل الوثيقة وفق البند 7 ومطالبات الطرف الثالث وفق البند 5."
-          source: "CMIR (article TBC)"
+          source: "CMIR, SAMA Decision 3/S/445"
         - en: "If the accident happened after the policy end date, the policy was not in force and the claim is denied. A policy is in force up to and including its end date."
           ar: "إذا وقع الحادث بعد تاريخ انتهاء الوثيقة فالوثيقة غير سارية وتُرفض المطالبة. وتبقى الوثيقة سارية حتى تاريخ انتهائها شاملًا ذلك اليوم."
           source: "insurer-specific (illustrative)"
@@ -353,7 +353,7 @@ document:
           items: exclusions.third_party_recovery
           source: "UP Art. 5, 9(7)"
         - en: "For this section, a licence that had expired on the accident date counts as valid if it was renewed within {tp_licence_grace_days} calendar days after the accident: the accident day is day 0, and a renewal on or before day {tp_licence_grace_days} is within the grace period."
-          ar: "لأغراض هذا البند، تُعدّ الرخصة المنتهية في تاريخ الحادث سارية إذا جُدّدت خلال {tp_licence_grace_days:ar_day} تقويمية من تاريخ الحادث: يوم الحادث هو اليوم 0، والتجديد في اليوم {tp_licence_grace_days} أو قبله يقع ضمن المهلة."
+          ar: "لأغراض هذا البند، تُعدّ الرخصة المنتهية في تاريخ الحادث سارية إذا جُدّدت خلال {tp_licence_grace_days:ar_calday} من تاريخ الحادث: يوم الحادث هو اليوم 0، والتجديد في اليوم {tp_licence_grace_days} أو قبله يقع ضمن المهلة."
           source: "UP Art. 5"
     - id: R3
       title: {en: "7. Own-damage claims (COMP only)", ar: "7. مطالبات الأضرار الذاتية (التأمين الشامل فقط)"}
@@ -392,8 +392,8 @@ document:
           ar: "لا تُدفع مطالبة الأضرار الذاتية في أي من الحالات التالية:"
           items: exclusions.own_damage_deny
           source: "CMIR Art. 7"
-        - en: "Licence: an expired licence counts as valid if it was renewed within {od_licence_grace_business_days} business days after the accident: the accident day is day 0, and a renewal on or before business day {od_licence_grace_business_days} is within the grace period. Business days follow the Saudi week: Sunday to Thursday are working days, Friday and Saturday are the weekend; public holidays are ignored. A licence for the wrong vehicle class, or a withdrawn or suspended licence, gets no grace period."
-          ar: "الرخصة: تُعدّ الرخصة المنتهية سارية إذا جُدّدت خلال {od_licence_grace_business_days:ar_workday} بعد الحادث: يوم الحادث هو اليوم 0، والتجديد في يوم العمل {od_licence_grace_business_days} أو قبله يقع ضمن المهلة. وتتبع أيام العمل الأسبوع السعودي: من الأحد إلى الخميس أيام عمل، والجمعة والسبت عطلة نهاية الأسبوع، ولا تُحتسب العطل الرسمية. ولا مهلة للرخصة التي لا تناسب فئة المركبة أو الرخصة المسحوبة أو الموقوفة."
+        - en: "Licence: an expired licence counts as valid if it was renewed within {od_licence_grace_business_days} business days after the accident: the accident day is day 0; count {od_licence_grace_business_days} business days forward to find the deadline date, and a renewal on any calendar date on or before that date (a weekend day included) is within the grace period, while a renewal on any later date is not. Business days follow the Saudi week: Sunday to Thursday are working days, Friday and Saturday are the weekend; public holidays are ignored. A licence for the wrong vehicle class, or a withdrawn or suspended licence, gets no grace period."
+          ar: "الرخصة: تُعدّ الرخصة المنتهية سارية إذا جُدّدت خلال {od_licence_grace_business_days:ar_workday} بعد الحادث: يوم الحادث هو اليوم 0؛ تُعدّ {od_licence_grace_business_days:ar_workday} للأمام لتحديد تاريخ نهاية المهلة، والتجديد في أي تاريخ تقويمي في ذلك التاريخ أو قبله (ولو كان يوم عطلة) يقع ضمن المهلة، أما التجديد بعده فلا. وتتبع أيام العمل الأسبوع السعودي: من الأحد إلى الخميس أيام عمل، والجمعة والسبت عطلة نهاية الأسبوع، ولا تُحتسب العطل الرسمية. ولا مهلة للرخصة التي لا تناسب فئة المركبة أو الرخصة المسحوبة أو الموقوفة."
           source: "CMIR Art. 7.2"
         - en: "Authorised drivers are:"
           ar: "السائقون المصرَّح لهم هم:"
@@ -431,6 +431,9 @@ document:
         - en: "Every claim needs all of the following, for the vehicle being claimed for:"
           ar: "تحتاج كل مطالبة إلى جميع ما يلي، للمركبة محل المطالبة:"
           items: required_documents
+          source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"
+        - en: "For an own-damage claim these are the policyholder's vehicle registration, damage assessment and damage photos, the licence copy of the driver at the time, and the accident report. For a third-party claim they are the claimant's vehicle registration and damage assessment, the at-fault driver's licence copy, the accident report, and photos of the claimant's vehicle damage."
+          ar: "في مطالبة الأضرار الذاتية: استمارة مركبة حامل الوثيقة وتقرير تقييم أضرارها وصور أضرارها، وصورة رخصة السائق وقت الحادث، وتقرير الحادث. وفي مطالبة الطرف الثالث: استمارة مركبة المطالِب وتقرير تقييم أضرارها، وصورة رخصة السائق المتسبب في الحادث، وتقرير الحادث، وصور أضرار مركبة المطالِب."
           source: "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"
         - en: "If any is missing, the decision is need info and no payout is computed. A garage quote does not replace the damage assessment report. If two damage assessment values contradict each other, the decision is also need info."
           ar: "إذا نقص أي منها يكون القرار طلب معلومات ولا يُحسب أي تعويض. ولا يحل عرض سعر الورشة محل تقرير تقييم الأضرار. وإذا تعارضت قيمتان في تقييم الأضرار يكون القرار طلب معلومات أيضًا."

@@ -12,6 +12,7 @@ from engine.datagen.rules import load_version
 from engine.datagen.rules_engine import (
     UnsupportedCase,
     adjudicate,
+    business_day_deadline,
     business_days_after,
     round_half_up,
 )
@@ -392,28 +393,51 @@ def test_business_days_saudi_week_vs_mon_fri():
     assert business_days_after(thu, thu + timedelta(days=3), MON_FRI) == 1  # Sunday does not
 
 
-def test_engine_uses_the_saudi_week_from_rules_yaml_not_mon_fri():
+def _mon_fri_rules():
     from engine.datagen.rules import RULES_V1, RuleSet, load_raw
 
-    assert V1.values().business_days == SAUDI
     raw = load_raw(RULES_V1)
     raw["params"]["business_days"]["value"] = list(MON_FRI)
-    mon_fri = RuleSet.model_validate(raw)
-    # accident on a Thursday; renewal 70 days later is business day 50 in the Saudi week, 51 Mon-Fri
-    thu = date(2026, 3, 12)
-    renew = thu + timedelta(days=70)
+    return RuleSet.model_validate(raw)
+
+
+def test_engine_uses_the_saudi_week_from_rules_yaml_not_mon_fri():
+    assert V1.values().business_days == SAUDI
+    fri = date(2026, 3, 13)  # accident on a Friday
+    # business day 50: Saudi week -> Thursday fri+69; Mon-Fri -> Friday fri+70
+    assert business_day_deadline(fri, 50, SAUDI) == fri + timedelta(days=69)
+    assert business_day_deadline(fri, 50, MON_FRI) == fri + timedelta(days=70)
     case = mk(
-        accident_date=thu,
-        report_date=thu + timedelta(days=3),
+        accident_date=fri,
+        report_date=fri + timedelta(days=3),
         licence_status="expired",
-        licence_renewal_date=renew,
+        licence_renewal_date=fri + timedelta(days=70),
     )
-    assert business_days_after(thu, renew, SAUDI) == 50 and business_days_after(thu, renew, MON_FRI) == 50
-    renew2 = thu + timedelta(days=71)  # a Friday: weekend in KSA, working day Mon-Fri
-    case2 = case.model_copy(update={"licence_renewal_date": renew2})
-    assert business_days_after(thu, renew2, SAUDI) == 50 and business_days_after(thu, renew2, MON_FRI) == 51
-    assert adjudicate(case2, V1).gold.decision == "approve"
-    assert adjudicate(case2, mon_fri).gold.decision == "deny"
+    assert adjudicate(case, V1).gold.decision == "deny"  # Saudi deadline already passed
+    assert adjudicate(case, _mon_fri_rules()).gold.decision == "approve"
+
+
+def test_d111_comp_grace_is_a_calendar_date_deadline():
+    thu = date(2026, 3, 12)  # accident on a Thursday; business day 50 (Saudi week) is Thursday thu+70
+    deadline = business_day_deadline(thu, 50, SAUDI)
+    assert deadline == thu + timedelta(days=70) and deadline.weekday() == 3
+
+    def decide(renew):
+        return run(
+            mk(
+                accident_date=thu,
+                report_date=thu + timedelta(days=3),
+                licence_status="expired",
+                licence_renewal_date=renew,
+            )
+        )[0]
+
+    assert decide(deadline) == "approve"  # on the deadline date
+    assert decide(deadline - timedelta(days=5)) == "approve"  # a Saturday before it: weekend day, in grace
+    assert (deadline - timedelta(days=5)).weekday() == 5
+    assert decide(deadline + timedelta(days=1)) == "deny"  # the Friday after: weekend, but past the date
+    assert decide(deadline + timedelta(days=2)) == "deny"  # the Saturday after
+    assert decide(thu) == "approve"  # renewed on day 0
 
 
 def test_garage_quote_only_is_need_info_even_when_small():

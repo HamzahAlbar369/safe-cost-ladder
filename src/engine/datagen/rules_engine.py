@@ -36,6 +36,17 @@ def business_days_after(start: date, end: date, working: tuple[str, ...]) -> int
     return days
 
 
+def business_day_deadline(start: date, n: int, working: tuple[str, ...]) -> date:
+    """Calendar date of business day n after `start` (day 0). A renewal on any calendar date on or before it,
+    weekend days included, is within grace (D1.11)."""
+    d, counted = start, 0
+    while counted < n:
+        d += timedelta(days=1)
+        if _WEEKDAYS[d.weekday()] in working:
+            counted += 1
+    return d
+
+
 def licence_valid_tp(case: Case, rules: RuleSet) -> bool:
     """UP Art. 5: an expired licence renewed within N calendar days after the accident counts as valid."""
     if case.licence_status == "valid":
@@ -59,8 +70,8 @@ def licence_valid_od(case: Case, rules: RuleSet) -> bool:
         return False
     if case.licence_renewal_date < case.accident_date:
         raise UnsupportedCase("licence renewed before the accident is not 'expired'")
-    used = business_days_after(case.accident_date, case.licence_renewal_date, v.business_days)
-    return used <= v.od_licence_grace_business_days
+    deadline = business_day_deadline(case.accident_date, v.od_licence_grace_business_days, v.business_days)
+    return case.licence_renewal_date <= deadline
 
 
 class _Trace:
@@ -120,11 +131,15 @@ def adjudicate(case: Case, rules: RuleSet) -> Adjudication:
         lic_ok = licence_valid_od(case, rules)
         if not lic_ok:
             hits.append("invalid_licence")
+        detail = f"status={case.licence_status}, renewed={case.licence_renewal_date}"
+        if case.licence_status == "expired":
+            n = v.od_licence_grace_business_days
+            detail += f", deadline={business_day_deadline(case.accident_date, n, v.business_days)}"
         t.add(
             "R5",
-            "CMIR 7.2 licence valid (50 business-day grace for expired only)",
+            "CMIR 7.2 licence valid (expired only: renewed on or before the business-day-50 date)",
             not lic_ok,
-            f"status={case.licence_status}, renewed={case.licence_renewal_date}",
+            detail,
         )
         authorised = case.driver in rules.authorised_drivers
         if not authorised:

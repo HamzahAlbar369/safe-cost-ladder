@@ -308,14 +308,17 @@ class ClaimView:
     show_policy_details: bool = True  # cover + end date sentence parts
     explicit_missing: bool = False
     distractors: tuple[int, ...] = ()
-    lexp: date | None = None  # licence expiry date shown for expired licences
     injection: bool = False
     ramble: int = 0
     show_driver: bool = False
 
 
-def _doc_list(fam: Family, docs: tuple[str, ...], src: str, rng: random.Random) -> str:
-    table = EN.DOC if fam.lang == "en" else AR.DOC[fam.register]
+def _doc_list(fam: Family, docs: tuple[str, ...], src: str, rng: random.Random, third_party: bool) -> str:
+    """Document names; third-party claims name the claimant's vehicle and the at-fault driver (D1.11)."""
+    if third_party:
+        table = EN.DOC_TP if fam.lang == "en" else AR.DOC_TP[fam.register]
+    else:
+        table = EN.DOC if fam.lang == "en" else AR.DOC[fam.register]
     idx = 2 if fam.held_back else rng.randrange(2)
     names = [_fill(table[d][idx], {"src": src, "srcn": src.removeprefix("the ")}) for d in docs]
     if fam.lang == "en":
@@ -347,7 +350,7 @@ def render_claim(view: ClaimView, fam: Family, p: dict[str, Any], rng: random.Ra
         "conf": fmt_amount(c.conflict_damage_sar, fam) if c.conflict_damage_sar is not None else "",
         "si": fmt_amount(c.sum_insured_sar, fam) if c.sum_insured_sar is not None else "",
         "other_name": (NAMES_AR if fam.lang == "ar" else NAMES_EN)[p["other_i"]],
-        "lexp": fmt_date(view.lexp, fam) if view.lexp else "",
+        "lexp": fmt_date(c.licence_expiry_date, fam) if c.licence_expiry_date else "",
         "renew": fmt_date(c.licence_renewal_date, fam) if c.licence_renewal_date else "",
     }
     slots["name_tp"] = slots["other_name"]
@@ -418,11 +421,11 @@ def render_claim(view: ClaimView, fam: Family, p: dict[str, Any], rng: random.Ra
         s.append(say("reported_past" if renewed_later else "reported"))  # keep the timeline coherent
         facts.append(c.report_date.isoformat())
         if c.documents:
-            s.append(say("docs", docs=_doc_list(fam, c.documents, src, rng)))
+            s.append(say("docs", docs=_doc_list(fam, c.documents, src, rng, not od)))
         if view.explicit_missing:
             missing = [d for d in REQUIRED_DOCS if d not in c.documents]
             if missing:
-                s.append(say("docs_missing", missing=_doc_list(fam, tuple(missing), src, rng)))
+                s.append(say("docs_missing", missing=_doc_list(fam, tuple(missing), src, rng, not od)))
     else:  # extract: dates of filing are a distractor date
         if rng.random() < 0.6:
             s.append(say("reported"))

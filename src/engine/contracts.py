@@ -195,6 +195,7 @@ class Case(Frozen):
     violation_caused_accident: bool = False  # CMIR 7.16: the report shows the violation caused it
     licence_status: Literal["valid", "none", "expired", "wrong_class", "forfeited"] = "valid"
     licence_renewal_date: date | None = None  # for an expired licence
+    licence_expiry_date: date | None = None  # shown in the text only; the engine does not use it
     driver: str = "insured"  # authorised_drivers key, or "unauthorised_<who>"
 
 

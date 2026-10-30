@@ -143,9 +143,7 @@ def test_timeline_uses_past_tense_when_licence_renewed_after_filing():
     d = sampler.tp_licence_grace(rng, V1)
     while d.case.licence_renewal_date <= d.case.report_date:
         d = sampler.tp_licence_grace(rng, V1)
-    r = R.render_claim(
-        R.ClaimView(case=d.case, lexp=d.view["lexp"]), R.BY_ID["en_email"], R.people(rng), rng, "adjudicate"
-    )
+    r = R.render_claim(R.ClaimView(case=d.case), R.BY_ID["en_email"], R.people(rng), rng, "adjudicate")
     assert any(s in " ".join(r.sentences) for s in ("first reported", "was filed"))
 
 
@@ -252,3 +250,67 @@ def test_arabic_codeswitch_swaps_whole_words_only():
             or w.strip(".,،").startswith("ال")
             for w in out.split(" ")
         )
+
+
+# --- D1.11 --------------------------------------------------------------------------------------------
+
+
+def test_fact_consistency_flags_two_fault_shares_or_a_foreign_amount():
+    draft, rng = _draft(11)
+    while draft.case.conflict_damage_sar is not None or draft.case.damage_amount_sar is None:
+        draft, rng = _draft(rng.randrange(10_000))
+    meta = TicketMeta(case=draft.case)
+    base = dict(
+        id="dev-1",
+        split="dev",
+        task_type="adjudicate",
+        level="L3",
+        language="en",
+        dialect="none",
+        template_family="en_email",
+        rules_version="v1",
+        meta=meta,
+        gold=adjudicate(draft.case, V1).gold,
+    )
+    acc = draft.case.accident_date.isoformat()
+    ok = Ticket(**base, text=f"On {acc} it happened. SAR {draft.case.damage_amount_sar:,}. Fault 50%.")
+    assert qa.fact_conflicts(ok) == []
+    two_faults = Ticket(**base, text=f"On {acc}. Najm gave me 50% but later 75%.")
+    assert any("fault shares" in p for p in qa.fact_conflicts(two_faults))
+    foreign = Ticket(
+        **base, text=f"On {acc}. The repairs are SAR 123,400 and SAR {draft.case.damage_amount_sar}."
+    )
+    assert any("amounts" in p for p in qa.fact_conflicts(foreign))
+    two_policies = Ticket(**base, text=f"On {acc}. Policy OMI-1234567, or maybe OMI-7654321.")
+    assert any("policy numbers" in p for p in qa.fact_conflicts(two_policies))
+
+
+def test_third_party_tickets_name_the_claimants_documents():
+    rng = random.Random(3)
+    d = sampler.tp_partial_fault(rng, V1)
+    r = R.render_claim(R.ClaimView(case=d.case), R.BY_ID["en_email"], R.people(rng), rng, "adjudicate")
+    text = " ".join(r.sentences)
+    assert "at-fault driver" in text and ("claimant" in text or "other car" in text)
+    d = sampler.od_comp_repair(rng, V1)
+    r = R.render_claim(R.ClaimView(case=d.case), R.BY_ID["en_email"], R.people(rng), rng, "adjudicate")
+    assert "at-fault driver" not in " ".join(r.sentences)
+
+
+def test_policy_documents_have_no_unresolved_placeholders():
+    assert qa.policy_documents()["pass"]
+
+
+def test_wording_change_stays_local_to_the_items_that_use_it(monkeypatch):
+    """Per-slot RNG streams (D1.11): swapping the third-party document wording changes only third-party claim
+    texts; no gold label, id or other item moves."""
+    from engine.datagen.templates import bank_ar, bank_en
+
+    a = G.generate()
+    monkeypatch.setattr(bank_en, "DOC_TP", bank_en.DOC)
+    monkeypatch.setattr(bank_ar, "DOC_TP", {"msa": bank_ar.DOC["msa"], "saudi": bank_ar.DOC["saudi"]})
+    b = G.generate()
+    for split in G.SPLITS:
+        assert [t.id for t in a[split]] == [t.id for t in b[split]]
+        assert all(x.gold == y.gold for x, y in zip(a[split], b[split], strict=True))
+        changed = [x for x, y in zip(a[split], b[split], strict=True) if x.text != y.text]
+        assert changed and all(x.meta.case and x.meta.case.claim_type == "third_party_claim" for x in changed)

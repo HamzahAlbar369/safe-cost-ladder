@@ -1,27 +1,27 @@
 {
   "fiction": "FICTIONAL insurer; synthetic tickets. Rules follow SAMA-issued instruments (see data/rules/SOURCES.md).",
   "seed": 20261030,
-  "generator_git_sha": "1eecf9855eda02415438d273ca3fdb7c4639bea5",
+  "generator_git_sha": "9468303f54ccf00e27b650b9e355441fc9d92609-dirty",
   "rules_sha256": {
-    "rules.yaml": "6310421cdb78d5d93138f673a0bd1485bb9ce1291f15334925af70b457c20acf",
+    "rules.yaml": "afbd64a57ef353ee84b1810736bc761adeb4461a8d8ebd7af207aa084e67bca6",
     "rules_v2.yaml": "52276a85241b538722a2273bcb60306e9beda6a1bc9327b85cfe346db916d5f8"
   },
   "files": {
     "dev.jsonl": {
-      "sha256": "84e885174728331078bdae8b1cda7d3072dce561bb1f3f7b39ab40f6b763ba79",
+      "sha256": "d99f41abcf3df7a859b2421084f6ee9eb3868467f4daa4ae2442951531d9d488",
       "n": 400
     },
     "heldout.jsonl": {
-      "sha256": "6d798d0af72c697b2e4e29cc635cfda55d63755498a6a321f85d842a5e93e6e3",
+      "sha256": "6819435b9b6443d2800598aac62edf1c1f7f0bebf0c1bf078dbc6913d29cd757",
       "n": 400
     },
     "shifted.jsonl": {
-      "sha256": "58567af0563465fac06f58d29461c9763c9e07f4829161950d48be3e8c03720c",
+      "sha256": "be227b884a65b5e29be2f9ef2f2c655766fcbc0b91c848277e2639b7c6b26d6a",
       "n": 200
     }
   },
   "heldout_sealed": {
-    "sha256": "6d798d0af72c697b2e4e29cc635cfda55d63755498a6a321f85d842a5e93e6e3",
+    "sha256": "6819435b9b6443d2800598aac62edf1c1f7f0bebf0c1bf078dbc6913d29cd757",
     "note": "never read by a person or an LLM; only `engine final` (freeze-* tag) loads it"
   },
   "composition": {
@@ -91,8 +91,8 @@
         }
       },
       "arabic_dialects": {
-        "msa": 88,
-        "saudi": 32
+        "msa": 94,
+        "saudi": 26
       }
     },
     "heldout": {
@@ -161,8 +161,8 @@
         }
       },
       "arabic_dialects": {
-        "msa": 92,
-        "saudi": 28
+        "msa": 95,
+        "saudi": 25
       }
     },
     "shifted": {
@@ -231,8 +231,8 @@
         }
       },
       "arabic_dialects": {
-        "mixed": 22,
-        "saudi": 38
+        "saudi": 35,
+        "mixed": 25
       }
     }
   },
@@ -244,46 +244,46 @@
       "dev": {
         "n_adjudicate": 180,
         "counts": {
-          "deny": 80,
-          "need_info": 27,
-          "approve": 50,
-          "partial": 23
+          "deny": 64,
+          "approve": 60,
+          "need_info": 25,
+          "partial": 31
         },
         "shares": {
-          "approve": 0.2778,
-          "partial": 0.1278,
-          "deny": 0.4444,
-          "need_info": 0.15
+          "approve": 0.3333,
+          "partial": 0.1722,
+          "deny": 0.3556,
+          "need_info": 0.1389
         }
       },
       "heldout": {
         "n_adjudicate": 180,
         "counts": {
-          "deny": 61,
-          "partial": 26,
-          "approve": 62,
-          "need_info": 31
+          "partial": 39,
+          "approve": 59,
+          "deny": 57,
+          "need_info": 25
         },
         "shares": {
-          "approve": 0.3444,
-          "partial": 0.1444,
-          "deny": 0.3389,
-          "need_info": 0.1722
+          "approve": 0.3278,
+          "partial": 0.2167,
+          "deny": 0.3167,
+          "need_info": 0.1389
         }
       },
       "shifted": {
         "n_adjudicate": 90,
         "counts": {
-          "partial": 16,
-          "need_info": 15,
-          "approve": 32,
-          "deny": 27
+          "deny": 31,
+          "approve": 33,
+          "need_info": 14,
+          "partial": 12
         },
         "shares": {
-          "approve": 0.3556,
-          "partial": 0.1778,
-          "deny": 0.3,
-          "need_info": 0.1667
+          "approve": 0.3667,
+          "partial": 0.1333,
+          "deny": 0.3444,
+          "need_info": 0.1556
         }
       }
     }
@@ -309,7 +309,7 @@
       "value": 0,
       "threshold": "0 pairs with char-5-gram Jaccard >= 0.8",
       "detail": {
-        "max_cross_split_jaccard_among_comparable": 0.687
+        "max_cross_split_jaccard_among_comparable": 0.738
       }
     },
     "composition": {
@@ -319,28 +319,28 @@
     },
     "fact_preservation": {
       "pass": true,
-      "value": "3457/3457 facts present",
+      "value": "3426/3426 facts present",
       "threshold": "100%"
     },
     "template_leak": {
       "pass": true,
-      "value": 0.8,
+      "value": -5.2,
       "threshold": "<= majority-class rate + 5 pts",
       "detail": {
-        "faq": {
-          "family_loo_acc": 0.18,
-          "majority_rate": 0.172,
-          "gap_pts": 0.8
-        },
         "adjudicate": {
-          "family_loo_acc": 0.3533,
-          "majority_rate": 0.3867,
-          "gap_pts": -3.33
+          "family_loo_acc": 0.2356,
+          "majority_rate": 0.3467,
+          "gap_pts": -11.11
         },
         "intent": {
-          "family_loo_acc": 0.1533,
-          "majority_rate": 0.18,
-          "gap_pts": -2.67
+          "family_loo_acc": 0.12,
+          "majority_rate": 0.2267,
+          "gap_pts": -10.67
+        },
+        "faq": {
+          "family_loo_acc": 0.112,
+          "majority_rate": 0.164,
+          "gap_pts": -5.2
         }
       }
     },
@@ -352,11 +352,21 @@
         "shifted_adversarial": 20,
         "shifted_rules_v2": 40,
         "shifted_arabic_dialectal_share": 1.0,
-        "dev_arabic_msa_share": 0.7333,
+        "dev_arabic_msa_share": 0.7833,
         "tickets_claiming_from_other_insurer": 0,
         "tickets_with_mangled_tokens": 0
       },
       "threshold": "pairs well-formed; held-back families only in shifted; ~20 adversarial; 40 rules_v2; shifted AR dialect-leaning; dev AR mostly MSA"
+    },
+    "fact_consistency": {
+      "pass": true,
+      "value": "1000/1000 tickets consistent",
+      "threshold": "0 tickets with two fault shares, two policy numbers, or an amount/date outside the case"
+    },
+    "policy_documents_no_placeholders": {
+      "pass": true,
+      "value": "5 documents, 0 placeholders left",
+      "threshold": "0 unresolved {...} in policy v1/v2 EN/AR and SOURCES.md"
     }
   }
 }

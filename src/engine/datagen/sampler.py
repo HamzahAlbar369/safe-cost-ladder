@@ -15,7 +15,7 @@ from typing import Any
 
 from engine.contracts import Case
 from engine.datagen.rules import RuleSet
-from engine.datagen.rules_engine import business_days_after, round_half_up
+from engine.datagen.rules_engine import business_day_deadline, round_half_up
 
 ALL_DOCS = ("accident_report", "registration", "licence_copy", "damage_photos", "damage_assessment")
 START, END = date(2026, 1, 4), date(2026, 9, 30)
@@ -215,8 +215,8 @@ def tp_licence_grace(rng, rules):
     c = base(rng, rules, "third_party_claim", fault_share=fault, licence_status="expired")
     gap = rng.choice([rng.randrange(1, g + 1), rng.randrange(g + 1, g + 25)])
     c["licence_renewal_date"] = c["accident_date"] + timedelta(days=gap)
-    lexp = c["accident_date"] - timedelta(days=rng.randrange(3, 60))
-    return _d("tp_licence_grace", ("R5", "R4"), "approve" if fault == 100 else "partial", c, lexp=lexp)
+    c["licence_expiry_date"] = c["accident_date"] - timedelta(days=rng.randrange(3, 60))
+    return _d("tp_licence_grace", ("R5", "R4"), "approve" if fault == 100 else "partial", c)
 
 
 def od_licence_grace_business(rng, rules):
@@ -225,9 +225,9 @@ def od_licence_grace_business(rng, rules):
     gap = rng.choice([rng.randrange(20, 70), rng.randrange(72, 100)])
     renew = c["accident_date"] + timedelta(days=gap)
     c["licence_renewal_date"] = renew
-    ok = business_days_after(c["accident_date"], renew, v.business_days) <= v.od_licence_grace_business_days
-    lexp = c["accident_date"] - timedelta(days=rng.randrange(3, 60))
-    return _d("od_licence_grace_business", ("R5", "R3"), "approve" if ok else "deny", c, lexp=lexp)
+    ok = renew <= business_day_deadline(c["accident_date"], v.od_licence_grace_business_days, v.business_days)
+    c["licence_expiry_date"] = c["accident_date"] - timedelta(days=rng.randrange(3, 60))
+    return _d("od_licence_grace_business", ("R5", "R3"), "approve" if ok else "deny", c)
 
 
 def od_invalid_licence(rng, rules):

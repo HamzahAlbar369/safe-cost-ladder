@@ -19,11 +19,12 @@ INSTRUMENTS = ("UP", "CMIR", "CSI")
 INSURER_SPECIFIC = "insurer-specific (illustrative)"
 CSI_SOURCE = "SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023"
 TOWING_SOURCE = "CMIR Policy Schedule, per-claim coverage limit (insurer may agree higher)"
+CMIR_INSTRUMENT = "CMIR, SAMA Decision 3/S/445"  # CMIR cited as a whole (D1.11; replaces "article TBC")
 _NUM = r"\d+(?:\.\d+)*(?:\(\d+\))?"
-_ART = rf"(?:UP|CMIR) (?:Art\. {_NUM}(?:, {_NUM})*|\(article TBC\))"
+_ART = rf"(?:UP|CMIR) Art\. {_NUM}(?:, {_NUM})*"
 SOURCE_RE = re.compile(
     rf"^(?:{_ART}|interpretation of {_ART}|insurer-specific \(illustrative\)|reported, unverified"
-    rf"|{re.escape(CSI_SOURCE)}|{re.escape(TOWING_SOURCE)})$"
+    rf"|{re.escape(CSI_SOURCE)}|{re.escape(TOWING_SOURCE)}|{re.escape(CMIR_INSTRUMENT)})$"
 )
 
 
@@ -33,9 +34,9 @@ def source_kind(source: str) -> str:
         return "interpretation"
     if source in (INSURER_SPECIFIC, "reported, unverified"):
         return source
-    if source in (CSI_SOURCE, TOWING_SOURCE):
+    if source in (CSI_SOURCE, TOWING_SOURCE, CMIR_INSTRUMENT):
         return "instrument (whole)"
-    return "article TBC" if "(article TBC)" in source else "article"
+    return "article"
 
 
 class Strict(BaseModel):

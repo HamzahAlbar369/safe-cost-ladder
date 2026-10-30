@@ -302,7 +302,6 @@ def render_ticket(
         case=draft.case,
         explicit_missing=bool(draft.view.get("explicit_missing")),
         distractors=pl["distractors"],
-        lexp=draft.view.get("lexp"),
         injection=kind == "prompt_injection",
         ramble=4 if kind == "long_rambling" else 0,
         show_driver=pl["show_driver"],
@@ -372,10 +371,12 @@ def generate(seed: int = SEED) -> dict[str, list[Ticket]]:
     index = DupIndex()
     out: dict[str, list[Ticket]] = {}
     for split in SPLITS:
-        rng = random.Random(f"{seed}:{split}")
+        # One RNG stream per slot, and a separate one for the id order (D1.11): a wording change or a retry in
+        # one item can no longer shift the draws of every later item.
         pair_content: dict[str, Content] = {}
         tickets: list[Ticket] = []
-        for slot in plan(split, rng):
+        for i, slot in enumerate(plan(split, random.Random(f"{seed}:{split}"))):
+            rng = random.Random(f"{seed}:{split}:slot{i}")
             rs = rules[slot.rules_version]
             content = pair_content.get(slot.pair_id) if slot.pair_role == "ar" else None
             for attempt in range(MAX_TRIES):
@@ -409,6 +410,6 @@ def generate(seed: int = SEED) -> dict[str, list[Ticket]]:
                     meta=meta,
                 )
             )
-        rng.shuffle(tickets)
+        random.Random(f"{seed}:{split}:order").shuffle(tickets)
         out[split] = [t.model_copy(update={"id": f"{split}-{i:04d}"}) for i, t in enumerate(tickets, 1)]
     return out

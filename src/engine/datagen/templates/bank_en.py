@@ -608,3 +608,28 @@ FAQ_CONTEXT = [
     "My friend told me something different, so I want to check.",
     "",
 ]
+
+# Third-party claims (D1.11): the documents concern the claimant's vehicle and the at-fault driver.
+DOC_TP = {
+    "accident_report": ["the {srcn} report", "the {srcn} accident report", "the {srcn} report"],
+    "registration": [
+        "the claimant's vehicle registration",
+        "the other car's registration (istimara)",
+        "other car istimara",
+    ],
+    "licence_copy": [
+        "a copy of the at-fault driver's licence",
+        "the at-fault driver's licence copy",
+        "at-fault driver licence copy",
+    ],
+    "damage_photos": [
+        "photos of the claimant's car damage",
+        "photos of the damage to the other car",
+        "pics of the other car",
+    ],
+    "damage_assessment": [
+        "the damage assessment report for the claimant's car",
+        "the Taqdeer assessment of the other car",
+        "other car taqdeer report",
+    ],
+}

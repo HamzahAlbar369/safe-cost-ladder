@@ -6,11 +6,13 @@ render, so the document the models read can never drift from the rules that prod
 
 from __future__ import annotations
 
+import re
 import string
 from pathlib import Path
 from typing import Any, Literal
 
 from engine.datagen.rules import (
+    CMIR_INSTRUMENT,
     CSI_SOURCE,
     INSURER_SPECIFIC,
     RULES_DIR,
@@ -28,6 +30,13 @@ _AR_COUNTED: dict[str, tuple[str, str, str, str, str]] = {
     "ar_day": ("يوم واحد", "يومان", "{n} أيام", "{n} يومًا", "{n} يوم"),
     "ar_workday": ("يوم عمل واحد", "يوما عمل", "{n} أيام عمل", "{n} يوم عمل", "{n} يوم عمل"),
     "ar_hour": ("ساعة واحدة", "ساعتان", "{n} ساعات", "{n} ساعة", "{n} ساعة"),
+    "ar_calday": (
+        "يوم تقويمي واحد",
+        "يومان تقويميان",
+        "{n} أيام تقويمية",
+        "{n} يومًا تقويميًا",
+        "{n} يوم تقويمي",
+    ),
 }
 
 
@@ -80,7 +89,7 @@ _AR_CITE = (
     (INSURER_SPECIFIC, "خاص بالشركة (توضيحي)"),
     ("reported, unverified", "منقول، غير متحقق منه"),
     ("interpretation of ", "تفسير "),
-    ("(article TBC)", "(المادة لم تُحدَّد بعد)"),
+    (CMIR_INSTRUMENT, "قواعد التأمين الشامل، قرار البنك المركزي السعودي 3/S/445"),
     ("UP Art. ", "الوثيقة الموحدة، المادة "),
     ("UP ", "الوثيقة الموحدة "),
     ("CMIR Art. ", "قواعد التأمين الشامل، المادة "),
@@ -117,7 +126,7 @@ def cite(source: str, lang: Lang) -> str:
     out = source
     for a, b in _AR_CITE:
         out = out.replace(a, b)
-    return f"[{out}]"
+    return f"[{re.sub(r'(?<=[0-9)]), (?=[0-9])', '، ', out)}]"  # Arabic comma between cited articles
 
 
 def render(rules: RuleSet, lang: Lang) -> str:
@@ -152,7 +161,9 @@ def render_sources(v1: RuleSet, v2: RuleSet) -> str:
         f"> {v1.fiction.label_en}",
         "",
         "Source forms (D1.8): `<instrument> Art. N` · `interpretation of <instrument> Art. N` · "
-        "`<instrument> (article TBC)` · `insurer-specific (illustrative)` · `reported, unverified`.",
+        "an instrument cited as a whole (`CMIR, SAMA Decision 3/S/445`; the CSI circular; the CMIR schedule)"
+        " · `insurer-specific (illustrative)` · `reported, unverified`"
+        " (D1.11: every source names an article or an instrument).",
         "",
         "## Instruments",
         "",

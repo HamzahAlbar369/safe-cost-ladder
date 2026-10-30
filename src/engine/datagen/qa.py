@@ -289,6 +289,73 @@ def structure(splits: dict[str, list[Ticket]]) -> dict[str, Any]:
     )
 
 
+# --- D1.11: one value per fact, and clean policy documents ----------------------------------------------
+
+_PCT = re.compile(r"(?<![\d.])(\d{1,3})\s*%")
+_POLICY = re.compile(r"omi-\d{7}")
+_AMOUNT = re.compile(r"(?:sar|sr)\s*(\d+)(?:\.00)?(?![\d.])|(?<![\d.])(\d+)(?:\.00)?\s*(?:sar|riyals?|ريال)")
+_ISO = re.compile(r"(?<!\d)\d{4}-\d{2}-\d{2}(?!\d)")
+_PLACEHOLDER = re.compile(r"\{[^{}\n]*\}")
+
+
+def fact_conflicts(t: Ticket) -> list[str]:
+    """Problems if a ticket states two different fault shares or policy numbers, or (claim tickets) an amount
+    or date that is not one of the case's own values; a second amount is allowed only in the
+    assessment-contradiction case."""
+    norm = normalise(t.text)
+    problems = []
+    pcts = set(_PCT.findall(norm))
+    if len(pcts) > 1:
+        problems.append(f"fault shares {sorted(pcts)}")
+    pols = set(_POLICY.findall(norm))
+    if len(pols) > 1:
+        problems.append(f"policy numbers {sorted(pols)}")
+    c = t.meta.case
+    if c is not None and t.meta.adversarial_kind != "garbled_or_empty":
+        amounts = {int(a or b) for a, b in _AMOUNT.findall(norm)}
+        allowed = {c.damage_amount_sar, c.sum_insured_sar, c.conflict_damage_sar} - {None}
+        if amounts - allowed:
+            problems.append(f"amounts not in the case {sorted(amounts - allowed)}")
+        dates = set(_ISO.findall(norm))
+        known = {
+            c.policy_end_date,
+            c.accident_date,
+            c.report_date,
+            c.licence_expiry_date,
+            c.licence_renewal_date,
+        }
+        known_iso = {d.isoformat() for d in known if d is not None}
+        if dates - known_iso:
+            problems.append(f"dates not in the case {sorted(dates - known_iso)}")
+        if t.task_type == "adjudicate" and c.accident_date.isoformat() not in dates:
+            problems.append("accident date missing")
+    return problems
+
+
+def fact_consistency(splits: dict[str, list[Ticket]]) -> dict[str, Any]:
+    bad = {t.id: p for ts in splits.values() for t in ts if (p := fact_conflicts(t))}
+    n = sum(len(v) for v in splits.values())
+    return _check(
+        not bad,
+        f"{n - len(bad)}/{n} tickets consistent",
+        "0 tickets with two fault shares, two policy numbers, or an amount/date outside the case",
+        dict(list(bad.items())[:5]) or None,
+    )
+
+
+def policy_documents() -> dict[str, Any]:
+    from engine.datagen.render_policy import render_all
+
+    left = {p.name: _PLACEHOLDER.findall(text) for p, text in render_all().items()}
+    left = {k: v for k, v in left.items() if v}
+    return _check(
+        not left,
+        f"{len(render_all())} documents, {sum(map(len, left.values()))} placeholders left",
+        "0 unresolved {...} in policy v1/v2 EN/AR and SOURCES.md",
+        left or None,
+    )
+
+
 def run_all(splits: dict[str, list[Ticket]]) -> dict[str, Any]:
     exact, near = duplicates(splits)
     comp, table = composition(splits)
@@ -301,6 +368,8 @@ def run_all(splits: dict[str, list[Ticket]]) -> dict[str, Any]:
         "fact_preservation": fact_preservation(splits),
         "template_leak": template_leak(splits),
         "structure": structure(splits),
+        "fact_consistency": fact_consistency(splits),
+        "policy_documents_no_placeholders": policy_documents(),
         "decision_distribution": decision_distribution(splits),
         "_composition_table": table,
     }

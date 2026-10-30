@@ -1,6 +1,6 @@
 # Oasis Motor Insurance — Motor Policy Wording (v1)
 
-> FICTIONAL INSURER. Rules follow the SAMA Unified Compulsory Motor Insurance Policy and Comprehensive Motor Insurance Rules (articles cited), administered by the Insurance Authority; insurer-specific terms and the insurer are illustrative. Not legal advice.
+> FICTIONAL INSURER. Rules follow the SAMA Unified Compulsory Motor Insurance Policy and Comprehensive Motor Insurance Rules (sources cited for each clause), administered by the Insurance Authority; insurer-specific terms and the insurer are illustrative. Not legal advice.
 
 _Citations in brackets give each rule's source: UP = SAMA Unified Compulsory Motor Insurance Policy; CMIR = SAMA Comprehensive Motor Insurance Rules; Art. = article; "interpretation of" = our reading of that article; "insurer-specific (illustrative)" = a term set by this fictional insurer; "reported, unverified" = from secondary sources._
 
@@ -24,7 +24,7 @@ _Citations in brackets give each rule's source: UP = SAMA Unified Compulsory Mot
 ## 3. Cover types and policy period
 
 - Third-Party Liability (TPL) covers the policyholder's liability for damage to other people's vehicles and property. It does not cover the policyholder's own vehicle; an own-damage claim under TPL is denied. [UP Art. 6.1]
-- Comprehensive (COMP) covers the policyholder's own vehicle under section 7 and third-party claims under section 5. [CMIR (article TBC)]
+- Comprehensive (COMP) covers the policyholder's own vehicle under section 7 and third-party claims under section 5. [CMIR, SAMA Decision 3/S/445]
 - If the accident happened after the policy end date, the policy was not in force and the claim is denied. A policy is in force up to and including its end date. [insurer-specific (illustrative)]
 
 ## 4. Fault share
@@ -87,7 +87,7 @@ _Citations in brackets give each rule's source: UP = SAMA Unified Compulsory Mot
   - an accident caused deliberately
   - war, terrorism, nuclear incidents or rebellion
   - driving in the desert or on unpaved roads outside cities
-- Licence: an expired licence counts as valid if it was renewed within 50 business days after the accident: the accident day is day 0, and a renewal on or before business day 50 is within the grace period. Business days follow the Saudi week: Sunday to Thursday are working days, Friday and Saturday are the weekend; public holidays are ignored. A licence for the wrong vehicle class, or a withdrawn or suspended licence, gets no grace period. [CMIR Art. 7.2]
+- Licence: an expired licence counts as valid if it was renewed within 50 business days after the accident: the accident day is day 0; count 50 business days forward to find the deadline date, and a renewal on any calendar date on or before that date (a weekend day included) is within the grace period, while a renewal on any later date is not. Business days follow the Saudi week: Sunday to Thursday are working days, Friday and Saturday are the weekend; public holidays are ignored. A licence for the wrong vehicle class, or a withdrawn or suspended licence, gets no grace period. [CMIR Art. 7.2]
 - Authorised drivers are: [CMIR Art. 1.8, 7.4]
   - the insured
   - a named driver on the schedule
@@ -121,6 +121,7 @@ _Citations in brackets give each rule's source: UP = SAMA Unified Compulsory Mot
   - a copy of the driving licence
   - photos of the damage
   - a damage assessment report (for example Taqdeer)
+- For an own-damage claim these are the policyholder's vehicle registration, damage assessment and damage photos, the licence copy of the driver at the time, and the accident report. For a third-party claim they are the claimant's vehicle registration and damage assessment, the at-fault driver's licence copy, the accident report, and photos of the claimant's vehicle damage. [SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023]
 - If any is missing, the decision is need info and no payout is computed. A garage quote does not replace the damage assessment report. If two damage assessment values contradict each other, the decision is also need info. [insurer-specific (illustrative)]
 
 ## 12. Order of application
@@ -138,4 +139,4 @@ _Citations in brackets give each rule's source: UP = SAMA Unified Compulsory Mot
 
 ---
 
-> FICTIONAL INSURER. Rules follow the SAMA Unified Compulsory Motor Insurance Policy and Comprehensive Motor Insurance Rules (articles cited), administered by the Insurance Authority; insurer-specific terms and the insurer are illustrative. Not legal advice.
+> FICTIONAL INSURER. Rules follow the SAMA Unified Compulsory Motor Insurance Policy and Comprehensive Motor Insurance Rules (sources cited for each clause), administered by the Insurance Authority; insurer-specific terms and the insurer are illustrative. Not legal advice.

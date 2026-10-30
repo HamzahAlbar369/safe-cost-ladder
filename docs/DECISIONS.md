@@ -319,6 +319,42 @@ precedence step, so changing one is a one-line edit plus `engine policy`.
   `engine check` (ruff, pytest, replay integrity, gitleaks). Review file and the 5 blind/gold batches re-exported
   from the new dev split.
 
+### D1.11 · Final checker findings: wording and QA (2026-10-30)
+- **Policy §11 per claim type:** own damage = the policyholder's vehicle registration, damage assessment and photos,
+  the licence copy of the driver at the time, and the accident report. Third party = the claimant's vehicle
+  registration and damage assessment, the at-fault driver's licence copy, the accident report, and photos of the
+  claimant's vehicle damage. Templates follow it: third-party tickets name the claimant's documents and the at-fault
+  driver's licence (`DOC_TP` in both phrase banks). The five required-document keys and the engine are unchanged.
+- **Permanent QA check `fact_consistency`** (all splits): no ticket states two different fault shares or two policy
+  numbers. On claim tickets, every SAR amount and every date in the text must be one of the case's own values (a
+  second amount is allowed only in the assessment-contradiction case), and adjudication tickets must state the
+  accident date. The licence-expiry date shown in tickets moved onto `Case.licence_expiry_date` (informational; the
+  engine ignores it) so it can be checked. Result: 1000/1000 consistent. On the previously committed data, the scan
+  flagged 23 tickets, all of them expired-licence cases whose expiry date was not stored on the case. None was a
+  real conflict.
+- **COMP licence grace = a calendar-date deadline:** count 50 business days (Saudi week) from the accident (day 0)
+  to get the deadline date; a renewal on any calendar date on or before it, weekend days included, is within grace,
+  and a later one is not. Engine: `business_day_deadline`. The old rule counted business days up to the renewal date,
+  which wrongly accepted a Friday or Saturday renewal right after business day 50.
+  Tests: `test_d111_comp_grace_is_a_calendar_date_deadline`, and the Saudi-vs-Mon–Fri test rewritten around a
+  Friday accident (deadline Thursday vs Friday).
+- **Arabic:** "50 يومًا تقويميًا" (new `ar_calday` counted noun); Arabic comma ، between cited articles.
+- **No "(article TBC)":** the COMP cover-type source is now "CMIR, SAMA Decision 3/S/445"; the TBC form is no longer
+  accepted by the loader. Disclaimer: "sources cited for each clause" (EN and AR).
+- **Permanent QA check `policy_documents_no_placeholders`:** 0 unresolved `{…}` in policy v1/v2 EN/AR and SOURCES.md.
+- **Generator RNG made local (found while answering "which review items changed"):** one RNG stream used to drive
+  every item in sequence, so a single changed duplicate-check outcome re-drew every later item and re-shuffled all
+  ids (the third-party wording change alone altered 200 of 400 dev texts). Each slot now has its own seeded stream
+  (`{seed}:{split}:slot{i}`), and ids come from a separate seeded shuffle (`{seed}:{split}:order`).
+  Test `test_wording_change_stays_local_to_the_items_that_use_it`: swapping the third-party document wording now
+  changes only third-party claim texts (dev 77, held-out 72, shifted 35), with every gold label and id unchanged.
+- **Gold labels changed:** re-adjudicating every previously committed case (450 adjudication items) with the
+  updated engine (deadline rule included) changed **0** labels. Switching to per-slot RNG streams redrew all
+  splits once (held-out re-sealed with a new hash; never used for evaluation). As a result, all 50 review items
+  were replaced by new draws (none of the previous 50 texts remains in dev), and the review file and 5 batches were
+  re-exported. The new review set covers L3/L4/L5 and all four decisions, including 14 third-party claims and 1
+  garage-quote-only item.
+
 ### Phase 1 gate walk (2026-10-30) — PENDING Hamzah's sign-off
 SPEC §10 row "1 Data", item by item:
 - **rules.yaml reviewed by Hamzah:** Stage A approved with grounding changes (D1.8) and source corrections (D1.8

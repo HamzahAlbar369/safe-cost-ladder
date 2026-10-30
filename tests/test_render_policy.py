@@ -202,3 +202,19 @@ def test_policy_states_the_boundaries_explicitly():
         "A garage or workshop quote is not a damage assessment",
     ):
         assert phrase in en, phrase
+
+
+def test_d111_wording():
+    from engine.datagen.rules import RULES_V1
+
+    assert "article TBC" not in RULES_V1.read_text(encoding="utf-8")
+    rules = load_rules()
+    en, ar = render(rules, "en"), render(rules, "ar")
+    assert "sources cited for each clause" in rules.fiction.label_en and "articles cited" not in en
+    assert "50 يومًا تقويميًا" in ar
+    assert "المادة 5.4.1، 5.4.7" in ar and "5.4.1, 5.4.7" not in ar  # Arabic comma in citation lists
+    assert (
+        "the claimant's vehicle registration and damage assessment, the at-fault driver's licence copy" in en
+    )
+    assert "on any calendar date on or before that date" in en
+    assert "[CMIR, SAMA Decision 3/S/445]" in en

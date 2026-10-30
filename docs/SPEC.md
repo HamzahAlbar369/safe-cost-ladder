@@ -67,9 +67,9 @@ Insurer: **"Oasis Motor Insurance (fictional demo insurer)"**. Policy document r
 | `extract` | Free-text claim message | `{"policy_number","accident_date","report_number","damage_amount_sar","fault_share"}` (null if absent) | all fields exact after normalisation; field-level accuracy also reported | medium ($5) |
 | `adjudicate` | Claim narrative | `{"decision": approve|partial|deny|need_info, "payout_sar": int, "reasons": [rule_ids], "inputs": {...}}` | decision exact AND payout within ±1 SAR | high ($50) |
 
-Decision definitions (also in `rules.yaml` → `decisions`; D1.8): **approve** = payable, reduced only by the
-deductible (if any); **partial** = payable but reduced by the fault share or a cap (sum insured or the third-party
-cap); **deny** = payout 0 (out of scope, policy not in force, exclusion, no own-damage cover, late report, 0% fault,
+Decision definitions (also in `rules.yaml` → `decisions`; D1.8, made explicit in D1.10): **approve** = payable,
+reduced only by the deductible (own damage: fault-scaled deductible, or a total loss paying the sum insured); **partial** = payable but reduced by the fault share or a cap (own damage: repair above the sum insured;
+third party: fault < 100% or the cap); **deny** = payout 0 (out of scope, policy not in force, exclusion, no own-damage cover, late report, 0% fault,
 or loss at or below the deductible, CMIR 7.3); **need_info** = payout 0 because a required document is missing or
 two stated values contradict each other. Every claim has a `claim_type`: `own_damage` (R3/R8, CMIR) or
 `third_party_claim` (R4/R5, UP). `reasons` is reported but not graded. FAQ answers are a number, `yes`/`no`, an
@@ -112,15 +112,19 @@ Instructions (CSI). Every rule, parameter and item carries a `source:` (D1.8); t
 - R3 Own damage (COMP, CMIR 5.3/5.4): base = sum insured on technical total loss or repair > ETL% (60) × sum
   insured, else min(repair, sum insured). Deductible applied = fixed deductible (SAR 1,000) × fault %; 0 if not
   liable or hit-and-run; full if no other party; also on total loss. Payout = base − deductible applied. Repair
-  estimate ≤ full fixed deductible → deny (7.3).
+  estimate = the damage assessment amount (a garage quote is not an assessment); when the assessment is present
+  and not contradicted, repair ≤ full fixed deductible → deny (7.3). ETL is strictly above ETL% (D1.10).
 - R4 Third-party claim (UP): payout = damage × fault share, cap SAR 10,000,000; 0% fault → deny.
 - R5 Exclusions: third-party claim → deny for UP Art. 6 cases (fled scene, DUI, drifting/racing, deliberate,
   misrepresentation); paid + `RECOVERY_RIGHT` for UP Art. 5 cases (invalid licence with 50-day grace, wrong
   direction, red light, use outside purpose). Own damage → deny for CMIR Art. 7 (all listed; sampler generates 7.2
   licence with 50-business-day grace, 7.3, 7.4 unauthorised driver, 7.16 violation proven to have caused the accident).
-- R6 Reporting window (insurer-specific): > 15 days → deny unless an accepted justification is stated.
-- R7 Required documents (CSI): accident report, registration, licence copy, damage photos, damage assessment;
-  missing or contradictory → `need_info`.
+- R6 Reporting window (insurer-specific): accident day = day 0; reported after day 15 → deny unless an accepted
+  justification is stated. Licence grace counts the same way (day 0 = accident; renewal on or before day/business
+  day 50 is within grace); business days = Sunday–Thursday (Saudi week), public holidays ignored (D1.10).
+- R7 Required documents (CSI), for the vehicle being claimed for: accident report, registration, licence copy,
+  damage photos, damage assessment; any missing (a garage quote does not replace the assessment) or two
+  contradicting assessment values → `need_info`.
 - R8 Other party ∈ {insured, uninsured, unknown, none}: COMP + unknown → no deductible, no subrogation; TPL +
   unknown/uninsured → deny own damage. Report from Najm or the traffic police.
 - Precedence (first match decides) is listed in the YAML and SOURCES.md.
@@ -163,6 +167,7 @@ non-insurance questions (`faq` → `out_of_scope`, `intent` → `other`); garble
 |---|---|
 | Schema validity | 100% |
 | Decision-label distribution per split in MANIFEST (D1.8) | any label < 10% of adjudication items is flagged |
+| No ticket has the customer claiming from the other party's insurer; no mangled mixed-script tokens (D1.10) | 0 |
 | Exact duplicates across splits | 0 |
 | Near-duplicates across splits (char 5-gram Jaccard ≥ 0.8) | 0 |
 | Composition vs §4.3 | within ±3 pts |

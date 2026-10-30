@@ -10,7 +10,15 @@ import string
 from pathlib import Path
 from typing import Any, Literal
 
-from engine.datagen.rules import RULES_DIR, RuleSet, load_version, source_kind
+from engine.datagen.rules import (
+    CSI_SOURCE,
+    INSURER_SPECIFIC,
+    RULES_DIR,
+    TOWING_SOURCE,
+    RuleSet,
+    load_version,
+    source_kind,
+)
 
 Lang = Literal["en", "ar"]
 
@@ -62,7 +70,54 @@ def placeholders(rules: RuleSet, lang: Lang) -> dict[str, Any]:
         "version": rules.version,
         "fault_shares_text": _join([str(s) for s in values["fault_shares"]], lang),
         "claim_statuses_text": ", ".join(values["claim_statuses"]),
+        "reporting_window_days_plus_1": values["reporting_window_days"] + 1,
     }
+
+
+_AR_CITE = (
+    (CSI_SOURCE, "تعليمات تسوية مطالبات التأمين على المركبات، تعميم البنك المركزي السعودي 14 مايو 2023"),
+    (TOWING_SOURCE, "جدول وثيقة التأمين الشامل، حد التغطية لكل مطالبة (يجوز للشركة الاتفاق على حد أعلى)"),
+    (INSURER_SPECIFIC, "خاص بالشركة (توضيحي)"),
+    ("reported, unverified", "منقول، غير متحقق منه"),
+    ("interpretation of ", "تفسير "),
+    ("(article TBC)", "(المادة لم تُحدَّد بعد)"),
+    ("UP Art. ", "الوثيقة الموحدة، المادة "),
+    ("UP ", "الوثيقة الموحدة "),
+    ("CMIR Art. ", "قواعد التأمين الشامل، المادة "),
+    ("CMIR ", "قواعد التأمين الشامل "),
+)
+LEGEND = {
+    "en": " ".join(
+        [
+            "Citations in brackets give each rule's source:",
+            "UP = SAMA Unified Compulsory Motor Insurance Policy;",
+            "CMIR = SAMA Comprehensive Motor Insurance Rules; Art. = article;",
+            '"interpretation of" = our reading of that article;',
+            '"insurer-specific (illustrative)" = a term set by this fictional insurer;',
+            '"reported, unverified" = from secondary sources.',
+        ]
+    ),
+    "ar": " ".join(
+        [
+            "يبيّن ما بين المعقوفين مصدر كل قاعدة:",
+            "الوثيقة الموحدة = الوثيقة الموحدة للتأمين الإلزامي على المركبات؛",
+            "قواعد التأمين الشامل = قواعد التأمين الشامل على المركبات (البنك المركزي السعودي)؛",
+            "«تفسير» = قراءتنا للمادة؛",
+            "«خاص بالشركة (توضيحي)» = شرط وضعته هذه الشركة الوهمية؛",
+            "«منقول، غير متحقق منه» = من مصادر ثانوية.",
+        ]
+    ),
+}
+
+
+def cite(source: str, lang: Lang) -> str:
+    """Inline citation for a clause, from its `source:` field (so the disclaimer's "articles cited" holds)."""
+    if lang == "en":
+        return f"[{source}]"
+    out = source
+    for a, b in _AR_CITE:
+        out = out.replace(a, b)
+    return f"[{out}]"
 
 
 def render(rules: RuleSet, lang: Lang) -> str:
@@ -72,10 +127,11 @@ def render(rules: RuleSet, lang: Lang) -> str:
     lines = [f"# {_FMT.format(title, **values)}", "", f"> {label}"]
     if lang == "ar":
         lines.append(f"> {rules.fiction.label_en}")
+    lines += ["", f"_{LEGEND[lang]}_"]
     for section in rules.document.sections:
         lines += ["", f"## {section.title[lang]}", ""]
         for clause in section.clauses:
-            lines.append(f"- {_FMT.format(getattr(clause, lang), **values)}")
+            lines.append(f"- {_FMT.format(getattr(clause, lang), **values)} {cite(clause.source, lang)}")
             if clause.items:
                 lines += [f"  - {getattr(lab, lang)}" for lab in rules.enumeration(clause.items).values()]
     lines += ["", "---", "", f"> {label}", ""]

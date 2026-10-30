@@ -4,6 +4,7 @@ person or an LLM, and nothing here prints its items (CLAUDE.md held-out rule).
 
 from __future__ import annotations
 
+import re
 from collections import Counter, defaultdict
 from typing import Any
 
@@ -18,6 +19,26 @@ from engine.datagen.templates.render import BY_ID
 COMPOSITION_TOL = 0.03
 LEAK_TOL = 0.05
 LABEL_FLOOR = 0.10
+# D1.10: no ticket may have the customer say they will claim from the other party's insurer
+OTHER_INSURER_PATTERNS = (
+    re.compile(
+        r"(claim|recover|go|apply)\w*\s+(it\s+)?(from|with|to|through)\s+(the\s+)?"
+        r"(other (party|driver|car)'?s?|their|his|her)\s+insur",
+        re.I,
+    ),
+    re.compile(r"(other (party|driver)'s|their|his|her) insurer (will|should|can) pay", re.I),
+    re.compile(r"شركة تأمين(ه|ها| الطرف)"),
+    re.compile(r"تأمين الطرف (الآخر|الثاني)"),
+)
+# D1.10: code-switching may only produce whole English words or "ال" + English word; nothing mangled
+_MIXED = re.compile(r"[A-Za-z]")
+_ARABIC = re.compile(r"[؀-ۿ]")
+_OK_MIXED = re.compile(r"ال[A-Za-z]+")
+
+
+def mangled_tokens(text: str) -> list[str]:
+    cores = (w.strip(".,;:!?()،؟[]/-") for w in text.split())
+    return [w for w in cores if _MIXED.search(w) and _ARABIC.search(w) and not _OK_MIXED.fullmatch(w)]
 
 
 def _check(passed: bool, value: Any, threshold: str, detail: Any = None) -> dict[str, Any]:
@@ -241,6 +262,14 @@ def structure(splits: dict[str, list[Ticket]]) -> dict[str, Any]:
         problems.append(f"shifted rules_v2 count {v2}")
     if dialectal <= 0.5 or msa_dev <= 0.5:
         problems.append("dialect lean wrong")
+    other_insurer = [
+        t.id for ts in splits.values() for t in ts if any(p.search(t.text) for p in OTHER_INSURER_PATTERNS)
+    ]
+    mangled = sum(bool(mangled_tokens(t.text)) for ts in splits.values() for t in ts)
+    if mangled:
+        problems.append(f"{mangled} ticket(s) with mangled mixed-script tokens")
+    if other_insurer:
+        problems.append(f"{len(other_insurer)} ticket(s) claim from the other party's insurer")
     value = {
         "dev_pairs": len(pairs),
         "dev_pair_items_share": round(2 * len(pairs) / max(1, len(dev)), 4),
@@ -248,6 +277,8 @@ def structure(splits: dict[str, list[Ticket]]) -> dict[str, Any]:
         "shifted_rules_v2": v2,
         "shifted_arabic_dialectal_share": round(dialectal, 4),
         "dev_arabic_msa_share": round(msa_dev, 4),
+        "tickets_claiming_from_other_insurer": len(other_insurer),
+        "tickets_with_mangled_tokens": mangled,
     }
     return _check(
         not problems,

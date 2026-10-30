@@ -190,3 +190,65 @@ def test_blocking_failures_ignore_label_flags():
     assert qa.blocking_failures(report) == []
     report["b"] = {"pass": False}
     assert qa.blocking_failures(report) == ["b"]
+
+
+# --- D1.10 template rules ------------------------------------------------------------------------------
+
+
+def _banks():
+    from engine.datagen.templates import bank_ar, bank_en
+
+    return {"en": bank_en.FAQ, "msa": bank_ar.FAQ["msa"], "saudi": bank_ar.FAQ["saudi"]}
+
+
+@pytest.mark.parametrize("register", ["en", "msa", "saudi"])
+def test_every_licence_grace_faq_names_the_cover_type(register):
+    faq = _banks()[register]
+    tpl_words, comp_words = ("TPL", "third-party", "ضد الغير"), ("comprehensive", "الشامل", "بالشامل")
+    for q in faq["tp_licence_grace_days"]:
+        assert any(w.lower() in q.lower() for w in tpl_words), q
+    for q in faq["od_licence_grace_business_days"]:
+        assert any(w.lower() in q.lower() for w in comp_words), q
+
+
+def test_no_template_has_the_customer_claiming_from_the_other_partys_insurer():
+    import inspect
+
+    from engine.datagen.templates import bank_ar, bank_en
+
+    text = inspect.getsource(bank_en) + inspect.getsource(bank_ar)
+    for pat in qa.OTHER_INSURER_PATTERNS:
+        assert not pat.search(text), pat.pattern
+
+
+def test_damage_amounts_are_attributed_to_the_assessment_or_a_garage_quote():
+    from engine.datagen.templates import bank_ar, bank_en
+
+    for bank in (bank_en.S, bank_ar.MSA, bank_ar.SAUDI):
+        for key in ("damage_od", "damage_tp", "conflict"):
+            assert all(
+                any(w in v.lower() for w in ("assess", "taqdeer", "تقييم", "تقدير")) for v in bank[key]
+            ), key
+        assert all(any(w in v.lower() for w in ("garage", "workshop", "ورشة")) for v in bank["garage_quote"])
+
+
+def test_designs_without_an_assessment_state_a_garage_quote():
+    rng = random.Random(7)
+    for builder, _ in sampler.DESIGNS["L5"]:
+        for _ in range(30):
+            d = builder(rng, V1)
+            if "damage_assessment" not in d.case.documents:
+                assert d.case.damage_source == "garage_quote", d.design
+
+
+def test_arabic_codeswitch_swaps_whole_words_only():
+    rng = random.Random(0)
+    s = "أنا مؤمَّن لديكم بالوثيقة رقم 1، ووصلني تقريرا تقييم، وهذه الوثيقة معي."
+    for _ in range(50):
+        out = var._swap_whole_words(s, rng)
+        assert "بالوثيقة" in out and "تقريرا" in out
+        assert all(
+            not (any(c.isascii() and c.isalpha() for c in w) and any(not c.isascii() for c in w))
+            or w.strip(".,،").startswith("ال")
+            for w in out.split(" ")
+        )

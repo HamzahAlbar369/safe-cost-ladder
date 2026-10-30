@@ -270,6 +270,55 @@ precedence step, so changing one is a one-line edit plus `engine policy`.
   `qa.template_leak`). Unit test `tests/test_datagen.py::test_qa_template_leak_flags_a_family_that_predicts_the_label`
   shows the check still catches a family that predicts the label.
 
+### D1.10 · Spec gaps from the independent checker, fixed before Hamzah's review (2026-10-30)
+- **Policy documents cite every rule inline.** Each clause renders its `source:` in brackets (EN verbatim; AR with
+  translated instrument names), plus a legend at the top, so the "articles cited" disclaimer is literally true.
+  Test: `test_every_clause_carries_its_inline_citation` (43 of 43 clauses per document).
+- **7.3 text aligned with rules.yaml:** the deny applies when the damage assessment is present and not contradicted;
+  contradictory assessment values → need_info (R7 contradiction). The precedence row and section 12 say the same.
+- **Explicit labels** (rules.yaml `decisions` + policy section 1), and the engine checked against each:
+  deductible scaled by fault only → approve; repair above the sum insured (cap binds) → partial; ETL / technical
+  total loss paying the sum insured (repair not above it) → approve; third-party claim at fault < 100% → partial.
+  Test: `test_d110_explicit_labels`.
+- **Licence grace:** the accident day is day 0; a renewal on or before day 50 (calendar, TPL) or business day 50
+  (COMP) is within grace. Business days follow the Saudi week: Sunday–Thursday working, Friday–Saturday weekend;
+  public holidays ignored (stated in the policy). **Engine check:** it already read Sunday–Thursday from
+  `rules.yaml` (no Mon–Fri default existed). New tests cover both conventions, including a case where they give
+  different labels (`test_engine_uses_the_saudi_week_from_rules_yaml_not_mon_fri`).
+- **Boundaries stated in the policy:** ETL = repair strictly above ETL% × sum insured (exactly equal is not a total
+  loss); day 0 = accident day, reported on day 15 = on time, day 16 = late; repair ≤ full deductible → deny
+  (equal counts). Test: `test_policy_states_the_boundaries_explicitly`.
+- **Templates:**
+  - (a) Every damage amount is attributed to the assessment report, or explicitly to a garage/workshop quote. A
+    garage quote is not an assessment. New L5 design `garage_quote_only` → need_info (R7 missing assessment), and
+    every design that drops the assessment now states a garage quote (`damage_source` on `Case`). "Contradiction"
+    now means two assessment reports disagree, not garage quote vs assessment. Form labels say "assessed".
+  - (b) Every licence-grace FAQ names its cover type (TPL / third-party / ضد الغير; comprehensive / الشامل). It
+    already did; now enforced by `test_every_licence_grace_faq_names_the_cover_type`.
+  - (c) No ticket has the customer saying they will claim from the other party's insurer: none did; now enforced
+    by a QA scan of every ticket in every split (`structure.tickets_claiming_from_other_insurer` = 0) and a
+    template test.
+- **Required documents are "for the vehicle being claimed for"** (policy section 11, EN + AR).
+- **Found while re-checking, also fixed:**
+  - The typo layer could alter a month name in a long-form date (e.g. "Febraury"), breaking normalisation.
+    Generation had silently retried those items; month names are now protected.
+  - Arabic code-switching replaced substrings inside words ("بالوثيقة" → mangled, "تقريرا" → "reportا"). It now
+    swaps whole words only, and typos skip mixed-script tokens. A new QA scan (`structure.tickets_with_mangled_tokens`)
+    must be 0.
+  - The new garage-quote design pushed partial labels to the 10% floor (shifted 10.0%), so the weights of the two
+    partial-producing designs were raised (`tp_partial_fault` 3.0 → 3.5, `od_over_sum_insured` 1.5 → 1.8). This
+    balances labels only; no model results exist yet.
+- **Gold labels changed:** re-adjudicating every committed case (dev 180, held-out 180, shifted 90 adjudication
+  items) with the updated engine changed **0** labels: the fixes were rule text, ticket wording and new designs,
+  not engine logic. Wording defects in the previous data: 19 tickets stated an amount without an assessment report
+  (dev 6, held-out 7, shifted 6), and up to 24 conflict tickets could read as garage quote vs assessment (upper
+  bound). All splits were regenerated, so every item is a new draw from the same seed (held-out re-sealed with a
+  new hash; it had never been used for evaluation).
+- **QA re-run:** all §4.4 checks (schema, gold re-derived from rules, exact and near-duplicates, composition, fact
+  preservation, template leak, structure incl. the two new scans, decision-label distribution) plus
+  `engine check` (ruff, pytest, replay integrity, gitleaks). Review file and the 5 blind/gold batches re-exported
+  from the new dev split.
+
 ### Phase 1 gate walk (2026-10-30) — PENDING Hamzah's sign-off
 SPEC §10 row "1 Data", item by item:
 - **rules.yaml reviewed by Hamzah:** Stage A approved with grounding changes (D1.8) and source corrections (D1.8

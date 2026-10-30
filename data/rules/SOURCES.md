@@ -23,9 +23,9 @@ Source forms (D1.8): `<instrument> Art. N` · `interpretation of <instrument> Ar
 | 5 | R1 | own_damage under TPL | deny | `R1_TPL_NO_OWN_DAMAGE` | UP Art. 6.1 | article |
 | 6 | R5 | own_damage under COMP and any exclusions.own_damage_deny except below_deductible | deny | `R5_OD_<key>` | CMIR Art. 7 | article |
 | 7 | R6 | reported more than reporting_window_days after the accident, no accepted justification | deny | `R6_LATE_REPORT` | insurer-specific (illustrative) | insurer-specific (illustrative) |
-| 8 | R3 | own_damage, damage assessment present and unambiguous, repair estimate <= fixed_deductible_sar (full, not fault-scaled) | deny | `R3_BELOW_DEDUCTIBLE` | CMIR Art. 7.3 | article |
+| 8 | R3 | own_damage, damage assessment present and not contradicted, assessed repair <= fixed_deductible_sar (full, not fault-scaled) | deny | `R3_BELOW_DEDUCTIBLE` | CMIR Art. 7.3 | article |
 | 9 | R7 | a required document is missing | need_info | `R7_MISSING_<doc>` | SAMA Instructions for Motor Insurance Claims' Settlement, circular 14 May 2023 | instrument (whole) |
-| 10 | R7 | two stated values for the same item contradict each other | need_info | `R7_CONFLICT` | insurer-specific (illustrative) | insurer-specific (illustrative) |
+| 10 | R7 | two damage assessment values contradict each other | need_info | `R7_CONFLICT` | insurer-specific (illustrative) | insurer-specific (illustrative) |
 | 11 | R3 | own_damage under COMP | from_payout | `R3_OWN_DAMAGE (+ R3_TOTAL_LOSS, SUBROGATION, R8_UNKNOWN_PARTY)` | CMIR Art. 5.3, 5.4 | article |
 | 12 | R4 | third_party_claim; 0% fault -> deny | from_payout | `R4_THIRD_PARTY (+ R4_NO_FAULT, R4_CAP, RECOVERY_RIGHT)` | interpretation of UP Art. 3 | interpretation |
 
@@ -68,10 +68,10 @@ Source forms (D1.8): `<instrument> Art. N` · `interpretation of <instrument> Ar
 
 | Key | Meaning | Source | Kind | Sampler generates |
 |---|---|---|---|---|
-| `approve` | payable; reduced only by the deductible (if any) | insurer-specific (illustrative) | insurer-specific (illustrative) | yes |
-| `partial` | payable but reduced by the fault share or a cap (sum insured or the third-party cap) | insurer-specific (illustrative) | insurer-specific (illustrative) | yes |
+| `approve` | payable; reduced only by the deductible (if any). Own damage: deductible scaled by fault only -> approve; ETL or technical total loss paying the sum insured (repair not above it) -> approve. Third party: 100% fault, cap not reached -> approve | insurer-specific (illustrative) | insurer-specific (illustrative) | yes |
+| `partial` | payable but reduced by the fault share or a cap. Own damage: repair estimate above the sum insured (cap binds) -> partial. Third party: fault share below 100%, or the third-party cap binds -> partial | insurer-specific (illustrative) | insurer-specific (illustrative) | yes |
 | `deny` | payout 0: out of scope, policy not in force, exclusion, no own-damage cover, late report, 0% fault, or loss at or below the deductible | insurer-specific (illustrative) | insurer-specific (illustrative) | yes |
-| `need_info` | payout 0 for now: a required document is missing or two stated values contradict each other | insurer-specific (illustrative) | insurer-specific (illustrative) | yes |
+| `need_info` | payout 0 for now: a required document is missing (a garage quote is not a damage assessment), or two damage assessment values contradict each other | insurer-specific (illustrative) | insurer-specific (illustrative) | yes |
 
 ## Cover types
 

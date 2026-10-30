@@ -10,6 +10,7 @@ import random
 import re
 from dataclasses import dataclass
 
+from engine.datagen.normalize import AR_MONTHS, EN_MONTHS
 from engine.datagen.templates import bank_ar as AR
 from engine.datagen.templates import bank_en as EN
 from engine.datagen.templates.render import Family, Rendered
@@ -34,29 +35,45 @@ def _typo(word: str, rng: random.Random) -> str:
     return word[:i] + word[i + 1] + word[i] + word[i + 2 :]
 
 
+_MONTHS = {m.lower() for m in EN_MONTHS} | set(AR_MONTHS)
+
+
 def _protected(token: str, facts: list[str]) -> bool:
-    return any(ch.isdigit() for ch in token) or any(token.strip(".,;:!?") in f or f in token for f in facts)
+    """Digits, fact strings and month names (long-form dates) are never altered."""
+    core = token.strip(".,;:!?()،؟").lower()
+    if any(ch.isdigit() for ch in token) or core in _MONTHS:
+        return True
+    return any(token.strip(".,;:!?") in f or f in token for f in facts)
 
 
 def _typos(sentence: str, rng: random.Random, p: float, facts: list[str]) -> str:
     out = []
     for tok in sentence.split(" "):
         core = tok.strip(".,;:!?()،؟")
-        if _WORD.match(core) and not _protected(tok, facts) and rng.random() < p:
+        mixed = any(c.isascii() for c in core) and any(not c.isascii() for c in core)  # e.g. "الclaim"
+        if _WORD.match(core) and not mixed and not _protected(tok, facts) and rng.random() < p:
             tok = tok.replace(core, _typo(core, rng))
+        out.append(tok)
+    return " ".join(out)
+
+
+_PUNCT = ".,;:!?()،؟"
+
+
+def _swap_whole_words(sentence: str, rng: random.Random) -> str:
+    """Arabic -> English code-switching on whole words only (never inside "بالوثيقة" or "تقريرا")."""
+    out = []
+    for tok in sentence.split(" "):
+        core = tok.strip(_PUNCT)
+        if core in AR.CODESWITCH and rng.random() < 0.5:
+            tok = tok.replace(core, AR.CODESWITCH[core])
         out.append(tok)
     return " ".join(out)
 
 
 def _codeswitch(sentences: list[str], fam: Family, rng: random.Random, last_only: bool) -> list[str]:
     if fam.lang == "ar":
-        swapped = []
-        for s in sentences:
-            for ar_word, en_word in AR.CODESWITCH.items():
-                if ar_word in s and rng.random() < 0.5:
-                    s = s.replace(ar_word, en_word, 1)
-            swapped.append(s)
-        return swapped
+        return [_swap_whole_words(s, rng) for s in sentences]
     i = len(sentences) - 1 if last_only else rng.randrange(len(sentences))  # never inside a form field
     out = list(sentences)
     stem = out[i].rstrip(".?!")

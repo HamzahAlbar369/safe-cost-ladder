@@ -189,7 +189,8 @@ class Case(Frozen):
     sum_insured_sar: int | None = None  # COMP schedule value
     technical_total_loss: bool = False
     documents: tuple[str, ...] = ()  # required_documents keys provided
-    conflict_damage_sar: int | None = None  # a second, contradicting damage amount stated (R7)
+    conflict_damage_sar: int | None = None  # a second, contradicting assessment amount stated (R7)
+    damage_source: Literal["assessment", "garage_quote"] = "assessment"  # garage quote is not an assessment
     violations: tuple[str, ...] = ()  # third_party_deny / third_party_recovery keys
     violation_caused_accident: bool = False  # CMIR 7.16: the report shows the violation caused it
     licence_status: Literal["valid", "none", "expired", "wrong_class", "forfeited"] = "valid"

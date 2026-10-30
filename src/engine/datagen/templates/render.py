@@ -379,7 +379,10 @@ def render_claim(view: ClaimView, fam: Family, p: dict[str, Any], rng: random.Ra
         facts.append(str(c.fault_share))
     # damage
     if view.show_amt and c.damage_amount_sar is not None:
-        if c.conflict_damage_sar is not None:
+        if c.damage_source == "garage_quote":
+            s.append(say("garage_quote"))
+            facts.append(str(c.damage_amount_sar))
+        elif c.conflict_damage_sar is not None:
             s.append(say("conflict"))
             facts += [str(c.damage_amount_sar), str(c.conflict_damage_sar)]
         else:
@@ -487,7 +490,8 @@ def _as_fields(
         add("rn", c.report_number)
     if view.show_fault and c.fault_share is not None:
         add("fault", f"{slots['fault']}%")
-    if view.show_amt and c.damage_amount_sar is not None and c.conflict_damage_sar is None:
+    assessed = c.conflict_damage_sar is None and c.damage_source == "assessment"
+    if view.show_amt and c.damage_amount_sar is not None and assessed:
         add("amt" if c.claim_type == "own_damage" else "amt_tp", slots["amt"])
     if task == "adjudicate":
         if c.claim_type == "own_damage" and c.cover == "COMP" and c.sum_insured_sar is not None:

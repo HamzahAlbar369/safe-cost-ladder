@@ -348,3 +348,85 @@ def test_trace_rules_are_precedence_steps_and_the_deciding_step_fired():
 
 def test_engine_is_deterministic():
     assert adjudicate(mk(), V1) == adjudicate(mk(), V1)
+
+
+# --- D1.10: labels, day-0 boundaries, Saudi week, garage quote --------------------------------------------
+
+
+def test_d110_explicit_labels():
+    # deductible scaled by fault only -> approve
+    assert run(mk(fault_share=50))[0] == "approve"
+    # repair above the sum insured (cap binds) -> partial
+    assert run(mk(sum_insured_sar=50_000, damage_amount_sar=60_000))[0] == "partial"
+    # ETL total loss paying the sum insured (repair not above it) -> approve
+    assert run(mk(sum_insured_sar=50_000, damage_amount_sar=40_000))[0:2] == ("approve", 49_500)
+    # third-party claim at fault < 100% -> partial; at 100% -> approve
+    for fault in (25, 50, 75):
+        assert run(tp(fault_share=fault))[0] == "partial"
+    assert run(tp(fault_share=100))[0] == "approve"
+
+
+def test_d110_licence_grace_day_zero_calendar_and_business():
+    # accident day is day 0: renewal on day 50 is within grace, day 51 is not
+    assert (
+        "RECOVERY_RIGHT"
+        not in run(tp(licence_status="expired", licence_renewal_date=ACC + timedelta(days=50)))[2]
+    )
+    assert (
+        "RECOVERY_RIGHT"
+        in run(tp(licence_status="expired", licence_renewal_date=ACC + timedelta(days=51)))[2]
+    )
+    assert business_days_after(ACC, ACC, ("sun", "mon", "tue", "wed", "thu")) == 0  # renewal on day 0
+
+
+SAUDI = ("sun", "mon", "tue", "wed", "thu")
+MON_FRI = ("mon", "tue", "wed", "thu", "fri")
+
+
+def test_business_days_saudi_week_vs_mon_fri():
+    thu = date(2026, 3, 12)  # Thursday
+    assert business_days_after(thu, thu + timedelta(days=1), SAUDI) == 0  # Friday is weekend
+    assert business_days_after(thu, thu + timedelta(days=2), SAUDI) == 0  # Saturday is weekend
+    assert business_days_after(thu, thu + timedelta(days=3), SAUDI) == 1  # Sunday is a working day
+    assert business_days_after(thu, thu + timedelta(days=1), MON_FRI) == 1  # Friday counts on Mon-Fri
+    assert business_days_after(thu, thu + timedelta(days=3), MON_FRI) == 1  # Sunday does not
+
+
+def test_engine_uses_the_saudi_week_from_rules_yaml_not_mon_fri():
+    from engine.datagen.rules import RULES_V1, RuleSet, load_raw
+
+    assert V1.values().business_days == SAUDI
+    raw = load_raw(RULES_V1)
+    raw["params"]["business_days"]["value"] = list(MON_FRI)
+    mon_fri = RuleSet.model_validate(raw)
+    # accident on a Thursday; renewal 70 days later is business day 50 in the Saudi week, 51 Mon-Fri
+    thu = date(2026, 3, 12)
+    renew = thu + timedelta(days=70)
+    case = mk(
+        accident_date=thu,
+        report_date=thu + timedelta(days=3),
+        licence_status="expired",
+        licence_renewal_date=renew,
+    )
+    assert business_days_after(thu, renew, SAUDI) == 50 and business_days_after(thu, renew, MON_FRI) == 50
+    renew2 = thu + timedelta(days=71)  # a Friday: weekend in KSA, working day Mon-Fri
+    case2 = case.model_copy(update={"licence_renewal_date": renew2})
+    assert business_days_after(thu, renew2, SAUDI) == 50 and business_days_after(thu, renew2, MON_FRI) == 51
+    assert adjudicate(case2, V1).gold.decision == "approve"
+    assert adjudicate(case2, mon_fri).gold.decision == "deny"
+
+
+def test_garage_quote_only_is_need_info_even_when_small():
+    docs = tuple(d for d in ALL_DOCS if d != "damage_assessment")
+    for amount in (800, 20_000):
+        case = mk(documents=docs, damage_source="garage_quote", damage_amount_sar=amount)
+        assert run(case) == ("need_info", 0, ("R7_MISSING_damage_assessment",))
+
+
+def test_garage_quote_with_an_assessment_is_rejected():
+    with pytest.raises(UnsupportedCase):
+        adjudicate(mk(damage_source="garage_quote"), V1)
+
+
+def test_contradicting_assessments_are_need_info_not_7_3():
+    assert run(mk(damage_amount_sar=700, conflict_damage_sar=900))[0] == "need_info"

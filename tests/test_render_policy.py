@@ -170,3 +170,35 @@ def test_arabic_counted_nouns_agree_with_the_number(n, noun, expected):
 
 def test_output_paths():
     assert output_path("v1", "ar").name == "policy_v1.ar.md"
+
+
+@pytest.mark.parametrize("lang", ["en", "ar"])
+def test_every_clause_carries_its_inline_citation(lang):
+    from engine.datagen.render_policy import cite
+
+    rules = load_rules()
+    text = render(rules, lang)
+    for section in rules.document.sections:
+        for clause in section.clauses:
+            assert cite(clause.source, lang) in text
+    clause_lines = [ln for ln in text.splitlines() if ln.startswith("- ")]
+    assert all(ln.rstrip().endswith("]") for ln in clause_lines)
+
+
+def test_policy_states_the_boundaries_explicitly():
+    en = render(load_rules(), "en")
+    for phrase in (
+        "strictly above 60%",
+        "exactly equal to 60% is not a total loss",
+        "reported on day 15 is on time",
+        "from day 16 it is late",
+        "at or below the full deductible",
+        "equal counts",
+        "the accident day is day 0",
+        "Sunday to Thursday are working days",
+        "Friday and Saturday are the weekend",
+        "public holidays are ignored",
+        "for the vehicle being claimed for",
+        "A garage or workshop quote is not a damage assessment",
+    ):
+        assert phrase in en, phrase

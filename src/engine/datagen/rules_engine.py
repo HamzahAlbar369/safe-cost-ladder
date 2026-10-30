@@ -159,7 +159,9 @@ def adjudicate(case: Case, rules: RuleSet) -> Adjudication:
         detail = f"repair {case.damage_amount_sar} vs full deductible {v.fixed_deductible_sar}"
         if t.add("R3", "CMIR 7.3 loss at or below the full deductible", below, detail):
             return stop("deny", ["R3_BELOW_DEDUCTIBLE"])
-    # R7 required documents, then contradictions
+    if case.damage_source == "garage_quote" and "damage_assessment" in case.documents:
+        raise UnsupportedCase("a garage-quote amount cannot come with a damage assessment report")
+    # R7 required documents, then contradictions (a garage quote never replaces the assessment)
     missing = [k for k in rules.required_documents if k not in case.documents]
     if t.add("R7", "all required documents present", bool(missing), f"missing={missing}"):
         return stop("need_info", [f"R7_MISSING_{k}" for k in missing])

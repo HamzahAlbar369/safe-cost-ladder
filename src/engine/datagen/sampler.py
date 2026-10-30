@@ -323,8 +323,12 @@ def _drop(rng: random.Random, k: int, keep: tuple[str, ...] = ()) -> tuple[str, 
 
 
 def _no_report(c: dict[str, Any]) -> dict[str, Any]:
+    """Keep stated facts consistent with the documents: no report -> no report number; no damage assessment ->
+    the amount the customer states can only be a garage quote (D1.10)."""
     if "accident_report" not in c["documents"]:
         c["report_number"] = None
+    if "damage_assessment" not in c["documents"]:
+        c["damage_source"] = "garage_quote"
     return c
 
 
@@ -346,13 +350,28 @@ def conflict_amount(rng, rules):
     return _d("conflict_amount", ("R7",), "need_info", c)
 
 
+def garage_quote_only(rng, rules):
+    """Only a garage/workshop quote, no damage assessment report: need_info (R7), even for a small amount."""
+    docs = tuple(d for d in ALL_DOCS if d != "damage_assessment")
+    c = base(
+        rng,
+        rules,
+        rng.choice(["own_damage", "third_party_claim"]),
+        documents=docs,
+        damage_source="garage_quote",
+    )
+    return _d("garage_quote_only", ("R7",), "need_info", c)
+
+
 def missing_assessment_small_loss(rng, rules):
     fixed = rules.values().fixed_deductible_sar
     docs = tuple(d for d in ALL_DOCS if d != "damage_assessment")
     c = base(
         rng, rules, "own_damage", documents=docs, damage_amount_sar=rng.randrange(3, fixed // 100 + 1) * 100
     )
-    return _d("missing_assessment_small_loss", ("R7", "R3"), "need_info", c, explicit_missing=True)
+    return _d(
+        "missing_assessment_small_loss", ("R7", "R3"), "need_info", _no_report(c), explicit_missing=True
+    )
 
 
 def excluded_and_missing(rng, rules):
@@ -404,7 +423,7 @@ DESIGNS: dict[str, list[tuple[Builder, float]]] = {
         (od_comp_hit_and_run, 1.0),
         (od_comp_single_vehicle, 1.0),
         (tp_full_fault, 1.5),
-        (tp_partial_fault, 3.0),
+        (tp_partial_fault, 3.5),
         (tp_no_fault, 1.0),
         (od_under_tpl, 1.0),
         (late_no_reason, 1.0),
@@ -413,7 +432,7 @@ DESIGNS: dict[str, list[tuple[Builder, float]]] = {
     ],
     "L4": [
         (od_total_loss_etl, 1.0),
-        (od_over_sum_insured, 1.5),
+        (od_over_sum_insured, 1.8),
         (od_technical_total_loss, 0.7),
         (tp_recovery_violation, 1.5),
         (tp_licence_grace, 1.2),
@@ -435,6 +454,7 @@ DESIGNS: dict[str, list[tuple[Builder, float]]] = {
         (missing_doc, 2.0),
         (missing_two_docs, 1.0),
         (conflict_amount, 1.5),
+        (garage_quote_only, 1.0),
         (missing_assessment_small_loss, 0.8),
         (excluded_and_missing, 1.0),
         (below_deductible_missing_other, 0.8),

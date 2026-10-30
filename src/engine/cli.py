@@ -42,6 +42,9 @@ def _print_summary(s) -> None:
         cells = [fmt.format(row[n]) if row[n] is not None else "-" for n, fmt in s.SUMMARY_COLUMNS]
         typer.echo("  ".join(f"{c:>12}" for c in cells))
     typer.echo(f"cheapest effort per model (no-cache): {s.cheapest_effort_nocache(report['checks'])}")
+    typer.echo(
+        "cost_usd = Cost with caching (actual) | nocache_usd = Cost without caching (headline)  (D1.4)"
+    )
 
 
 @app.command()
@@ -97,6 +100,34 @@ def smoke(
             raise typer.Exit(1)
     for note in report.notes:
         typer.echo(f"NOTE: {note}")
+
+
+@app.command()
+def gen() -> None:
+    """Generate dev/held-out/shifted, run SPEC §4.4 QA, write MANIFEST + review file. No paid calls."""
+    from engine.datagen import gen as G
+    from engine.datagen import publish, qa
+
+    splits = G.generate()
+    report = qa.run_all(splits)
+    failed = qa.blocking_failures(report)
+    for name, res in report.items():
+        if name.startswith("_") or name == "decision_distribution":
+            continue
+        typer.echo(
+            f"[{'PASS' if res['pass'] else 'FAIL'}] {name}: {res['value']} (threshold: {res['threshold']})"
+        )
+    dist = report["decision_distribution"]
+    for split, d in dist["per_split"].items():
+        shares = ", ".join(f"{k} {v:.1%}" for k, v in d["shares"].items())
+        typer.echo(f"  decisions {split} (n={d['n_adjudicate']}): {shares}")
+    typer.echo(f"  label flags (<10%): {dist['flags'] or 'none'}")
+    if failed:
+        typer.echo(f"QA FAILED: {failed}; nothing written.")
+        raise typer.Exit(1)
+    manifest = publish.write(splits, report)
+    typer.echo("wrote data/generated/{dev,heldout,shifted}.jsonl, MANIFEST.json, data/review/dev_review.md")
+    typer.echo(f"held-out sealed: sha256 {manifest['heldout_sealed']['sha256']}")
 
 
 @app.command()

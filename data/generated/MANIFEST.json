@@ -1,0 +1,360 @@
+{
+  "fiction": "FICTIONAL insurer; synthetic tickets. Rules follow SAMA-issued instruments (see data/rules/SOURCES.md).",
+  "seed": 20261030,
+  "generator_git_sha": "ed23dd21deb5051c8a12a8eee85142b294fba8eb-dirty",
+  "rules_sha256": {
+    "rules.yaml": "494b7ea18f19b8d6d320f9d6fc83743999285db06048d788c3aa5cd8c83a3469",
+    "rules_v2.yaml": "52276a85241b538722a2273bcb60306e9beda6a1bc9327b85cfe346db916d5f8"
+  },
+  "files": {
+    "dev.jsonl": {
+      "sha256": "8c7825fb618c255af1645efd4e19e16dbcb9d8075b491abec6077772e71993c3",
+      "n": 400
+    },
+    "heldout.jsonl": {
+      "sha256": "eca74db3e5441b4027a0dc7fc425e6a684329d57449e46313b837eae6b14a3fc",
+      "n": 400
+    },
+    "shifted.jsonl": {
+      "sha256": "9df4dadbfebb26ed4cf71366a6d8c2003c9bde1932a3267b8c0c0340b4ef909d",
+      "n": 200
+    }
+  },
+  "heldout_sealed": {
+    "sha256": "eca74db3e5441b4027a0dc7fc425e6a684329d57449e46313b837eae6b14a3fc",
+    "note": "never read by a person or an LLM; only `engine final` (freeze-* tag) loads it"
+  },
+  "composition": {
+    "dev": {
+      "n": 400,
+      "arabic_share": 0.3,
+      "cells": {
+        "faq/L1/ar": {
+          "n": 30,
+          "share": 0.075,
+          "target": 0.075
+        },
+        "faq/L1/en": {
+          "n": 70,
+          "share": 0.175,
+          "target": 0.175
+        },
+        "intent/L2/ar": {
+          "n": 18,
+          "share": 0.045,
+          "target": 0.045
+        },
+        "intent/L2/en": {
+          "n": 42,
+          "share": 0.105,
+          "target": 0.105
+        },
+        "extract/L2/ar": {
+          "n": 18,
+          "share": 0.045,
+          "target": 0.045
+        },
+        "extract/L2/en": {
+          "n": 42,
+          "share": 0.105,
+          "target": 0.105
+        },
+        "adjudicate/L3/ar": {
+          "n": 24,
+          "share": 0.06,
+          "target": 0.06
+        },
+        "adjudicate/L3/en": {
+          "n": 56,
+          "share": 0.14,
+          "target": 0.14
+        },
+        "adjudicate/L4/ar": {
+          "n": 18,
+          "share": 0.045,
+          "target": 0.045
+        },
+        "adjudicate/L4/en": {
+          "n": 42,
+          "share": 0.105,
+          "target": 0.105
+        },
+        "adjudicate/L5/ar": {
+          "n": 12,
+          "share": 0.03,
+          "target": 0.03
+        },
+        "adjudicate/L5/en": {
+          "n": 28,
+          "share": 0.07,
+          "target": 0.07
+        }
+      },
+      "arabic_dialects": {
+        "msa": 86,
+        "saudi": 34
+      }
+    },
+    "heldout": {
+      "n": 400,
+      "arabic_share": 0.3,
+      "cells": {
+        "faq/L1/ar": {
+          "n": 30,
+          "share": 0.075,
+          "target": 0.075
+        },
+        "faq/L1/en": {
+          "n": 70,
+          "share": 0.175,
+          "target": 0.175
+        },
+        "intent/L2/ar": {
+          "n": 18,
+          "share": 0.045,
+          "target": 0.045
+        },
+        "intent/L2/en": {
+          "n": 42,
+          "share": 0.105,
+          "target": 0.105
+        },
+        "extract/L2/ar": {
+          "n": 18,
+          "share": 0.045,
+          "target": 0.045
+        },
+        "extract/L2/en": {
+          "n": 42,
+          "share": 0.105,
+          "target": 0.105
+        },
+        "adjudicate/L3/ar": {
+          "n": 24,
+          "share": 0.06,
+          "target": 0.06
+        },
+        "adjudicate/L3/en": {
+          "n": 56,
+          "share": 0.14,
+          "target": 0.14
+        },
+        "adjudicate/L4/ar": {
+          "n": 18,
+          "share": 0.045,
+          "target": 0.045
+        },
+        "adjudicate/L4/en": {
+          "n": 42,
+          "share": 0.105,
+          "target": 0.105
+        },
+        "adjudicate/L5/ar": {
+          "n": 12,
+          "share": 0.03,
+          "target": 0.03
+        },
+        "adjudicate/L5/en": {
+          "n": 28,
+          "share": 0.07,
+          "target": 0.07
+        }
+      },
+      "arabic_dialects": {
+        "msa": 97,
+        "saudi": 23
+      }
+    },
+    "shifted": {
+      "n": 200,
+      "arabic_share": 0.3,
+      "cells": {
+        "faq/L1/ar": {
+          "n": 15,
+          "share": 0.075,
+          "target": 0.075
+        },
+        "faq/L1/en": {
+          "n": 35,
+          "share": 0.175,
+          "target": 0.175
+        },
+        "intent/L2/ar": {
+          "n": 9,
+          "share": 0.045,
+          "target": 0.045
+        },
+        "intent/L2/en": {
+          "n": 21,
+          "share": 0.105,
+          "target": 0.105
+        },
+        "extract/L2/ar": {
+          "n": 9,
+          "share": 0.045,
+          "target": 0.045
+        },
+        "extract/L2/en": {
+          "n": 21,
+          "share": 0.105,
+          "target": 0.105
+        },
+        "adjudicate/L3/ar": {
+          "n": 12,
+          "share": 0.06,
+          "target": 0.06
+        },
+        "adjudicate/L3/en": {
+          "n": 28,
+          "share": 0.14,
+          "target": 0.14
+        },
+        "adjudicate/L4/ar": {
+          "n": 9,
+          "share": 0.045,
+          "target": 0.045
+        },
+        "adjudicate/L4/en": {
+          "n": 21,
+          "share": 0.105,
+          "target": 0.105
+        },
+        "adjudicate/L5/ar": {
+          "n": 6,
+          "share": 0.03,
+          "target": 0.03
+        },
+        "adjudicate/L5/en": {
+          "n": 14,
+          "share": 0.07,
+          "target": 0.07
+        }
+      },
+      "arabic_dialects": {
+        "saudi": 37,
+        "mixed": 23
+      }
+    }
+  },
+  "decision_distribution": {
+    "pass": true,
+    "flags": [],
+    "threshold": "flag any label < 10% of adjudication items",
+    "per_split": {
+      "dev": {
+        "n_adjudicate": 180,
+        "counts": {
+          "deny": 62,
+          "need_info": 34,
+          "partial": 23,
+          "approve": 61
+        },
+        "shares": {
+          "approve": 0.3389,
+          "partial": 0.1278,
+          "deny": 0.3444,
+          "need_info": 0.1889
+        }
+      },
+      "heldout": {
+        "n_adjudicate": 180,
+        "counts": {
+          "partial": 33,
+          "need_info": 26,
+          "approve": 51,
+          "deny": 70
+        },
+        "shares": {
+          "approve": 0.2833,
+          "partial": 0.1833,
+          "deny": 0.3889,
+          "need_info": 0.1444
+        }
+      },
+      "shifted": {
+        "n_adjudicate": 90,
+        "counts": {
+          "partial": 14,
+          "deny": 37,
+          "approve": 28,
+          "need_info": 11
+        },
+        "shares": {
+          "approve": 0.3111,
+          "partial": 0.1556,
+          "deny": 0.4111,
+          "need_info": 0.1222
+        }
+      }
+    }
+  },
+  "qa": {
+    "schema_validity": {
+      "pass": true,
+      "value": "1000/1000 valid",
+      "threshold": "100%"
+    },
+    "gold_rederived_from_rules": {
+      "pass": true,
+      "value": 0,
+      "threshold": "0 mismatches"
+    },
+    "exact_duplicates_across_splits": {
+      "pass": true,
+      "value": 0,
+      "threshold": "0"
+    },
+    "near_duplicates_across_splits": {
+      "pass": true,
+      "value": 0,
+      "threshold": "0 pairs with char-5-gram Jaccard >= 0.8",
+      "detail": {
+        "max_cross_split_jaccard_among_comparable": 0.74
+      }
+    },
+    "composition": {
+      "pass": true,
+      "value": 0.0,
+      "threshold": "max deviation <= 3 pts"
+    },
+    "fact_preservation": {
+      "pass": true,
+      "value": "3419/3419 facts present",
+      "threshold": "100%"
+    },
+    "template_leak": {
+      "pass": true,
+      "value": 1.6,
+      "threshold": "<= majority-class rate + 5 pts",
+      "detail": {
+        "adjudicate": {
+          "family_loo_acc": 0.3689,
+          "majority_rate": 0.3756,
+          "gap_pts": -0.67
+        },
+        "intent": {
+          "family_loo_acc": 0.1267,
+          "majority_rate": 0.2,
+          "gap_pts": -7.33
+        },
+        "faq": {
+          "family_loo_acc": 0.192,
+          "majority_rate": 0.176,
+          "gap_pts": 1.6
+        }
+      }
+    },
+    "structure": {
+      "pass": true,
+      "value": {
+        "dev_pairs": 40,
+        "dev_pair_items_share": 0.2,
+        "shifted_adversarial": 20,
+        "shifted_rules_v2": 40,
+        "shifted_arabic_dialectal_share": 1.0,
+        "dev_arabic_msa_share": 0.7167
+      },
+      "threshold": "pairs well-formed; held-back families only in shifted; ~20 adversarial; 40 rules_v2; shifted AR dialect-leaning; dev AR mostly MSA"
+    }
+  }
+}

@@ -134,8 +134,8 @@ from the same file. `rules_v2.yaml` changes only insurer-specific values (fixed 
 ### §4.2 Pipeline
 1. **Sample** case facts per level with a seeded RNG (seed recorded in MANIFEST).
 2. **Compute gold** with `rules_engine.py`.
-3. **Realise text** from template families (≥6 families per task per language for dev/held-out; the shifted
-   split uses held-back families only; D1.2).
+3. **Realise text** from template families: 8 per language (6 for dev/held-out, 2 held back for the shifted
+   split only; D1.2), each usable by all four tasks and every label. Code: `src/engine/datagen/templates/`.
 4. **Variation layer** (deterministic, seeded): typos, filler, sentence reordering, Arabic/English code-switching.
    Never edits a gold-relevant value. **Fact-preservation check**: every value in `meta.facts` must still appear
    (after normalisation) or the item is regenerated. No LLM paraphrase; Phase 1 makes no paid calls (D1.2).
@@ -167,7 +167,7 @@ non-insurance questions (`faq` → `out_of_scope`, `intent` → `other`); garble
 | Near-duplicates across splits (char 5-gram Jaccard ≥ 0.8) | 0 |
 | Composition vs §4.3 | within ±3 pts |
 | Fact preservation after the variation layer (every `meta.facts` value present after normalisation) | 100% |
-| Template leak: label predictable from `template_family` id alone | ≤ majority-class rate + 5 pts |
+| Template leak: label predictable from `template_family` id alone (leave-one-out within each split, pooled; D1.9) | ≤ majority-class rate + 5 pts |
 | Rules-engine unit tests | ≥1 test per rule + interaction tests; 100% pass |
 | Manual review (Hamzah): 30 EN + 20 AR dev items | 0 label errors (any error → fix generator, regenerate) |
 | Solvability (Phase 2): every `opus-high` failure on dev inspected | generator-bug rate after fixes < 2% |

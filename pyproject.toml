@@ -44,3 +44,4 @@ addopts = "-q"
 
 [tool.ruff.lint.per-file-ignores]
 "src/engine/smoke_fixtures.py" = ["E501"]  # bilingual probe text, kept verbatim
+"src/engine/datagen/templates/bank_*.py" = ["E501"]  # bilingual phrase banks, kept verbatim

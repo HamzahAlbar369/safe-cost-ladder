@@ -258,3 +258,14 @@ precedence step, so changing one is a one-line edit plus `engine policy`.
 - **R0 note:** a real comprehensive policy usually covers theft and fire. Here R0 is an insurer-specific desk scope
   (collision only). The sampler will use R0 for intent tickets (`other`) and will not generate R0 adjudication
   denials, so the data never claims that a comprehensive policy denies theft.
+
+### D1.9 · Template-leak check measured within each split (measurement fix, not a threshold change)
+- **Decision:** the SPEC §4.4 leak check (label predictable from `template_family` ≤ majority-class rate + 5 pts)
+  is computed by leave-one-out *within each split* and pooled over splits. Threshold unchanged.
+- **Why:** the first version pooled all splits. Held-back families appear only in the shifted split, and the shifted
+  split legitimately carries rules-v2 FAQ answers (1,500 / 375 / 50 / 10) that occur nowhere else, so the family
+  "predicted" those answers through the split, not through the template (FAQ gap 5.2 pts). Within a split, families
+  are drawn independently of the label, which is what the check is meant to test.
+- **Evidence:** within-split gaps on the generated data: adjudicate −0.7, intent −7.3, FAQ +1.6 pts (MANIFEST
+  `qa.template_leak`). Unit test `tests/test_datagen.py::test_qa_template_leak_flags_a_family_that_predicts_the_label`
+  shows the check still catches a family that predicts the label.

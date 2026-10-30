@@ -32,14 +32,14 @@ and that the tickets are unambiguous, using a reviewer that had never seen the g
 The gold labels were correct in every case. The reviewer flagged wording that could unfairly trip a
 model or read unnaturally; each was fixed in the generator with a permanent QA scan (DECISIONS.md D1.12).
 
-| Finding | Example items | Risk | Fix |
-|---|---|---|---|
-| Numeric dates readable day-first or month-first | dev-0313 | Answer flips (on time vs late) | Unambiguous date formats only |
-| "Revised assessment" read as a replacement, not a contradiction | dev-0092 | Defensible but ambiguous label | Reworded as a second, conflicting report |
-| Hit-and-run tickets describing the other driver's behaviour | dev-0098, -0313, -0331, -0030 | Contradicts the facts | Line suppressed when the other party is unknown |
-| Event date after the ticket's submission date | dev-0127 | Impossible timeline | Date-consistency scan |
-| Arabic: English words glued to Arabic words; signer gender ≠ closing | dev-0168, -0292, -0068 | Unnatural Arabic | Spacing and gender-agreement scans |
-| Absent extract fields / vague relative dates | dev-0331, -0177, -0323 | Prompt ambiguity, not data error | Phase 2 prompt states: any absent field is null |
+| Finding | Example items | Risk | Fix | Status |
+|---|---|---|---|---|
+| Numeric dates readable day-first or month-first | dev-0313 | Answer flips (on time vs late) | Unambiguous date formats only | Fixed |
+| "Revised assessment" read as a replacement, not a contradiction | dev-0092 | Defensible but ambiguous label | Reworded as a second, conflicting report | Fixed |
+| Hit-and-run tickets describing the other driver's behaviour | dev-0098, -0313, -0331, -0030 | Contradicts the facts | Line suppressed when the other party is unknown | Fixed |
+| Event date after the ticket's submission date | dev-0127 | Impossible timeline | Date-consistency scan | Fixed |
+| Arabic: English words glued to Arabic words; signer gender ≠ closing | dev-0168, -0292, -0068 | Unnatural Arabic | Spacing and gender-agreement scans | Fixed |
+| Absent extract fields / vague relative dates | dev-0331, -0177, -0323 | Prompt ambiguity, not data error | Phase 2 prompt states: any absent field is null; a vague relative date means accident_date is null (SPEC §6.2) | Phase 2 (pending) |
 
 ## Limitations
 - The reviewer is a Claude model, the same family as some evaluated models. Mitigations: it worked in

@@ -1,0 +1,174 @@
+{
+ "request_hash": "d3722280546a25240eeedb47779fde041bcfa8adacb4b8d89d56a450787ca2a7",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: adjudicate\n\n<ticket>\nHi -\nMy policy number is OMI-4787086 and I have comprehensive cover, valid until 1 Dec 2026. On 2026-07-17 I was in a collision with another vehicle in Taif. The Najm report number is NJ-03818248 and it gives me 25% of the liability. The Taqdeer assessment values the repairs to my car at SR 16,500. honeslty, my car is insured for SR 152,000. The report says I was driving against traffic and that this caused the accident. I'm filing the claim today, 2026-07-19. I have attached the Najm accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment. I have been your customer for 8 years.\n</ticket>",
+  "max_tokens": 6144,
+  "schema_name": "adjudicate",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "inputs": {
+     "type": "object",
+     "properties": {
+      "claim_type": {
+       "type": "string",
+       "enum": [
+        "own_damage",
+        "third_party_claim"
+       ]
+      },
+      "cover": {
+       "type": "string",
+       "enum": [
+        "TPL",
+        "COMP"
+       ]
+      },
+      "accident_date": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "other_party": {
+       "type": "string",
+       "enum": [
+        "insured",
+        "uninsured",
+        "unknown",
+        "none"
+       ]
+      },
+      "fault_share": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "damage_amount_sar": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "sum_insured_sar": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "total_loss": {
+       "type": "boolean"
+      }
+     },
+     "required": [
+      "claim_type",
+      "cover",
+      "accident_date",
+      "other_party",
+      "fault_share",
+      "damage_amount_sar",
+      "sum_insured_sar",
+      "total_loss"
+     ],
+     "additionalProperties": false
+    },
+    "reasons": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "enum": [
+       "R0_OUT_OF_SCOPE",
+       "R1_POLICY_NOT_IN_FORCE",
+       "R5_TP_fled_scene",
+       "R5_TP_intoxication",
+       "R5_TP_racing_or_drifting",
+       "R5_TP_deliberate",
+       "R5_TP_misrepresentation",
+       "R8_NO_OWN_COVER",
+       "R1_TPL_NO_OWN_DAMAGE",
+       "R5_OD_invalid_licence",
+       "R5_OD_unauthorised_driver",
+       "R5_OD_traffic_violation_cause",
+       "R6_LATE_REPORT",
+       "R6_JUSTIFIED",
+       "R7_MISSING_accident_report",
+       "R7_MISSING_registration",
+       "R7_MISSING_licence_copy",
+       "R7_MISSING_damage_photos",
+       "R7_MISSING_damage_assessment",
+       "R7_CONFLICT",
+       "R3_BELOW_DEDUCTIBLE",
+       "R3_OWN_DAMAGE",
+       "R3_TOTAL_LOSS",
+       "R3_SUM_INSURED_CAP",
+       "SUBROGATION",
+       "R8_UNKNOWN_PARTY",
+       "R4_THIRD_PARTY",
+       "R4_NO_FAULT",
+       "R4_CAP",
+       "RECOVERY_RIGHT"
+      ]
+     }
+    },
+    "decision": {
+     "type": "string",
+     "enum": [
+      "approve",
+      "partial",
+      "deny",
+      "need_info"
+     ]
+    },
+    "payout_sar": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "inputs",
+    "reasons",
+    "decision",
+    "payout_sar"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"inputs\":{\"claim_type\":\"own_damage\",\"cover\":\"COMP\",\"accident_date\":\"2026-07-17\",\"other_party\":\"unknown\",\"fault_share\":25,\"damage_amount_sar\":16500,\"sum_insured_sar\":152000,\"total_loss\":false},\"reasons\":[\"R5_OD_traffic_violation_cause\"],\"decision\":\"deny\",\"payout_sar\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 257,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 8300,
+   "output_tokens": 1268,
+   "thinking_tokens": 1137
+  },
+  "latency_ms": 6119.3,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T20:00:47.158018Z"
+}

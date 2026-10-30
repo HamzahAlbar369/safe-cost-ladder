@@ -1,0 +1,93 @@
+{
+ "request_hash": "731734f9fac389f8193d049f51e138006b93132d2b9fae2c334c221cb5dc171b",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nsalam, hi\nMy policy number is OMI-9750300 and I have comprehensive (COMP) cover, valid until 1 Jan 2027.\nOn 12 Aug 2026 I was in a collision with another vehicle in Buraidah.\nThe Najm report number is NJ-90992660 and it gives me 0% of the liability.\nThe Taqdeer assessment values the repairs to my car at 25400 riyals.\nMy phone number is 0518299776.\nMy car is a GMC Yukon 2020.\nthx\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-9750300\",\"accident_date\":\"2026-08-12\",\"report_number\":\"NJ-90992660\",\"damage_amount_sar\":25400,\"fault_share\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 191,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 64,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 908.3,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T20:01:13.600063Z"
+}

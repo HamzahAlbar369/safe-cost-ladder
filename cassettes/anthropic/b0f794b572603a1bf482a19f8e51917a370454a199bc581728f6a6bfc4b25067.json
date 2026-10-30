@@ -1,0 +1,93 @@
+{
+ "request_hash": "b0f794b572603a1bf482a19f8e51917a370454a199bc581728f6a6bfc4b25067",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\nHi -\num, I'm insured with you under policy OMI-2986358 (comprehensive), which runs until 5 Sep 2026. On 7 Feb 2026 I lost control and hit a barrier in Khobar. No other vehicle was involved. The damage assessment report puts the repair cost for my car at SR 9,000. I am reporting this claim to you on 2026-02-20. My phone number is 0570598693.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-2986358\",\"accident_date\":\"2026-02-07\",\"report_number\":null,\"damage_amount_sar\":9000,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 163,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 139,
+   "thinking_tokens": 81
+  },
+  "latency_ms": 1429.3,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:53:52.468376Z"
+}

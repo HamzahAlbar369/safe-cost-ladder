@@ -1,0 +1,53 @@
+{
+ "request_hash": "1283ee7de5e53d764fe6878b258d6c17b1a4a5188568ba6b2768aee24e763093",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nHere is my situation.\nMy friend told me something different, so I want to check. I'm a customer in Jeddah. If I am not at fault at all, how much deductible do I pay?\nWhat happens now?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 85,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 9,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1012.6,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T19:51:50.267490Z"
+}

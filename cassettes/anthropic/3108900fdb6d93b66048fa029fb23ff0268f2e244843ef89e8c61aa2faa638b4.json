@@ -1,0 +1,53 @@
+{
+ "request_hash": "3108900fdb6d93b66048fa029fb23ff0268f2e244843ef89e8c61aa2faa638b4",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nhello there\nMy friend told me something different, so I want to check.\nQuick question about policy OMI-4798704.\nWhat deductible applies when I hold 0% of the liability?\nthx\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 80,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 61,
+   "thinking_tokens": 51
+  },
+  "latency_ms": 1154.7,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:51:49.257284Z"
+}

@@ -1,0 +1,52 @@
+{
+ "request_hash": "0e2dc3cc1f2d3ebfd1c1e7eb7e4795f9d6ae05c7059ec6f4db2a0a122c7899d7",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "user": "Task: intent\n\n<ticket>\nHi -\nI want to add my wife as a named driver on policy OMI-5265265.\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"policy_change\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 52,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 14,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1298.8,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T20:01:01.025043Z"
+}

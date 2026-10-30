@@ -1,0 +1,53 @@
+{
+ "request_hash": "589021a165209a1c7115d56ebf90581091f5b8c30495d64172dc82017f20417b",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nHi -\nI'm a customer in Tabuk. I'm thinking about my cover before a trip to Tabuk. Is the deductible still appiled when my car is a total loss?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": \"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 82,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 58,
+   "thinking_tokens": 46
+  },
+  "latency_ms": 908.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:52:22.861392Z"
+}

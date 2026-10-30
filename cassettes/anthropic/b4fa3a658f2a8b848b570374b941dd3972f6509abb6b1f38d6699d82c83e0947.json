@@ -1,0 +1,93 @@
+{
+ "request_hash": "b4fa3a658f2a8b848b570374b941dd3972f6509abb6b1f38d6699d82c83e0947",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\nDear Oasis claims team,\nA few days ago another car hit mine in Taif. Najm attended and issued report NJ-50281869, which puts me at 50% fault. The damage assessment report puts the repair cost for my car at SAR 27,500. I am reporting this claim to you on 20 April 2026. Thank God nobody was hurt. The other driver was polite about the whole thing.\nThank you,\nSara\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":null,\"accident_date\":null,\"report_number\":\"NJ-50281869\",\"damage_amount_sar\":27500,\"fault_share\":50}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 161,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 53,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1228.8,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T19:56:36.785650Z"
+}

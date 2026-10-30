@@ -1,0 +1,53 @@
+{
+ "request_hash": "3ccb20af1ccdd79c482504b1f216d6b2b97e2ef1095359e8b8c98492315cdcf7",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nClaim:\nMy name is Noura and I drive a Kia K5 2023. Hi, Noura here. My friend told me something different, so I want to check. Up to how much is towing covered inside the city?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":500}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 87,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 9,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1506.2,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:59:43.262985Z"
+}

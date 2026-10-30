@@ -1,0 +1,53 @@
+{
+ "request_hash": "d745272ef40a8b2583848dc4122bbbff943f54dee3e8c239fb2e36b9185a7c93",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nHere is my situation.\nI'm a customer in Riyadh. I'm thinking about my cover before a trip to Riyadh. um, my name is Lama and I drive a Hyundai Sonata 2020. Is a rental car included in the base policy?\nWhat happens now?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"no\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 111,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 11,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1057.3,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T20:01:28.212560Z"
+}

@@ -1,0 +1,52 @@
+{
+ "request_hash": "89c461e5a13e725053bce62fb00ad904b85423b7a346a7143991457c24845018",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: intent\n\n<ticket>\n[رسالة صوتية مفرغة] السلام عليكم، طيب\nأنا من أبها. معك تركي. وثيقتي OMI-1350007. لو أخوي ساق سيارتي وصار حادث، يشمله التأمين؟\nوبس، كلموني\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"coverage_question\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 119,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 15,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1697.1,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T19:56:17.862691Z"
+}

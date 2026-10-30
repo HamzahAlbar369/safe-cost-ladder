@@ -1,0 +1,53 @@
+{
+ "request_hash": "e4521c8bbb98889e191e42cb49077b7c65433113060922a9b9b4cb88314eaa83",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nAgent summary - caller Yousef.\nMy name is Yousef and I drive a Chevrolet Tahoe 2021.\nAt what repair cost, as a percent of the sum insured, does the car become a total loss?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":60}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 93,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 9,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1251.0,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T20:01:40.935206Z"
+}

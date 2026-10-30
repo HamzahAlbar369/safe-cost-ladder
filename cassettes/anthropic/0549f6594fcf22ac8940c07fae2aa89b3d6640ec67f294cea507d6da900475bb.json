@@ -1,0 +1,93 @@
+{
+ "request_hash": "0549f6594fcf22ac8940c07fae2aa89b3d6640ec67f294cea507d6da900475bb",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\n[Online claim form]\nPolicy number: OMI-8950638\nCover type: comprehensive (COMP)\nExpiry date: 10 Jun 2026\nReporting authority: the traffic police\nAccident report number: TP-82593990\nRepair cost per assessment report: 14,600 SAR\nDescription: A few days ago someone hit my parked car in Riyadh and drove off. It was a hit-and-run. I have been your customer for 3 years. My car is a Nissan Patrol 2022. My previous claim in 2023 was settled without any porblem.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-8950638\",\"accident_date\":null,\"report_number\":\"TP-82593990\",\"damage_amount_sar\":14600,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 207,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 96,
+   "thinking_tokens": 38
+  },
+  "latency_ms": 2245.9,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:56:22.722330Z"
+}

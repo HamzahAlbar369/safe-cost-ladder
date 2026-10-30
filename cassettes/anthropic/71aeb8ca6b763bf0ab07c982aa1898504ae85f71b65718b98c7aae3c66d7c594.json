@@ -1,0 +1,93 @@
+{
+ "request_hash": "71aeb8ca6b763bf0ab07c982aa1898504ae85f71b65718b98c7aae3c66d7c594",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\n[نموذج مطالبة إلكتروني]\nرقم الوثيقة: OMI-0649097\nتاريخ وقوع الحادث: 6 مايو 2026\nجهة الإبلاغ: نجم\nرقم تقرير الحادث: NJ-31682103\nنسبة خطئي: 0%\nتكلفة الإصلاح حسب تقرير التقييم: 7,200 ريال\nوصف الحادث: في 6 مايو 2026 تعرضتُ لحادث تصادم مع مركبة أخرى في الخبر. رقم مرجع المطالبة في التطبيق CLM-85904.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-0649097\",\"accident_date\":\"2026-05-06\",\"report_number\":\"NJ-31682103\",\"damage_amount_sar\":7200,\"fault_share\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 239,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 64,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 2315.7,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T20:00:24.932363Z"
+}

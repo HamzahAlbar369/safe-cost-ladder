@@ -1,0 +1,52 @@
+{
+ "request_hash": "4e2d32f73ce50d556a092bd7267f7e59df11dd5cec1817fd07799702b6c762d2",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: intent\n\n<ticket>\nهلا والله، السلام عليكم\nمعك تركي.\nصار لي حادث يوم 15/09/2026 وأبي أفتح مطالبة، وللحين ما قدمت شي.\nوشكرًا\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"new_claim\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 97,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 14,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1360.6,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:58:39.941184Z"
+}

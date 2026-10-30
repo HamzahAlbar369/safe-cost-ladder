@@ -1,0 +1,53 @@
+{
+ "request_hash": "0efa062ce5acac17b06a66ebe963aa34a50dd2015d28298889344c7e7f110516",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nCall note: customer Haya phoned the claims line.\nI'm thinking about my cover before a trip to Khobar.\nMy name is Haya and I drive a GMC Yukon 2020.\nQuick question about policy OMI-0261415.\nWhat is the per-event limit for third-party claims?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":10000000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 117,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 11,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1093.4,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T20:02:00.746974Z"
+}

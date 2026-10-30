@@ -1,0 +1,53 @@
+{
+ "request_hash": "4d42e13a0d8d1b9ece1cac75e97cdb5c2af2b30006e8a79d9f691a6079fd6950",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nAgent summary - caller Dana.\nMy name is Dana and I drive a Lexus ES 2022.\nUnder third-party cover, within how many days after the accident must an expired licence be renewed to still count as valid?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 50}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 92,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 97,
+   "thinking_tokens": 87
+  },
+  "latency_ms": 1343.5,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:52:59.283125Z"
+}

@@ -1,0 +1,93 @@
+{
+ "request_hash": "6469a730803ae0ed7381ba9be7b3a12d445f26ae71e880077d90a038e66c1f4f",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nGood morning,\nA few days ago my car was struck in Hail by a driver who fled; we never found out who it was. The Taqdeer assessment values the repairs to my car at SAR 3,500. like, I am reporting this claim to you on 10 September 2026. um, my claim reference from the app is CLM-45498. My phone number is 0591287624. My previous claim in 2023 was settled without any problem. The traffic police attended and issued report TP-97358981.\nKind regards,\nDana\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":null,\"accident_date\":null,\"report_number\":\"TP-97358981\",\"damage_amount_sar\":3500,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 184,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 52,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1455.7,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:55:32.293641Z"
+}

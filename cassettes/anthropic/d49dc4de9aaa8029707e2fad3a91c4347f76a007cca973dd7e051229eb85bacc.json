@@ -1,0 +1,53 @@
+{
+ "request_hash": "d49dc4de9aaa8029707e2fad3a91c4347f76a007cca973dd7e051229eb85bacc",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\n[طلب عبر الموقع]\nالسؤال: اسمي عمر وأقود سيارة Hyundai Sonata 2020. كم الحد الأقصى لتغطية السحب خارج المدينة؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":1000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 97,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 10,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1369.1,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:55:14.764195Z"
+}

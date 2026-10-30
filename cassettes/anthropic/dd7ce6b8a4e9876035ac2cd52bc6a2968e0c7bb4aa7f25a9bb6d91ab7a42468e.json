@@ -1,0 +1,53 @@
+{
+ "request_hash": "dd7ce6b8a4e9876035ac2cd52bc6a2968e0c7bb4aa7f25a9bb6d91ab7a42468e",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nأود أن أشرح ما حدث.\nأنا من عملائكم في أبها. ما حد المبلغ للتسوية السريعة خلال 5 أيام عمل؟\nما الإجراء التالي؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":2000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 98,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 68,
+   "thinking_tokens": 58
+  },
+  "latency_ms": 1619.3,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T19:59:49.200945Z"
+}

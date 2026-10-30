@@ -1,0 +1,53 @@
+{
+ "request_hash": "0eceedc7be76b83309e3c395274aaeb5a27a1e0d3bf63047ef799c80422d0951",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nAgent summary - caller Omar.\nMy name is Omar and I drive a Mazda 6 2019.\nIs a relative of mine an authorised driver on my comprehensive policy?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 83,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 56,
+   "thinking_tokens": 44
+  },
+  "latency_ms": 1589.2,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:51:59.768330Z"
+}

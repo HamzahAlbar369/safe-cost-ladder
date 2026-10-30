@@ -1,0 +1,32 @@
+{
+ "manifest": {
+  "run_id": "matrix-dev-full-1",
+  "git_sha": "97600fb513f2504a36528b2a22c6ad3f5e70d359",
+  "config_hash": "1201126a080c897a",
+  "split": "dev",
+  "policies": [
+   "matrix"
+  ],
+  "created_at": "2026-10-30T20:02:11.022475Z",
+  "spend_usd": {
+   "anthropic": 10.525825
+  }
+ },
+ "summary": {
+  "run_id": "matrix-dev-full-1",
+  "split": "dev",
+  "n_cells": 3600,
+  "n_recorded": 3600,
+  "n_replayed": 0,
+  "n_live": 3600,
+  "n_errors": 0,
+  "parse_rate": 1.0,
+  "spend_usd": 10.525825,
+  "rate_limited": {
+   "claude-haiku-5-5": 0,
+   "claude-sonnet-5-5": 0,
+   "claude-opus-5-5": 0
+  },
+  "wall_s": 712.7
+ }
+}

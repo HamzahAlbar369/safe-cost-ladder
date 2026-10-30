@@ -1,0 +1,53 @@
+{
+ "request_hash": "01b23f2bca07ad6e5e12493d760453dc2a0d33c98cce64dc8153469686249723",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nتحية طيبة وبعد،\nسؤال سريع عن الوثيقة OMI-3435946. أخبرني صديقي بشيء مختلف فأردت التأكد. اسمي لمى وأقود سيارة Hyundai Sonata 2020. هل السيارة البديلة ضمن الوثيقة الأساسية؟\nشاكرةً لكم،\nلمى\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"no\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 156,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 74,
+   "thinking_tokens": 63
+  },
+  "latency_ms": 1243.7,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:55:18.525713Z"
+}

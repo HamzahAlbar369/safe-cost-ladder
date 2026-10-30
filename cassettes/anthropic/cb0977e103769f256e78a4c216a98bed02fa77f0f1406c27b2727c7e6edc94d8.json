@@ -1,0 +1,174 @@
+{
+ "request_hash": "cb0977e103769f256e78a4c216a98bed02fa77f0f1406c27b2727c7e6edc94d8",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: adjudicate\n\n<ticket>\nهلا والله، السلام عليكم\nوثيقتي عندكم رقمها OMI-8556374 (تأمين شامل (COMP))، وتنتهي 27/10/2026.\nيوم 17/07/2026 وحدة سيارة صدمتني في الخبر.\nالمرور جا وطلّع تقرير رقم TP-60095346، وحطوا علي 75%.\nتقرير التقييم قدّر تصليح سيارتي بـ 800 ريال.\nمبلغ التأمين في الجدول 103,000 ريال.\nاليوم 20/07/2026 قاعد أقدّم المطالبة.\nأرفقت لكم تقرير المرور، الاتسمارة، صورة الرخصة، صور الضرر وتقرير تقدير.\nكانت الدنيا تمطر شوي ذيك الليلة.\nالله يعطيكم العافية\n</ticket>",
+  "max_tokens": 6144,
+  "schema_name": "adjudicate",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "inputs": {
+     "type": "object",
+     "properties": {
+      "claim_type": {
+       "type": "string",
+       "enum": [
+        "own_damage",
+        "third_party_claim"
+       ]
+      },
+      "cover": {
+       "type": "string",
+       "enum": [
+        "TPL",
+        "COMP"
+       ]
+      },
+      "accident_date": {
+       "anyOf": [
+        {
+         "type": "string",
+         "format": "date"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "other_party": {
+       "type": "string",
+       "enum": [
+        "insured",
+        "uninsured",
+        "unknown",
+        "none"
+       ]
+      },
+      "fault_share": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "damage_amount_sar": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "sum_insured_sar": {
+       "anyOf": [
+        {
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "total_loss": {
+       "type": "boolean"
+      }
+     },
+     "required": [
+      "claim_type",
+      "cover",
+      "accident_date",
+      "other_party",
+      "fault_share",
+      "damage_amount_sar",
+      "sum_insured_sar",
+      "total_loss"
+     ],
+     "additionalProperties": false
+    },
+    "reasons": {
+     "type": "array",
+     "items": {
+      "type": "string",
+      "enum": [
+       "R0_OUT_OF_SCOPE",
+       "R1_POLICY_NOT_IN_FORCE",
+       "R5_TP_fled_scene",
+       "R5_TP_intoxication",
+       "R5_TP_racing_or_drifting",
+       "R5_TP_deliberate",
+       "R5_TP_misrepresentation",
+       "R8_NO_OWN_COVER",
+       "R1_TPL_NO_OWN_DAMAGE",
+       "R5_OD_invalid_licence",
+       "R5_OD_unauthorised_driver",
+       "R5_OD_traffic_violation_cause",
+       "R6_LATE_REPORT",
+       "R6_JUSTIFIED",
+       "R7_MISSING_accident_report",
+       "R7_MISSING_registration",
+       "R7_MISSING_licence_copy",
+       "R7_MISSING_damage_photos",
+       "R7_MISSING_damage_assessment",
+       "R7_CONFLICT",
+       "R3_BELOW_DEDUCTIBLE",
+       "R3_OWN_DAMAGE",
+       "R3_TOTAL_LOSS",
+       "R3_SUM_INSURED_CAP",
+       "SUBROGATION",
+       "R8_UNKNOWN_PARTY",
+       "R4_THIRD_PARTY",
+       "R4_NO_FAULT",
+       "R4_CAP",
+       "RECOVERY_RIGHT"
+      ]
+     }
+    },
+    "decision": {
+     "type": "string",
+     "enum": [
+      "approve",
+      "partial",
+      "deny",
+      "need_info"
+     ]
+    },
+    "payout_sar": {
+     "type": "integer"
+    }
+   },
+   "required": [
+    "inputs",
+    "reasons",
+    "decision",
+    "payout_sar"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"inputs\":{\"claim_type\":\"own_damage\",\"cover\":\"COMP\",\"accident_date\":\"2026-07-17\",\"other_party\":\"insured\",\"fault_share\":75,\"damage_amount_sar\":800,\"sum_insured_sar\":103000,\"total_loss\":false},\"reasons\":[\"R3_BELOW_DEDUCTIBLE\"],\"decision\":\"deny\",\"payout_sar\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 329,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 8300,
+   "output_tokens": 338,
+   "thinking_tokens": 206
+  },
+  "latency_ms": 4100.1,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:52:49.098091Z"
+}

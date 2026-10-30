@@ -1,0 +1,53 @@
+{
+ "request_hash": "89bdf83b637722f27746111e7272c2ec4fa1540987dd00a7f2bacbada4ef7b83",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\n[Online claim form]\nQuestion: Quick question about policy OMI-4803181. Under third-party cover, within how many days after the accident must an expired licence be renewed to still count as valid?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 50}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 83,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 10,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1117.4,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T20:01:59.327085Z"
+}

@@ -1,0 +1,52 @@
+{
+ "request_hash": "75289570f625e3130a5377e83e0fd56b268f90ae9fd118fdd889e27408206e06",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: intent\n\n<ticket>\nملاحظة مكالمة: اتصال من دانة على خط المطالبات.\nأقود سيارة Mazda 6 2019.\nالوثيقة OMI-9295597.\nأكتب إليكم من أبها.\nمرفق صور الأضرار الخاصة بمطالبتي القائمة رقم CLM-25833.\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"document_submission\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 138,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 14,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1366.6,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T20:00:02.279331Z"
+}

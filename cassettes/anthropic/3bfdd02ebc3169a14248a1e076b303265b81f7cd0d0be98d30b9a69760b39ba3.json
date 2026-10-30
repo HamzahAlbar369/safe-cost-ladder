@@ -1,0 +1,53 @@
+{
+ "request_hash": "3bfdd02ebc3169a14248a1e076b303265b81f7cd0d0be98d30b9a69760b39ba3",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nhi\nMy friend told me something different, so I want to check.\nMy name is Mohammed and I drive a Nissan Patrol 2022.\nI'm thinking about my cover before a trip to Abha.\nHow many working days after my documents are complete do I get the total-loss report?\npls help\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 7}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 113,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 48,
+   "thinking_tokens": 38
+  },
+  "latency_ms": 986.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T20:00:32.937920Z"
+}

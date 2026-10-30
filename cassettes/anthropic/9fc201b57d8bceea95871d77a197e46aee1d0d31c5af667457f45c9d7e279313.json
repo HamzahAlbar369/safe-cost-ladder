@@ -1,0 +1,53 @@
+{
+ "request_hash": "9fc201b57d8bceea95871d77a197e46aee1d0d31c5af667457f45c9d7e279313",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nhello there\nHi, Hessa here, ya akhi.\nOn comprehensive, how much deductible do I pay if my car was hit by an unknown driver who fled?\nthx\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 81,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 62,
+   "thinking_tokens": 53
+  },
+  "latency_ms": 960.8,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:59:13.119341Z"
+}

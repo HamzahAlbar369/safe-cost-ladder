@@ -1,0 +1,53 @@
+{
+ "request_hash": "efb5794a5189ce9b23a359ee9b3caea0a28b902723f5c8f17bbbcb636dbea224",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\n[Web form submission]\nQuestion: My name is Yousef and I drive a Chevrolet Tahoe 2021. What is the amount threshold for the fast 5-working-day settlement?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 2000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 84,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 75,
+   "thinking_tokens": 64
+  },
+  "latency_ms": 2134.5,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:55:34.854715Z"
+}

@@ -1,0 +1,53 @@
+{
+ "request_hash": "9f0a6ff7e6fc46e93ec00f76b0cc3b92b0be8b0a9762b368761c778b8b15cb31",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nAgent summary - caller Dana.\nQuick question about policy OMI-7118258.\nMy name is Dana and I drive a Kia K5 2023.\nFor comprehensive own-damage claims, within how many business days after the accident must an expired licence be renewed?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 50}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 107,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 71,
+   "thinking_tokens": 61
+  },
+  "latency_ms": 965.0,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:53:25.803138Z"
+}

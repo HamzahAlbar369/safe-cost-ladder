@@ -1,0 +1,53 @@
+{
+ "request_hash": "80cf0e9da99bf284c4ff2a7106aa1567983d3f31b06cb5ece557e82818b6c129",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nHi -\nI'm thinking about my cover before a trip to Buraidah. I'm a customer in Buraidah. Below what claim amount do you settle within 5 working days?\n</ticket>",
+  "max_tokens": 64,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1793389859,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":2000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 81,
+   "cache_creation_tokens": 7219,
+   "cache_read_tokens": 0,
+   "output_tokens": 10,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1082.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:51:05.212973Z"
+}

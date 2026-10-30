@@ -1,0 +1,52 @@
+{
+ "request_hash": "374c1c890cea9382e86531c49041f079ef9c3af4e4b473bf2e1474bff50566f6",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: intent\n\n<ticket>\nملخص الموظف - مكالمة من لمى.\nالوثيقة OMI-1481895.\nاسمي لمى.\nخُصم قسط التجديد مرتين هذا الشهر، أرجو تصحيح فوترة وثيقتي.\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"policy_change\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 111,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 57,
+   "thinking_tokens": 43
+  },
+  "latency_ms": 2039.2,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:53:09.155048Z"
+}

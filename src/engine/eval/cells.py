@@ -52,27 +52,31 @@ def build_cells(
 ) -> tuple[list[Cell], list[str]]:
     """Cells for every answer call in the runs (later runs win on duplicates). Also returns the problems found
     (calls without a response, missing cassettes) so a gate can require an empty list."""
+    calls = [(run_id, call) for run_id in run_ids for call in read_calls(run_id)]
+    return cells_from_calls(calls, tickets, store)
+
+
+def cells_from_calls(
+    calls: list[tuple[str, ModelCall]], tickets: list[Ticket], store: CassetteStore | None = None
+) -> tuple[list[Cell], list[str]]:
     store = store or CassetteStore()
     by_id = {t.id: t for t in tickets}
     rules = {v: load_version(v) for v in ("v1", "v2")}
     cells: dict[tuple[str, str], Cell] = {}
     problems: list[str] = []
-    for run_id in run_ids:
-        for call in read_calls(run_id):
-            if call.role != "answer":
-                continue
-            ticket = by_id.get(call.ticket_id)
-            if ticket is None:
-                problems.append(f"{run_id}: unknown ticket {call.ticket_id}")
-                continue
-            cassette = store.get("anthropic", call.request_hash)
-            if call.error or cassette is None:
-                problems.append(f"{run_id}: {call.ticket_id} {call.config_id} has no recorded response")
-                continue
-            response = LLMResponse.model_validate(cassette.response)
-            cells[(call.ticket_id, call.config_id)] = _cell(
-                ticket, call, response, rules[ticket.rules_version]
-            )
+    for run_id, call in calls:
+        if call.role != "answer":
+            continue
+        ticket = by_id.get(call.ticket_id)
+        if ticket is None:
+            problems.append(f"{run_id}: unknown ticket {call.ticket_id}")
+            continue
+        cassette = store.get("anthropic", call.request_hash)
+        if call.error or cassette is None:
+            problems.append(f"{run_id}: {call.ticket_id} {call.config_id} has no recorded response")
+            continue
+        response = LLMResponse.model_validate(cassette.response)
+        cells[(call.ticket_id, call.config_id)] = _cell(ticket, call, response, rules[ticket.rules_version])
     return list(cells.values()), problems
 
 

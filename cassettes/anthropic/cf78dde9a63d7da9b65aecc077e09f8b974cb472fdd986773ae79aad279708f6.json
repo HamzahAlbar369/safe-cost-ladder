@@ -1,0 +1,53 @@
+{
+ "request_hash": "cf78dde9a63d7da9b65aecc077e09f8b974cb472fdd986773ae79aad279708f6",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nهذه تفاصيل حالتي.\nسؤال سريع عن الوثيقة OMI-3393223. اسمي محمد وأقود سيارة Mazda 6 2019. هل يُطبَّق مبلغ التحمل إذا كانت سيارتي خسارة كلية؟\nأرجو إفادتي.\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 136,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 58,
+   "thinking_tokens": 46
+  },
+  "latency_ms": 1023.9,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T20:00:39.019107Z"
+}

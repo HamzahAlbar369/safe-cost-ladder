@@ -1,0 +1,53 @@
+{
+ "request_hash": "43d350cd4166d3dca3c6bccb0266dbc781dcef1085a1d4d158dc17d0bad7f4cd",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nالسادة فريق المطالبات في واحة لتأمين المركبات المحترمين، السلام عليكم ورحمة الله وبركاته،\nأراجع تغطيتي قبل رحلة إلى تبوك. كم الحد الأقصى لتغطية السحب داخل المدينة؟\nشاكرةً لكم،\nهيا\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 500}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 142,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 34,
+   "thinking_tokens": 24
+  },
+  "latency_ms": 950.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:56:47.451820Z"
+}

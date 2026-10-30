@@ -1,0 +1,52 @@
+{
+ "request_hash": "0c2a9216576c8fae45188f8f821390ce7e3c15888833135056f2b05c1709e8f4",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: intent\n\n<ticket>\nهذه تفاصيل حالتي.\nأكتب إليكم من أبها. في الحقيقة، الوثيقة OMI-7678266. أرغب في إضافة زوجتي سائقةً مسمّاة على الوثيقة OMI-7678266.\nأرجو إفادتي.\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"policy_change\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 125,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 14,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1588.0,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T20:00:39.404076Z"
+}

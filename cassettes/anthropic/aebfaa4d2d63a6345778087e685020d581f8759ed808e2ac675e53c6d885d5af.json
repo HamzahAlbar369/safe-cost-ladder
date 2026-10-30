@@ -1,0 +1,53 @@
+{
+ "request_hash": "aebfaa4d2d63a6345778087e685020d581f8759ed808e2ac675e53c6d885d5af",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nAgent summary - caller Bandar.\nMy friend told me something different, so I want to check.\nMy name is Bandar and I drive a GMC Yukon 2020.\nOnce everything is submitted, how long in working days until the total-loss report is issued?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":7}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 102,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 45,
+   "thinking_tokens": 36
+  },
+  "latency_ms": 1168.0,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:58:07.617634Z"
+}

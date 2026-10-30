@@ -1,0 +1,93 @@
+{
+ "request_hash": "19e666e631c791e915c43b774f67b255577bf65277ae34f1066d70f93cf5731f",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\nI need to tell you what happened.\nOn 20 January 2026 I collided with anohter car in Riyadh; the other driver is uninsured. Najm attended and issued report NJ-23973818, which puts me at 25% fault. The Taqdeer assessment values the repairs to my car at 18,500 SAR. I'm filing the claim today, 3 February 2026. Thank God nobody was hurt. My previous claim in 2023 was settled without any problem. My phone number is 0571761311.\nWhat happens now?\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":null,\"accident_date\":\"2026-01-20\",\"report_number\":\"NJ-23973818\",\"damage_amount_sar\":18500,\"fault_share\":25}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 190,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1305.1,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T20:01:05.931060Z"
+}

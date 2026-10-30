@@ -1,0 +1,93 @@
+{
+ "request_hash": "e20967bef36983348e5132f27466919eefb59b27182ea4d52bef0b5aebe11243",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\nتحية طيبة وبعد،\nعمومًا، رقم وثيقتي OMI-8596031 ونوع التغطية تأمين شامل (COMP)، وهي سارية حتى 16 أكتوبر 2026. قبل أيام تعرضتُ لحادث تصادم مع مركبة أخرى في بريدة. أُبلغ نجم بالحادث، ورقم التقرير NJ-91103513. قدّر تقرير تقييم الأضرار تكلفة إصلاح سيارتي بمبلغ 18,600 ريال. أرفع المطالبة اليوم 12 مايو 2026. أتعامل معكم منذ 5 سنوات.\nوتفضلوا بقبول فائق الاحترام،\nيوسف\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-8596031\",\"accident_date\":null,\"report_number\":\"NJ-91103513\",\"damage_amount_sar\":18600,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 286,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 133,
+   "thinking_tokens": 74
+  },
+  "latency_ms": 1380.2,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:52:52.037473Z"
+}

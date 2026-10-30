@@ -1,0 +1,53 @@
+{
+ "request_hash": "668d75b9e21862b1dc9777e231f1650a60bd5b58f777dbdc76e1672b9b4f2767",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nGood morning,\nMy friend told me something different, so I want to check. How soon, in working days, do you notify me about missing documents?\nKind regards,\nNasser\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 3}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 75,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 48,
+   "thinking_tokens": 38
+  },
+  "latency_ms": 1041.6,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T20:00:26.897501Z"
+}

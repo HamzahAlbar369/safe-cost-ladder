@@ -1,0 +1,93 @@
+{
+ "request_hash": "cc1e71a6c931359ce5964a6bd521c3bdedf6cdd7a43aa82414a41898cdf21566",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nDear Oasis claims team,\nI'm insured with you under policy OMI-0735175 (comprehensive), which runs until 1 April 2027. On 20 August 2026 another car hit mine in Riyadh. The Taqdeer assessment values the repairs to my car at SAR 18,600. I am reporting this claim to you on 29 August 2026. It was raining a little that evening.\nThank you,\nHessa\n</ticket>",
+  "max_tokens": 64,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1793389859,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-0735175\",\"accident_date\":\"2026-08-20\",\"report_number\":null,\"damage_amount_sar\":18600,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 162,
+   "cache_creation_tokens": 7450,
+   "cache_read_tokens": 0,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1366.2,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T19:51:02.988242Z"
+}

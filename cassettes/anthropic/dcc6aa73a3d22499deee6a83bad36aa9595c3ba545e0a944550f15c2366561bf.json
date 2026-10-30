@@ -1,0 +1,52 @@
+{
+ "request_hash": "dcc6aa73a3d22499deee6a83bad36aa9595c3ba545e0a944550f15c2366561bf",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "low",
+  "user": "Task: intent\n\n<ticket>\nGood morning,\nPolicy OMI-4838997. My name is Majed. Can you tell me where my claim CLM-63154 stands? I haven't heard anything.\nKind regards,\nMajed\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"claim_status\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 88,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 14,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1251.2,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T19:59:22.435316Z"
+}

@@ -1,0 +1,53 @@
+{
+ "request_hash": "1903ccef12a148ca0d2964efe3256f11b017d081fb2059a4c53ad74f127fb7d4",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nAgent summary - caller Faisal.\nHi, Faisal here.\nMy friend told me something different, so I want to check.\nOn comprehensive, how much deductible do I pay if my car was hit by an unknown driver who fled?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 97,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 64,
+   "thinking_tokens": 54
+  },
+  "latency_ms": 955.3,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:54:48.979086Z"
+}

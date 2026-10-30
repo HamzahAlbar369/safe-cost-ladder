@@ -1,0 +1,93 @@
+{
+ "request_hash": "d7c09b7db0dbf66aa7fa0500b4d1117c37d9c1e9879f7915ac908af39c89d731",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\n[Web form submission]\nPolicy number: OMI-6746086\nCover type: comprehensive (COMP)\nExpiry date: 2026-04-18\nDate of accident: 9 Jan 2026\nReporting authority: the traffic police\nAccident report number: TP-69064479\nMy fault share: 50%\nDate submitted: 12 Jan 2026\nDescription: On 9 Jan 2026 I collided with another car in Hail; the other driver is uninsured. My car is a Toyota Camry 2021. My claim reference from the app is CLM-54232.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-6746086\",\"accident_date\":\"2026-01-09\",\"report_number\":\"TP-69064479\",\"damage_amount_sar\":null,\"fault_share\":50}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 208,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 62,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 922.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:57:15.133376Z"
+}

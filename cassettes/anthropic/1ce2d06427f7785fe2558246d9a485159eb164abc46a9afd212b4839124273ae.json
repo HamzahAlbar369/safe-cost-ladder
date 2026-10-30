@@ -1,0 +1,93 @@
+{
+ "request_hash": "1ce2d06427f7785fe2558246d9a485159eb164abc46a9afd212b4839124273ae",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\n[Online claim form]\nDate of accident: 2026-07-17\nReporting authority: the traffic police\nAccident report number: TP-87204348\nRepair cost per assessment report: 34,600 SAR\nDate submitted: 2026-07-24\nDescription: On 2026-07-17 I skidded into a lamp post in Riyadh; it was only my car. My car is a Mazda 6 2019.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":null,\"accident_date\":\"2026-07-17\",\"report_number\":\"TP-87204348\",\"damage_amount_sar\":34600,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 155,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 57,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 3199.5,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:56:05.645526Z"
+}

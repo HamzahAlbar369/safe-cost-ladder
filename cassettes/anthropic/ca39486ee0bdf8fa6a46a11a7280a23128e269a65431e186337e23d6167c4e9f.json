@@ -1,0 +1,93 @@
+{
+ "request_hash": "ca39486ee0bdf8fa6a46a11a7280a23128e269a65431e186337e23d6167c4e9f",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\nHere is my situation.\nMy policy number is OMI-3938022 and I have comprehensive (COMP) cover, valid until 29 March 2027. On 10 July 2026 I collided with another car in Abha; the other driver is uninsured. The Najm report number is NJ-41354128 and it gives me 25% of the liability. I'm filing the claim today, 24 July 2026. um, my claim reference from the app is CLM-46295. My previous claim in 2023 was settled without any problem. I have been your cutsomer for 4 years.\nPlease advise.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-3938022\",\"accident_date\":\"2026-07-10\",\"report_number\":\"NJ-41354128\",\"damage_amount_sar\":null,\"fault_share\":25}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 205,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 207,
+   "thinking_tokens": 144
+  },
+  "latency_ms": 1700.0,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:51:36.799939Z"
+}

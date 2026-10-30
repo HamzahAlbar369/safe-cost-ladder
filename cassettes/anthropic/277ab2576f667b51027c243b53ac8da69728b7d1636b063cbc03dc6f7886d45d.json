@@ -1,0 +1,53 @@
+{
+ "request_hash": "277ab2576f667b51027c243b53ac8da69728b7d1636b063cbc03dc6f7886d45d",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nCall note: customer Turki phoned the claims line.\nMy friend told me something different, so I want to check.\nHi, Turki here.\nIf I am 25% at fault, how much deductible do I pay on my own-damage claim?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":250}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 95,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 79,
+   "thinking_tokens": 70
+  },
+  "latency_ms": 1653.9,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T20:00:17.918929Z"
+}

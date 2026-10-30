@@ -254,6 +254,99 @@ def cells_report(
 
 
 @app.command()
+def floors(
+    run_id: str = typer.Option("matrix-dev-full-1", help="recorded dev matrix run"),
+    write: bool = typer.Option(
+        False, "--write", help="Write the proposal to config/policy.yaml (status: proposed)."
+    ),
+    budget_rule: str = typer.Option("cheapest", help="cheapest | premium: which tied config sets the budget"),
+) -> None:
+    """Derive per-task accuracy floors and latency budgets from the dev matrix (SPEC 7.2). Not frozen."""
+    from engine import runinfo
+    from engine.eval.analysis_text import format_floors
+    from engine.eval.cells import build_cells
+    from engine.eval.data import load_split
+    from engine.eval.floors import derive_floors, write_policy_yaml
+
+    cells, problems = build_cells([run_id], load_split("dev"))
+    if problems:
+        typer.echo(f"{len(problems)} problems, e.g. {problems[0]}")
+        raise typer.Exit(1)
+    result = derive_floors(cells, budget_rule)
+    typer.echo(format_floors(result))
+    if write:
+        write_policy_yaml(result, [run_id], runinfo.git_sha())
+        typer.echo("wrote config/policy.yaml (status: proposed). Tag floors-v1 only after sign-off.")
+
+
+@app.command()
+def evaluate(
+    run_id: str = typer.Option("matrix-dev-full-1", help="recorded dev matrix run"),
+    budget_rule: str = typer.Option("cheapest", help="cheapest | premium: which tied config sets the budget"),
+) -> None:
+    """Baselines B1-B5, oracle and gap, Pareto ladders, router headroom, all by replay (SPEC 7.3-7.7)."""
+    from engine.eval.analysis import analyse
+    from engine.eval.analysis_text import format_analysis
+    from engine.eval.cells import build_cells
+    from engine.eval.data import load_split
+    from engine.eval.floors import derive_floors
+
+    tickets = load_split("dev")
+    cells, problems = build_cells([run_id], tickets)
+    if problems:
+        typer.echo(f"{len(problems)} problems, e.g. {problems[0]}")
+        raise typer.Exit(1)
+    typer.echo(format_analysis(analyse(cells, tickets, derive_floors(cells, budget_rule))))
+
+
+@app.command()
+def solvability(
+    run_id: str = typer.Option("matrix-dev-full-1"),
+    config: str = typer.Option("opus-high", help="config whose failures are listed"),
+) -> None:
+    """List every failure of one config with ticket, gold, model output, verdicts and rule trace."""
+    from engine.eval.cells import build_cells
+    from engine.eval.data import load_split
+    from engine.eval.solvability import failures
+
+    tickets = load_split("dev")
+    cells, _ = build_cells([run_id], tickets)
+    found = failures(run_id, config, tickets, cells)
+    typer.echo(f"{len(found)} failures of {config} in {run_id}")
+    for f in found:
+        typer.echo(f.model_dump_json(indent=1))
+
+
+@app.command("phase2-report")
+def phase2_report(
+    run_id: str = typer.Option("matrix-dev-full-1"),
+    repeat: int = typer.Option(1, help="the run's recording epoch"),
+) -> None:
+    """Write reports/phase2/* (cells, replay check, floors, baselines under both budget rules, failures)."""
+    from engine.eval.phase2_report import write_all
+
+    for path in write_all(run_id, repeat):
+        typer.echo(f"wrote {path.relative_to(path.parents[2]).as_posix()}")
+
+
+@app.command("replay-check")
+def replay_check(
+    run_id: str = typer.Option("matrix-dev-full-1"),
+    repeat: int = typer.Option(1, help="the run's recording epoch (--repeat it was recorded with)"),
+) -> None:
+    """Replay a recorded matrix with no key and confirm it reproduces the live metrics exactly."""
+    from engine.eval import replay
+    from engine.eval.data import load_split
+
+    problems = replay.compare(run_id, load_split("dev"), repeat)
+    for p in problems[:20]:
+        typer.echo(f"MISMATCH {p}")
+    typer.echo("replay reproduces the live run exactly" if not problems else f"{len(problems)} mismatches")
+    if problems:
+        raise typer.Exit(1)
+
+
+@app.command()
 def check() -> None:
     """ruff + pytest + replay integrity + gitleaks (run before every commit)."""
     from engine.check import run_all

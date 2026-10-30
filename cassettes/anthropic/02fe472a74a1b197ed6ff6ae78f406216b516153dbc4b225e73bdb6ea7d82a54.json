@@ -1,0 +1,93 @@
+{
+ "request_hash": "02fe472a74a1b197ed6ff6ae78f406216b516153dbc4b225e73bdb6ea7d82a54",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\nملاحظة مكالمة: اتصال من تركي على خط المطالبات.\n- الوثيقة: OMI-4796101\n- التغطية: تأمين شامل (COMP)\n- انتهاء الوثيقة: 9 يناير 2027\n- تاريخ الحادث: 6 سبتمبر 2026\n- جهة التقرير: المرور\n- رقم التقرير: TP-05624404\n- قيمة الإصلاح (report التقييم): 33,900 ريال سعودي\n- إفادة العميل: في 6 سبتمبر 2026 تعرضت سيارتي لحادث صدم وهروب في بريدة، والجاني مجهول. سيارتي من نوع Lexus ES 2022. كان الجو ممطرًا قليلًا تلك الليلة.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-4796101\",\"accident_date\":\"2026-09-06\",\"report_number\":\"TP-05624404\",\"damage_amount_sar\":33900,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 298,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 63,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1388.7,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-30T19:55:28.604561Z"
+}

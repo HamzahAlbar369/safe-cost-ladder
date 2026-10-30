@@ -1,0 +1,53 @@
+{
+ "request_hash": "46998925603d64b1f5ad3fef51dd47d69fc82831b03c10603995a34585474611",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nHi -\nHi, Abeer here. My name is Abeer and I drive a Kia K5 2023. I'm a customer in Jeddah. With a 25% fault share, what deductible is applied to my car's repair claim?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":250}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 98,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 30,
+   "thinking_tokens": 21
+  },
+  "latency_ms": 1678.1,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:58:36.683044Z"
+}

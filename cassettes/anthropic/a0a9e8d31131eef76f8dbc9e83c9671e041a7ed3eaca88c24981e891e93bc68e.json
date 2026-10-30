@@ -1,0 +1,52 @@
+{
+ "request_hash": "a0a9e8d31131eef76f8dbc9e83c9671e041a7ed3eaca88c24981e891e93bc68e",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: intent\n\n<ticket>\nsalam, hi\nPolicy OMI-5278129.\nNajm gave me 75% fault but the other car was reversing. I want to object to the fault share.\npls help\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"fault_dispute\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 76,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 16,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 852.7,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T20:01:31.185991Z"
+}

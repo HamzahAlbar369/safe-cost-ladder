@@ -1,0 +1,93 @@
+{
+ "request_hash": "4544571e98326b9dfd53d833fc44be4588d78bde78495d636db4996a4360fc27",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\nsalam, hi\nOn 22/01/2026 another car hit mine in Buraidah, and it turned out the other driver had no insurance.\nNajm attended and issued report NJ-43732854, which puts me at 75% fault.\nThe damage assessment report puts the repair cost for my car at 3700 riyals.\nI'm filing the claim today, 3 Feb 2026.\nMy phone number is 0508367386.\nThe other driver was polite about the whole thing.\nI have been your customer for 5 years.\nthx\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":null,\"accident_date\":\"2026-01-22\",\"report_number\":\"NJ-43732854\",\"damage_amount_sar\":3700,\"fault_share\":75}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 187,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 2270.2,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:55:50.076729Z"
+}

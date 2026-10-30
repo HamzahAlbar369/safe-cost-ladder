@@ -1,0 +1,93 @@
+{
+ "request_hash": "27a643e18affb648cbd903f4e2d7fdd349d60789a99450462f0d4fed4614dfd4",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\n[Online claim form]\nPolicy number: OMI-4633994\nCover type: comprehensive\nExpiry date: 2 Sep 2026\nDate of accident: 10 Mar 2026\nMy fault share: 0%\nRepair cost per assessment report: 15,500 SAR\nDate submitted: 2026-03-24\nDescription: On 10 Mar 2026 another car hit mine in Hail. It was raining a little that evening. Thank God nobody was hurt. My phone number is 0550037316.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-4633994\",\"accident_date\":\"2026-03-10\",\"report_number\":null,\"damage_amount_sar\":15500,\"fault_share\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 189,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1765.0,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-30T19:55:52.971923Z"
+}

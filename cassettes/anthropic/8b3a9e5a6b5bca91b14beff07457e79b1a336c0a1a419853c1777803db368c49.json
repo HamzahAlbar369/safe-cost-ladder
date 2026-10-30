@@ -1,0 +1,53 @@
+{
+ "request_hash": "8b3a9e5a6b5bca91b14beff07457e79b1a336c0a1a419853c1777803db368c49",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nملاحظة مكالمة: اتصال من ناصر على خط المطالبات.\nسؤال سريع عن الوثيقة OMI-8526307.\nأخبرني صديقي بشيء مختلف فأردت التأكد.\nهل يُطبَّق مبلغ التحمل إذا كانت سيارتي خسارة كلية؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": \"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 144,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 69,
+   "thinking_tokens": 57
+  },
+  "latency_ms": 948.8,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-30T19:57:20.776949Z"
+}

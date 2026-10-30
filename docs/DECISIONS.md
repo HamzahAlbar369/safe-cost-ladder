@@ -522,3 +522,24 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   recorded afresh (`--repeat 1` gives every request a new cassette key; the pilot stays on disk as evidence).
 - **Estimator recalibrated** from the measured output means per model / task / effort (`eval/estimate.py`); the
   full dev matrix now estimates $10.76 with caching / $61.46 without.
+
+### D2.8 · Full dev matrix recorded (run `matrix-dev-full-1`, epoch `--repeat 1`): 400 tickets x 9 configs = 3,600 cells
+- **Run:** approved cap $20.00; spend **$10.525825** (estimate $10.76); 3,600/3,600 cells, 0 errors, 0 rate-limit hits,
+  wall clock 712.7 s at 6 in flight per model, connections pre-warmed (setup median 6.65 s, excluded from latency).
+  Ledger after the run is in `runs/spend.jsonl`. Provenance of every figure: `reports/phase2/*` headers (run, git
+  SHA, config hash).
+- **Replay gate:** `engine replay-check` and `tests/test_committed_matrix.py` replay all 3,600 recorded calls through the
+  record/replay client with no key: per-call cost, latency, tokens, parse flag and every metric cell are identical
+  (`reports/phase2/replay_check.txt`).
+- **Findings:** accuracy is close to ceiling (every config at or above 0.97 overall; faq/intent/extract are 1.000 for
+  most configs), so savings come from model choice (Haiku for faq / intent / extract) rather than from effort among
+  expensive rungs; adjudicate is where only Opus meets the floor. B5 (naive cascade) is identical to B2 because
+  `haiku-low` never fails V0 (parse rate 1.000). B4 equals B1 (`opus-low`): no cheaper single config meets every floor.
+  CPST alone can reward failing hard tickets, so `engine evaluate` flags each policy "meets every floor" and the router
+  headroom uses only policies that do (`reports/phase2/evaluate_*.txt`).
+- **Budget rule (decision needed):** ties at top accuracy resolve to Haiku configs (approved tie-break), which sets
+  tight budgets from Haiku's p95 and makes B1 fail latency on many tickets. `engine floors --budget-rule premium` sets
+  the budget from the most expensive tied config instead ("never slower than always-premium"). Both are in
+  `reports/phase2/floors_*.txt` and `evaluate_*.txt`. Proposal in `config/policy.yaml` is marked `proposed`.
+- **Solvability:** `docs/SOLVABILITY.md` (one `opus-high` failure, ambiguous because of a caller / second-person name
+  collision in the generator).

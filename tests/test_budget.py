@@ -56,3 +56,13 @@ def test_worst_case_is_an_upper_bound():
     p = load_pricebook().price("claude-opus-5-5")
     # 4000 ASCII bytes -> 2000 tokens @5 (cache write) + 1 token + 20000 out @20
     assert worst_case_cost(p, REQ) == pytest.approx((2001 * 5 + 20000 * 20) / 1e6)
+
+
+def test_concurrent_reservations_cannot_jointly_cross_cap(tmp_ledger):
+    budget = RunBudget({"anthropic": 1.0})
+    budget.reserve("anthropic", 0.6, tmp_ledger)  # in flight, not yet settled
+    with pytest.raises(BudgetExceeded):
+        budget.reserve("anthropic", 0.6, tmp_ledger)
+    budget.settle("anthropic", 0.6, 0.1)  # actual cost far below worst case frees the reservation
+    budget.reserve("anthropic", 0.6, tmp_ledger)
+    assert budget.spent["anthropic"] == pytest.approx(0.1)

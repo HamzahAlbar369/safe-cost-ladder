@@ -1,0 +1,16 @@
+# Default gitleaks rules plus explicit rules for the two keys this project uses.
+# Phase 0 finding: the pinned gitleaks (v8.21.2) default ruleset did NOT detect a well-formed Anthropic key.
+[extend]
+useDefault = true
+
+[[rules]]
+id = "anthropic-api-key"
+description = "Anthropic API key"
+regex = '''sk-ant-[a-z]{3,8}\d{2}-[A-Za-z0-9_\-]{80,}'''
+keywords = ["sk-ant-"]
+
+[[rules]]
+id = "openrouter-api-key"
+description = "OpenRouter API key"
+regex = '''sk-or-v1-[A-Za-z0-9]{32,}'''
+keywords = ["sk-or-"]

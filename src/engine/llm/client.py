@@ -9,6 +9,7 @@ import hashlib
 import json
 import math
 import os
+import threading
 import time
 import uuid
 from collections.abc import Callable
@@ -86,8 +87,8 @@ class Ledger:
     def remaining(self, provider: Provider) -> float:
         return self.budgets[provider] - self.spent(provider)
 
-    def check(self, provider: Provider, estimate_usd: float) -> None:
-        left = self.remaining(provider)
+    def check(self, provider: Provider, estimate_usd: float, pending_usd: float = 0.0) -> None:
+        left = self.remaining(provider) - pending_usd
         if estimate_usd > left:
             raise BudgetExceeded(
                 f"{provider}: estimated ${estimate_usd:.4f} exceeds remaining budget ${left:.4f}"
@@ -95,27 +96,53 @@ class Ledger:
 
     def record(self, entry: SpendEntry) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self.path.open("a", encoding="utf-8") as f:
+        with _LEDGER_LOCK, self.path.open("a", encoding="utf-8") as f:
             f.write(entry.model_dump_json() + "\n")
 
 
+_LEDGER_LOCK = threading.Lock()
+
+
 class RunBudget:
-    """Per-run cap (the amount Hamzah approved). Aborts before a call that could cross it."""
+    """Per-run cap (the amount Hamzah approved). Reserves each call's worst case before it is sent, so
+    concurrent calls can never jointly cross the cap; the reservation is replaced by the actual cost after."""
 
     def __init__(self, caps: dict[str, float]) -> None:
         self.caps = caps
         self.spent: dict[str, float] = {p: 0.0 for p in caps}
+        self.reserved: dict[str, float] = {p: 0.0 for p in caps}
+        self._lock = threading.Lock()
 
-    def check(self, provider: Provider, estimate_usd: float) -> None:
-        cap = self.caps.get(provider, 0.0)
-        if self.spent.get(provider, 0.0) + estimate_usd > cap:
-            raise BudgetExceeded(
-                f"{provider}: run spend ${self.spent.get(provider, 0.0):.4f} + worst case "
-                f"${estimate_usd:.4f} would exceed the approved run cap ${cap:.2f}"
-            )
+    def reserve(self, provider: Provider, estimate_usd: float, ledger: Ledger) -> None:
+        with self._lock:
+            pending = self.reserved.get(provider, 0.0)
+            ledger.check(provider, estimate_usd, pending_usd=pending)
+            cap = self.caps.get(provider, 0.0)
+            committed = self.spent.get(provider, 0.0) + pending
+            if committed + estimate_usd > cap:
+                raise BudgetExceeded(
+                    f"{provider}: run spend+reserved ${committed:.4f} + worst case "
+                    f"${estimate_usd:.4f} would exceed the approved run cap ${cap:.2f}"
+                )
+            self.reserved[provider] = pending + estimate_usd
 
-    def add(self, provider: Provider, cost: float) -> None:
-        self.spent[provider] = self.spent.get(provider, 0.0) + cost
+    def settle(self, provider: Provider, estimate_usd: float, actual_usd: float) -> None:
+        with self._lock:
+            self.reserved[provider] = self.reserved.get(provider, 0.0) - estimate_usd
+            self.spent[provider] = self.spent.get(provider, 0.0) + actual_usd
+
+
+def guard(ledger: Ledger, run_budget: RunBudget | None, provider: Provider, estimate_usd: float) -> None:
+    """Budget guard run before every paid call."""
+    if run_budget is not None:
+        run_budget.reserve(provider, estimate_usd, ledger)
+    else:
+        ledger.check(provider, estimate_usd)
+
+
+def settle(run_budget: RunBudget | None, provider: Provider, estimate_usd: float, actual_usd: float) -> None:
+    if run_budget is not None:
+        run_budget.settle(provider, estimate_usd, actual_usd)
 
 
 # --------------------------------------------------------------------------- cassettes
@@ -283,21 +310,20 @@ class LLMClient:
         return params
 
     def _live(self, req: LLMRequest, h: str, price: ModelPrice) -> tuple[LLMResponse | None, str | None]:
-        worst = worst_case_cost(price, req)
-        self.ledger.check("anthropic", worst)
-        if self.run_budget is not None:
-            self.run_budget.check("anthropic", worst)
-
         import anthropic
 
         sdk = self._sdk_client()
+        worst = worst_case_cost(price, req)
+        guard(self.ledger, self.run_budget, "anthropic", worst)
         t0 = time.perf_counter()
         try:
             with sdk.messages.stream(**self.build_params(req)) as stream:
                 msg = stream.get_final_message()
         except anthropic.APIStatusError as e:
+            settle(self.run_budget, "anthropic", worst, 0.0)
             return None, f"{type(e).__name__} {e.status_code}: {_safe_error_message(e)}"
         except anthropic.APIConnectionError as e:
+            settle(self.run_budget, "anthropic", worst, 0.0)
             return None, f"{type(e).__name__}"
         latency_ms = (time.perf_counter() - t0) * 1000
         response = LLMResponse(
@@ -313,8 +339,7 @@ class LLMClient:
                 provider="anthropic", run_id=self.run_id, request_hash=h, model=req.model, cost_usd=cost
             )
         )
-        if self.run_budget is not None:
-            self.run_budget.add("anthropic", cost)
+        settle(self.run_budget, "anthropic", worst, cost)
         self.store.put(
             Cassette(
                 request_hash=h,

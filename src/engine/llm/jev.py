@@ -28,8 +28,10 @@ from engine.llm.client import (
     RunBudget,
     canonical_json,
     estimate_tokens,
+    guard,
     hash_record,
     load_key,
+    settle,
 )
 from engine.llm.pricing import PriceBook, pricebook
 
@@ -103,19 +105,20 @@ class JevClient:
         return self._live(req, h), False
 
     def _live(self, req: JevRequest, h: str) -> JevResponse:
-        est = self.estimate(req)
-        self.ledger.check("openrouter", est)
-        if self.run_budget is not None:
-            self.run_budget.check("openrouter", est)
-        http = self._http or httpx.Client(timeout=self.timeout_s)
+        if self._http is None:
+            self._http = httpx.Client(timeout=self.timeout_s)  # reused: one TLS handshake per run
         headers = {"Authorization": f"Bearer {load_key('OPENROUTER_API_KEY')}"}
+        est = self.estimate(req)
+        guard(self.ledger, self.run_budget, "openrouter", est)
         t0 = time.perf_counter()
         try:
-            r = http.post(DECISIONS_URL, json=jev_payload(req), headers=headers)
+            r = self._http.post(DECISIONS_URL, json=jev_payload(req), headers=headers)
         except httpx.HTTPError as e:
+            settle(self.run_budget, "openrouter", est, 0.0)
             raise JevError(f"{type(e).__name__}") from None
         latency_ms = round((time.perf_counter() - t0) * 1000, 1)
         if r.status_code != 200:
+            settle(self.run_budget, "openrouter", est, 0.0)
             raise JevError(f"HTTP {r.status_code}: {_error_message(r)}")
         body = r.json()
         usage = body.get("usage", {})
@@ -133,8 +136,7 @@ class JevClient:
                 provider="openrouter", run_id=self.run_id, request_hash=h, model=req.model, cost_usd=cost
             )
         )
-        if self.run_budget is not None:
-            self.run_budget.add("openrouter", cost)
+        settle(self.run_budget, "openrouter", est, cost)
         self.store.put(
             Cassette(
                 request_hash=h,

@@ -269,3 +269,27 @@ precedence step, so changing one is a one-line edit plus `engine policy`.
 - **Evidence:** within-split gaps on the generated data: adjudicate −0.7, intent −7.3, FAQ +1.6 pts (MANIFEST
   `qa.template_leak`). Unit test `tests/test_datagen.py::test_qa_template_leak_flags_a_family_that_predicts_the_label`
   shows the check still catches a family that predicts the label.
+
+### Phase 1 gate walk (2026-10-30) — PENDING Hamzah's sign-off
+SPEC §10 row "1 Data", item by item:
+- **rules.yaml reviewed by Hamzah:** Stage A approved with grounding changes (D1.8) and source corrections (D1.8
+  update). Evidence: `data/rules/rules.yaml`, generated `data/rules/SOURCES.md`.
+- **Rules-engine tests pass:** `tests/test_rules_engine.py` (74 tests: every rule R0–R8, the UP/CMIR licence grace
+  contrast, 7.3-before-R7, deny-beats-need_info, cap, total loss, fault-scaled deductible, v2 values). Full suite
+  191 passed; `engine check` green.
+- **All §4.4 checks pass:** `data/generated/MANIFEST.json` → `qa` (schema 1000/1000; gold re-derived from rules,
+  0 mismatches; 0 exact and 0 near-duplicates across splits; composition max deviation 0.0 pts; fact preservation
+  100%; template leak within budget, D1.9; structure: 40 dev EN/AR pairs, 20 adversarial, 40 rules_v2 items,
+  held-back families only in shifted). Decision-label distribution: no label under 10% in any split
+  (`decision_distribution`). Generator self-check: every sampler design's expected decision equals the engine's
+  (`tests/test_datagen.py`).
+- **MANIFEST committed:** `data/generated/MANIFEST.json`, generator git SHA recorded from a clean tree, seed
+  20261030, sha256 per file. A fresh clone reproduces every file hash (`.gitattributes` pins bytes);
+  `tests/test_data_integrity.py` regenerates all splits and checks byte-for-byte equality.
+- **Held-out sealed (hash recorded):** `MANIFEST.json` → `heldout_sealed.sha256`. Held-out was written by
+  `engine gen` and only hashed or scanned by automated QA; no item was printed or reviewed.
+- **Still open (human):** the §4.4 manual review of `data/review/dev_review.md` (30 EN + 20 AR dev items; any label
+  error → fix the generator and regenerate). Solvability (opus-high failures) is a Phase 2 item.
+- **No paid calls in Phase 1** (D1.2); ledger unchanged.
+- **Waived Target items:** none. Note: CLAUDE.md refers to SPEC §11.9 for human checks, but SPEC has no §11.9;
+  the human checks used here are the §10 gate row and the §4.4 manual-review row.

@@ -6,7 +6,8 @@ Evaluated by counterfactual replay over recorded cells (SPEC §7.4): no API call
 2. Wait for `second` until `deadline_s` after the start (never cutting `first` short). If `second` is back by
    the time a decision can be made, accept `first` iff both answers pass V0-V2 AND agree (same decision,
    payout within 1 SAR). If `second` is late, accept `first` iff it passes V0-V2 alone.
-3. Otherwise escalate to `top` (opus-low), started at the decision time; its answer is final.
+3. Otherwise escalate to `top` (opus-low), started at the decision time; its answer is final. If `first`
+   fails V0-V2, the decision time is the moment `first` returns: no second opinion can rescue it (D3.5).
 
 Latency = decision time (+ `top` if escalated). Cost = every call on the path; a late second opinion is
 charged in full (conservative: a cancelled stream is not assumed to be refunded). Ablations are options:
@@ -37,6 +38,8 @@ class O1Options(Frozen):
     direct_top: frozenset[str] = frozenset()  # adjudicate ticket ids a router sends straight to `top` (O2/O3)
     # router cost (USD) and latency (ms) per adjudicate ticket, added before the cascade (SPEC §7.4)
     router_overhead: dict[str, tuple[float, float]] = {}
+    # D3.5: start `top` the moment `first` fails V0-V2 (False = the earlier build, which waited for `second`)
+    escalate_early: bool = True
 
 
 class Trace(Frozen):
@@ -86,10 +89,13 @@ def adjudicate(t: Ticket, index: CellIndex, floors: Floors, o: O1Options) -> tup
         ok, reason, late, path, decided = passes(a, o.checks), "first failed checks", False, [a], a.latency_ms
     else:
         b = index[(t.id, o.second)]
-        path = [a, b]
+        path = [a, b]  # the second opinion is charged in full on every path
         deadline = float("inf") if o.deadline_s is None else o.deadline_s * 1000
         late = b.latency_ms > max(a.latency_ms, deadline)
-        if late:
+        if o.escalate_early and not passes(a, o.checks):
+            # D3.5: the second opinion cannot rescue a first answer that failed V0-V2, so escalate now
+            decided, ok, reason = a.latency_ms, False, "first failed checks"
+        elif late:
             decided = max(a.latency_ms, deadline)
             ok, reason = passes(a, o.checks), "first failed (second late)"
         else:

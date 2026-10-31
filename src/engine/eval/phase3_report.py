@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import math
 from collections import Counter
 from pathlib import Path
 
@@ -123,20 +124,77 @@ def v3_quality(traces: list[Trace], ctx: Context, o: O1Options) -> list[str]:
     ]
 
 
+def v3_coverage(ctx: Context, deadline_s: float | None, o: O1Options = O1_DEFAULT) -> tuple[int, int]:
+    """Adjudicate tickets whose second opinion arrives in time (by max(first's latency, D)), out of all."""
+    adj = [t for t in ctx.tickets if t.task_type == "adjudicate"]
+    d = float("inf") if deadline_s is None else deadline_s * 1000
+    on_time = sum(
+        ctx.index[(t.id, o.second)].latency_ms <= max(ctx.index[(t.id, o.first)].latency_ms, d) for t in adj
+    )
+    return on_time, len(adj)
+
+
 def deadline_table(ctx: Context) -> list[str]:
     lines = [
         "Deadline for the second opinion (D3.2; tuned on dev only; late calls charged in full)",
-        f"    {'D':>6}{'correct':>9}{'success':>9}{'escalated':>11}{'second late':>13}  adjudicate CPST (headline)",
+        "V3 coverage = adjudicate tickets whose second opinion arrived in time (by max(haiku-low latency, D)).",
+        f"    {'D':>6}{'correct':>9}{'success':>9}{'escalated':>11}  {'V3 coverage':>15}  adjudicate CPST (headline)",
     ]
     for d in DEADLINE_TABLE:
         outs, traces = ctx.o1(O1_DEFAULT.model_copy(update={"deadline_s": d}))
         adj = [x for x in outs if x.task == "adjudicate"]
         s = summarize(adj)
+        cov, n = v3_coverage(ctx, d)
         lines.append(
             f"    {'none' if d is None else f'{d:.1f}s':>6}{sum(x.correct for x in adj):>9}"
             f"{sum(x.success for x in adj):>9}{sum(t.escalated for t in traces):>11}"
-            f"{sum(t.second_late for t in traces):>13}  ${s['cpst_nocache']:.5f}"
+            f"  {f'{cov}/{n} ({cov / n:.1%})':>15}  ${s['cpst_nocache']:.5f}"
         )
+    return lines
+
+
+def oracle_gap(outs: list[Outcome], ctx: Context) -> list[str]:
+    """SPEC §7.5: gap captured = (CPST_B1 - CPST_policy) / (CPST_B1 - CPST_oracle)."""
+    from engine.eval.baselines import oracle
+
+    orc = run_policy(oracle(ctx.index, ctx.floors), ctx.tickets, ctx.index, ctx.floors)
+    lines = ["Oracle gap captured (SPEC 7.5; oracle = cheapest correct config within budget, per ticket)"]
+    for field, label in (
+        ("cpst_nocache", "Cost without caching (headline)"),
+        ("cpst_cached", "Cost with caching (actual)"),
+    ):
+        b1, me, o = summarize(ctx.b1)[field], summarize(outs)[field], summarize(orc)[field]
+        lines.append(
+            f"    {label}: B1 ${b1:.5f}, O1 ${me:.5f}, oracle ${o:.5f} -> captured {(b1 - me) / (b1 - o):.1%}"
+        )
+    return lines
+
+
+def escalated_latencies(outs: list[Outcome], traces: list[Trace], ctx: Context) -> list[str]:
+    """Each escalated adjudicate ticket: latency now (D3.5 early escalation) vs the earlier build."""
+    before = {x.ticket_id: x for x in ctx.o1(O1_DEFAULT.model_copy(update={"escalate_early": False}))[0]}
+    now = {x.ticket_id: x for x in outs}
+    budget = ctx.floors.per_task["adjudicate"].budget_s
+    lines = [
+        f"Escalated adjudicate tickets: latency with early escalation (D3.5) vs waiting for the second opinion; budget {budget:.1f}s",
+        f"    {'ticket':<10}{'reason':<30}{'now s':>7}{'before s':>10}  within budget now / before",
+    ]
+    for tr in traces:
+        if not tr.escalated:
+            continue
+        x, y = now[tr.ticket_id], before[tr.ticket_id]
+        lines.append(
+            f"    {tr.ticket_id:<10}{tr.reason:<30}{x.latency_ms / 1000:>7.2f}{y.latency_ms / 1000:>10.2f}  "
+            f"{'yes' if x.success else 'no'} / {'yes' if y.success else 'no'}"
+            + ("" if x.correct else "  (top answer wrong)")
+        )
+    adj_now = [x for x in outs if x.task == "adjudicate"]
+    adj_before = [before[x.ticket_id] for x in adj_now]
+    lines.append(
+        f"    adjudicate success {sum(x.success for x in adj_now)} now vs {sum(x.success for x in adj_before)} before; "
+        f"correct {sum(x.correct for x in adj_now)} vs {sum(x.correct for x in adj_before)}; "
+        f"total headline cost ${sum(x.cost_nocache for x in adj_now):.6f} vs ${sum(x.cost_nocache for x in adj_before):.6f}"
+    )
     return lines
 
 
@@ -165,17 +223,22 @@ def o1_report(ctx: Context) -> str:
         "(no verification)",
         f"    adjudicate: {o.first} || {o.second} in parallel; wait for {o.second} at most {o.deadline_s}s; "
         f"accept {o.first} iff V0-V2 pass and the two agree (decision, payout +-1 SAR); "
-        f"if {o.second} is late, iff {o.first} passes V0-V2; else escalate to {o.top}",
+        f"if {o.second} is late, iff {o.first} passes V0-V2; else escalate to {o.top}. If {o.first} fails V0-V2, "
+        f"{o.top} starts the moment {o.first} returns (D3.5; {o.second} still charged in full)",
         f"    floors and budgets: config/policy.yaml (frozen, budget rule {ctx.policy.budget_rule})",
         "    Tier 0 in front of every task: empty reject, exact-duplicate reuse, FAQ table (empty by default)",
         "",
         f"Adjudicate: correct {sum(x.correct for x in adj)}/{len(adj)}  success {sum(x.success for x in adj)}/"
         f"{len(adj)}  escalated {sum(t.escalated for t in traces)}/{len(traces)} "
-        f"({sum(t.escalated for t in traces) / len(traces):.1%})  second opinion late "
-        f"{sum(t.second_late for t in traces)}",
+        f"({sum(t.escalated for t in traces) / len(traces):.1%})  V3 coverage "
+        f"{v3_coverage(ctx, o.deadline_s)[0]}/{v3_coverage(ctx, o.deadline_s)[1]}",
         "    escalation reasons: " + ", ".join(f"{r} {n}" for r, n in reasons.most_common()),
         "",
         *policy_block("O1", outs, {"B1 (opus-low)": ctx.b1, "B3 (static per task)": ctx.b3}, ctx),
+        "",
+        *oracle_gap(outs, ctx),
+        "",
+        *escalated_latencies(outs, traces, ctx),
         "",
         "Per task (O1)",
         *per_task_lines(outs, ctx),
@@ -203,7 +266,8 @@ def tier0_lines(ctx: Context) -> list[str]:
         + ", ".join(f"{a} {k}" for a, k in sorted(actions.items())),
         f"    language detection agrees with the ticket label on {lang_ok}/{n}",
         "    dev has no empty tickets and no exact duplicates by construction (Phase 1 QA), and no FAQ table exists;",
-        "    Tier 0 is kept for robustness (shifted adversarial / near-empty items, Phase 4), not for dev savings.",
+        "    Tier 0 is kept for robustness (shifted adversarial / near-empty items), not for dev savings. Pre-registered",
+        "    rule (D3.6): if Tier 0 answers no shifted item correctly in Phase 4, it is removed before freeze-v1.",
     ]
 
 
@@ -226,6 +290,8 @@ def ablations_report(ctx: Context) -> str:
         "Ablations: one O1 layer off at a time, paired against O1 on the same 400 dev tickets",
         "'saving' > 0 = the ablation is cheaper per successful task than O1 (the layer costs money and is kept only",
         "if it is needed to meet a floor). Accuracy/success deltas are ablation - O1 (paired bootstrap 95% CI).",
+        "A layer that is 'needed for the floor' is needed to clear the PRE-REGISTERED floor on dev by the stated",
+        "number of tickets; where the accuracy-delta CI touches 0, no significant accuracy gain is claimed.",
         "",
         "O1 (all layers)",
         *per_task_lines(base, ctx),
@@ -245,7 +311,23 @@ def ablations_report(ctx: Context) -> str:
                 f"    {task or 'overall'}: accuracy delta {(sum(a) - sum(b)) / len(sel):+.3f} [{lo:+.3f}, {hi:+.3f}]  "
                 f"success delta {(sum(sa) - sum(sb)) / len(sel):+.3f} [{slo:+.3f}, {shi:+.3f}]  "
                 f"correct {int(sum(a))} vs {int(sum(b))}"
+                + (
+                    "  (CI touches 0: not a significant accuracy difference)"
+                    if lo <= 0 <= hi and sum(a) != sum(b)
+                    else ""
+                )
             )
+        adj = [x for x in outs if x.task == "adjudicate"]
+        need = math.ceil(ctx.floors.per_task["adjudicate"].floor * len(adj) - 1e-9)
+        got = sum(x.correct for x in adj)
+        lines.append(
+            f"    adjudicate floor {ctx.floors.per_task['adjudicate'].floor:.6f} x {len(adj)} needs >= {need} correct; "
+            + (
+                f"this ablation has {got}: short by {need - got} ticket(s), so the layer is needed to clear the floor"
+                if got < need
+                else f"this ablation has {got}: floor met"
+            )
+        )
         lines += [f"    per task ({name})", *per_task_lines(outs, ctx)]
     return "\n".join(lines)
 
@@ -265,7 +347,7 @@ def evaluate_router(
     ctx: Context, name: str, probs: dict[str, float], overhead: dict[str, tuple[float, float]] | None = None
 ) -> list[str]:
     """Tune the threshold on dev out-of-fold probabilities (lowest headline CPST meeting every floor), then
-    apply SPEC §7.7 on dev. Provisional: §7.7 also needs the shifted split (Phase 4)."""
+    apply SPEC §7.7 on dev; failing dev is final (D3.4)."""
     from sklearn.metrics import roc_auc_score
 
     from engine.eval.baselines import oracle
@@ -315,6 +397,8 @@ def evaluate_router(
         f"{s_base['p95_s']:.2f}s, success {sp['success_rate']:.3f} vs {s_base['success_rate']:.3f}",
         "",
         f"{name}: label = 'O1 escalates this adjudicate ticket' ({sum(y)}/{len(y)} positive on dev)",
+        "    (SPEC 6.4 says 'cheapest sufficient rung'; under O1 this is equivalent, because the bottom rung is already",
+        "    the cheapest and the only cheaper-than-O1 action left is skipping straight to the top rung; D3.4)",
         f"    ROC AUC on dev (local: out-of-fold; Jev: zero-shot) {roc_auc_score(y, p):.3f}"
         if 0 < sum(y) < len(y)
         else "    AUC undefined",
@@ -330,11 +414,11 @@ def evaluate_router(
         *policy_block(f"O1 + {name}", outs, {"O1": base}, ctx),
         f"    p95 latency: O1 {s_base['p95_s']:.2f}s -> {s['p95_s']:.2f}s  improvement {p95_gain:+.1%} [{plo:+.1%}, {phi:+.1%}]",
         "",
-        "SPEC 7.7 on dev only (PROVISIONAL: final only with the Phase 4 shifted matrix)",
+        "SPEC 7.7 (FINAL, D3.4: a router must pass on BOTH dev and shifted, so failing dev means drop)",
         f"    (a) CPST improves >= 5% with CI excluding 0: {'yes' if cpst_ok else 'no'} ({gain:+.1%} [{glo:+.1%}, {ghi:+.1%}])",
         f"        or p95 improves >= 20% with CI excluding 0: {'yes' if p95_ok else 'no'} ({p95_gain:+.1%} [{plo:+.1%}, {phi:+.1%}])",
         f"    (b) no per-task floor breached: {'yes' if floors_ok else 'no'}",
-        f"    dev verdict: {'passes on dev' if keep else 'fails on dev -> drop (7.7 needs BOTH dev and shifted; shifted cannot reverse this)'}",
+        f"    verdict: {'passes on dev (shifted still required)' if keep else 'fails on dev -> DROPPED (final negative finding; not run on shifted)'}",
         "",
         "Per task (with router)",
         *per_task_lines(outs, ctx),

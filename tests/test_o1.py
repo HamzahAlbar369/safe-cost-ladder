@@ -93,8 +93,13 @@ def test_late_second_opinion_falls_back_to_v0_v2_and_is_still_charged():
     assert tr.second_late and not tr.escalated
     assert out.latency_ms == 6000  # decided at the 6.0 s deadline
     assert out.cost_nocache == pytest.approx(0.003)  # the late call is charged in full
-    out, tr = run(cell(t, "haiku-low", latency_s=3, failed=("V2",)), b, cell(t, "opus-low", latency_s=2))
-    assert tr.escalated and tr.reason == "first failed (second late)" and out.latency_ms == 8000
+    bad = cell(t, "haiku-low", latency_s=3, failed=("V2",))
+    out, tr = run(bad, b, cell(t, "opus-low", latency_s=2))
+    assert (
+        tr.escalated and tr.reason == "first failed checks" and out.latency_ms == 5000
+    )  # D3.5: escalate at 3 s
+    out, tr = run(bad, b, cell(t, "opus-low", latency_s=2), O1Options(escalate_early=False))
+    assert tr.reason == "first failed (second late)" and out.latency_ms == 8000  # earlier build: waited for D
 
 
 def test_deadline_never_cuts_the_first_answer_short():
@@ -121,6 +126,19 @@ def test_ablations_drop_v3_and_drop_v2():
     assert tr.escalated and out.path == ("haiku-low", "opus-low") and out.latency_ms == 5000
     out, tr = run(a, b, top, O1Options(checks=("V0", "V1")))  # V2 failure ignored; the two agree
     assert not tr.escalated
+
+
+def test_first_failing_checks_escalates_at_once_and_still_charges_the_second_opinion():
+    """D3.5: a V0-V2 failure of haiku-low starts opus-low the moment haiku-low returns."""
+    t = ticket()
+    a = cell(t, "haiku-low", latency_s=3, failed=("V2",))
+    b, top = cell(t, "haiku-medium", latency_s=5.5), cell(t, "opus-low", latency_s=2)
+    now, tr = run(a, b, top)
+    old, _ = run(a, b, top, O1Options(escalate_early=False))
+    assert tr.escalated and tr.reason == "first failed checks"
+    assert now.latency_ms == 5000 and old.latency_ms == 7500  # 3 + 2 vs max(3, 5.5) + 2
+    assert now.path == old.path == ("haiku-low", "haiku-medium", "opus-low")
+    assert now.cost_nocache == old.cost_nocache == pytest.approx(0.043)
 
 
 def test_router_hooks_route_to_top_and_add_router_cost_and_latency():
@@ -150,7 +168,7 @@ def test_o1_on_the_committed_dev_matrix():
     outs_default = outs
     adj = [o for o in outs if o.task == "adjudicate"]
     assert sum(o.correct for o in adj) == 178 and len(adj) == 180
-    assert sum(o.success for o in adj) == 170
+    assert sum(o.success for o in adj) == 171  # 170 before D3.5 early escalation
     assert sum(t.escalated for t in traces) == 11
     assert _meets(outs, ctx.floors)
     no_deadline, _ = ctx.o1(O1Options(deadline_s=None))
@@ -160,5 +178,12 @@ def test_o1_on_the_committed_dev_matrix():
         outs, _ = ctx.o1(opts)
         assert sum(o.correct for o in outs if o.task == "adjudicate") == correct
         assert not _meets(outs, ctx.floors)
+    # D3.5: early escalation changes latency only; every answer, path and cost is identical
+    old, _ = ctx.o1(O1Options(escalate_early=False))
+    for x, y in zip(outs_default, old, strict=True):
+        assert (x.ticket_id, x.path, x.correct, x.cost_nocache, x.cost_cached) == (
+            y.ticket_id, y.path, y.correct, y.cost_nocache, y.cost_cached
+        )  # fmt: skip
+        assert x.latency_ms <= y.latency_ms
     no_tier0, _ = ctx.o1(O1Options(tier0=False))
     assert no_tier0 == outs_default  # Tier 0 answers no dev ticket (reports/phase3/o1.txt)

@@ -123,6 +123,22 @@ def test_ablations_drop_v3_and_drop_v2():
     assert not tr.escalated
 
 
+def test_router_hooks_route_to_top_and_add_router_cost_and_latency():
+    from engine.policy.cascade import run_o1
+
+    t = ticket()
+    a, b, top = (
+        cell(t, "haiku-low", latency_s=4),
+        cell(t, "haiku-medium", latency_s=5),
+        cell(t, "opus-low", latency_s=2),
+    )
+    idx = index_cells([a, b, top])
+    out, tr = adjudicate(t, idx, floors(), O1Options(direct_top=frozenset({t.id})))
+    assert out.path == ("opus-low",) and out.latency_ms == 2000 and tr.reason == "routed to top"
+    (out,), _ = run_o1([t], idx, floors(), {}, O1Options(router_overhead={t.id: (0.0001, 300.0)}))
+    assert out.latency_ms == 5300 and out.cost_nocache == pytest.approx(0.0031)
+
+
 @pytest.mark.slow
 @pytest.mark.skipif(not (ROOT / "runs" / "matrix-dev-full-1").exists(), reason="dev matrix not recorded")
 def test_o1_on_the_committed_dev_matrix():

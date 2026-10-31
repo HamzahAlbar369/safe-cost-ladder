@@ -261,7 +261,9 @@ def _p95_gain_ci(base: list[Outcome], other: list[Outcome], samples: list[list[i
     return B.percentile_ci(diffs)
 
 
-def evaluate_router(ctx: Context, name: str, probs: dict[str, float]) -> list[str]:
+def evaluate_router(
+    ctx: Context, name: str, probs: dict[str, float], overhead: dict[str, tuple[float, float]] | None = None
+) -> list[str]:
     """Tune the threshold on dev out-of-fold probabilities (lowest headline CPST meeting every floor), then
     apply SPEC §7.7 on dev. Provisional: §7.7 also needs the shifted split (Phase 4)."""
     from sklearn.metrics import roc_auc_score
@@ -277,7 +279,9 @@ def evaluate_router(ctx: Context, name: str, probs: dict[str, float]) -> list[st
     best = None
     for tau in sorted({*p, 1.01}):
         routed = frozenset(t.id for t in adj if probs[t.id] >= tau)
-        outs, _ = ctx.o1(O1_DEFAULT.model_copy(update={"direct_top": routed}))
+        outs, _ = ctx.o1(
+            O1_DEFAULT.model_copy(update={"direct_top": routed, "router_overhead": overhead or {}})
+        )
         if not _meets(outs, ctx.floors):
             continue
         cpst = summarize(outs)["cpst_nocache"]
@@ -311,8 +315,10 @@ def evaluate_router(ctx: Context, name: str, probs: dict[str, float]) -> list[st
         f"{s_base['p95_s']:.2f}s, success {sp['success_rate']:.3f} vs {s_base['success_rate']:.3f}",
         "",
         f"{name}: label = 'O1 escalates this adjudicate ticket' ({sum(y)}/{len(y)} positive on dev)",
-        f"    out-of-fold ROC AUC {roc_auc_score(y, p):.3f}" if 0 < sum(y) < len(y) else "    AUC undefined",
-        f"    threshold (tuned on dev out-of-fold; lowest headline CPST meeting every floor): "
+        f"    ROC AUC on dev (local: out-of-fold; Jev: zero-shot) {roc_auc_score(y, p):.3f}"
+        if 0 < sum(y) < len(y)
+        else "    AUC undefined",
+        f"    threshold (tuned on dev; lowest headline CPST meeting every floor): "
         f"{'never route' if tau > 1 else f'{tau:.3f}'}",
         f"    routed straight to opus-low: {len(routed)}/{len(adj)}  (would have escalated: {tp}; "
         f"misroute up = routed but O1 would not escalate: {len(routed) - tp}; "
@@ -365,4 +371,39 @@ def write(run_id: str, reports: dict[str, callable], out: Path = OUT) -> list[Pa
     return paths
 
 
-REPORTS = {"o1.txt": o1_report, "ablations.txt": ablations_report, "router_local.txt": local_router_report}
+def jev_router_report(ctx: Context) -> str:
+    from collections import Counter as C
+
+    from engine.router import jev_router as J
+
+    adj = [t for t in ctx.tickets if t.task_type == "adjudicate"]
+    answers = J.run(adj, "replay")  # recorded run jev-router-dev-1; no key, no spend
+    probs = {i: J.p_complex(r) for i, r in answers.items()}
+    overhead = {i: (r.cost_usd or 0.0, r.latency_ms) for i, r in answers.items()}
+    _, traces = ctx.o1()
+    esc = {tr.ticket_id: tr.escalated for tr in traces}
+    by_choice = C((answers[t.id].answers["complexity"]["choice"], esc[t.id]) for t in adj)
+    total = sum(c for c, _ in overhead.values())
+    return "\n".join(
+        [
+            f"Jev router (D3.3): run {J.RUN_ID}, model {J.JEV_MODEL}, ticket text only; zero-shot, so no folds.",
+            "Mapping (declared before the run): straight to opus-low iff P(complexity = complex) >= tau.",
+            f"Jev spend on the 180 dev adjudicate tickets: ${total:.6f}; its cost and latency are added to every one.",
+            "complexity answer vs 'O1 escalates': "
+            + ", ".join(
+                f"{ch} {sum(n for (c, e), n in by_choice.items() if c == ch)} "
+                f"(escalated {by_choice[(ch, True)]})"
+                for ch in ("simple", "moderate", "complex")
+            ),
+            "",
+            *evaluate_router(ctx, "Jev router", probs, overhead),
+        ]
+    )
+
+
+REPORTS = {
+    "o1.txt": o1_report,
+    "ablations.txt": ablations_report,
+    "router_local.txt": local_router_report,
+    "router_jev.txt": jev_router_report,
+}

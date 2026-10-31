@@ -604,3 +604,18 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
 - **Run:** `engine jev-router --yes` → run `jev-router-dev-1`, 180 dev adjudicate tickets + 1 untimed warm-up
   call (Phase 0 cold start 42.8 s). Estimate $0.00630, cap $0.10. Held-out untouched. Results are provisional:
   §7.7 keep/drop is final only after the Phase 4 shifted matrix.
+
+### D3.4 · Routers on dev: both fail §7.7 (PROVISIONAL negative finding; shifted pending)
+- **Evidence:** `reports/phase3/router_local.txt`, `reports/phase3/router_jev.txt` (replay of `matrix-dev-full-1`
+  and `jev-router-dev-1`). Label = "O1 escalates this adjudicate ticket" (11/180 on dev).
+  - Local router (TF-IDF + LR, 5-fold out-of-fold): ROC AUC 0.393; the tuned threshold is "never route", so
+    O2 = O1 (CPST change 0.0%).
+  - Jev router (zero-shot): ROC AUC 0.442 (complexity "complex": 80 tickets, 6 of them escalated); the tuned
+    threshold is "never route", so O3 = O1 + Jev's cost and latency: CPST (headline) 1.0% worse, p95 4.8% worse.
+  - **Ceiling:** a perfect router that routes exactly the 11 tickets O1 escalates improves CPST (headline) by only
+    4.4% and p95 from 6.55 s to 6.00 s, below both §7.7(a) thresholds (5% CPST, 20% p95). O1 already
+    captures almost all the headroom (Phase 2 headroom was measured against B3, before O1 existed), so no
+    router can pass §7.7 on dev.
+- **Decision (provisional):** neither router is kept; reported as a negative finding. §7.7 requires both dev and
+  shifted, so a dev failure cannot be reversed by shifted; the shifted rows will be added in Phase 4 for completeness.
+- **Spend:** OpenRouter $0.005373 (run `jev-router-dev-1`, 181 calls incl. warm-up, 0 errors; estimate $0.00630).

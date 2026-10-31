@@ -38,6 +38,28 @@
    "saving_vs_o1_lo": 0.2961438010788408
   }
  },
+ "data": {
+  "audit": {
+   "agree": 50,
+   "label_errors": 0,
+   "n": 50,
+   "source": "data/review/AUDIT.md"
+  },
+  "splits": {
+   "dev": {
+    "arabic_share": 0.3,
+    "n": 400
+   },
+   "heldout": {
+    "arabic_share": 0.3,
+    "n": 400
+   },
+   "shifted": {
+    "arabic_share": 0.3,
+    "n": 200
+   }
+  }
+ },
  "demo": {
   "adjudicate": "dev-0003",
   "escalated": "dev-0058",
@@ -414,7 +436,7 @@
    "resamples": 2000,
    "seed": 20261030
   },
-  "build_git_sha": "a0b0532c41b8a1d770599736da0fd2ec1249d9e4",
+  "build_git_sha": "98f6ab2bcdf7ad96cc558af23782540dcf8745d7",
   "config_hash": {
    "dev": "1201126a080c897a",
    "heldout": "1201126a080c897a",

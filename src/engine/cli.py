@@ -348,6 +348,42 @@ def phase4_report(run_id: str = typer.Option("matrix-shifted-full-1")) -> None:
         typer.echo(f"wrote {path.relative_to(path.parents[2]).as_posix()}")
 
 
+@app.command()
+def scenario(
+    price: list[str] | None = typer.Option(None, help="model=multiplier, e.g. opus=2x (repeatable)"),  # noqa: B008 (typer list option)
+    outage: list[str] | None = typer.Option(None, help="model short name to remove, e.g. haiku (repeatable)"),  # noqa: B008 (typer list option)
+    budget: list[str] | None = typer.Option(  # noqa: B008 (typer list option)
+        None, help="task=seconds latency budget override, e.g. adjudicate=6.0"
+    ),
+    floor_delta: float = typer.Option(0.0, help="added to every accuracy floor, e.g. -0.02"),
+    split: list[str] | None = typer.Option(None, help="splits to score (repeatable; default dev + shifted)"),  # noqa: B008 (typer list option)
+    presets: bool = typer.Option(False, "--presets", help="preset scenarios -> reports/phase4/scenarios.txt"),
+) -> None:
+    """What-if by replay (SPEC 8): prices, outages, budgets, floors. Instant, no API calls."""
+    from engine import runinfo
+    from engine.eval import scenarios as S
+    from engine.llm.pricing import ROOT
+
+    price, outage, budget = price or [], outage or [], budget or []
+    split = split or ["dev", "shifted"]
+    if presets:
+        text = S.report(S.PRESETS, split)
+        path = ROOT / "reports" / "phase4" / "scenarios.txt"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        header = f"runs: {', '.join(S.RUNS[s] for s in split)} | git: {runinfo.git_sha()}\n\n"
+        path.write_text(header + text + "\n", encoding="utf-8")
+        typer.echo(f"wrote {path.relative_to(ROOT).as_posix()}")
+        return
+    parts = [
+        *(f"price {p}" for p in price),
+        *(f"outage {o}" for o in outage),
+        *(f"budget {b}" for b in budget),
+        *([f"floors {floor_delta:+.2f}"] if floor_delta else []),
+    ]
+    sc = S.parse("custom: " + (" ".join(parts) or "no change"), price, outage, budget, floor_delta)
+    typer.echo(S.report([sc], split))
+
+
 @app.command("jev-router")
 def jev_router(
     yes: bool = typer.Option(False, "--yes", help="make the paid calls (otherwise print the estimate only)"),

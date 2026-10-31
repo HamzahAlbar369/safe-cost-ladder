@@ -1,0 +1,53 @@
+{
+ "request_hash": "b4027145e9b4ccff85bfe8a15f6e45b50405e2931d2e9d8ab6cb445d7d37ab06",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nWe act for Khalid (policyholder). Details:\nI'm a customer in Tabuk.\nwhats the deductible amount\nBroker desk\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "c08187c74160fac60c23cc074f06769513a8585654aea3ff2cac5a236d37a109"
+ },
+ "response": {
+  "text": "{\"answer\":1500}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 69,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 10,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1598.7,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T02:51:53.493451Z"
+}

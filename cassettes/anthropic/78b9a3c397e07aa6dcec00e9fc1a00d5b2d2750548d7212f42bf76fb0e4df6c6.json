@@ -1,0 +1,93 @@
+{
+ "request_hash": "78b9a3c397e07aa6dcec00e9fc1a00d5b2d2750548d7212f42bf76fb0e4df6c6",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nOn behalf of our client Sara, please find the claim details below:\n- Client policy: OMI-6708226\n- Plan: comprehensive\n- Valid to: 21-11-2026\n- Date of loss: 20-08-2026\n- Repair cost (asssesment): SAR 32,900.00\n- Notified on: 26-08-2026\n- Client's account: so on 20-08-2026 this other car crashed into me in Khobar I have been your customer for 7 years. It was raining a little that eveinng, ya akhi.\nRegards, Al-Waha Brokers (fictional)\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-6708226\",\"accident_date\":\"2026-08-20\",\"report_number\":null,\"damage_amount_sar\":32900,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 213,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 858.2,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T02:52:53.633912Z"
+}

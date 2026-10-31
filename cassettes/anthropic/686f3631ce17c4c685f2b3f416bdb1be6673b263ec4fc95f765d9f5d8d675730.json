@@ -1,0 +1,93 @@
+{
+ "request_hash": "686f3631ce17c4c685f2b3f416bdb1be6673b263ec4fc95f765d9f5d8d675730",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nAgent summary: مكالمة من مها.\n- Policy / الوثيقة: OMI-6416708\n- Cover: شامل\n- Expiry: 11 أغسطس 2026\n- Accidnet date / تاريخ الحادث: 2026-01-15\n- Report by: نجم\n- Report no.: NJ-26787962\n- Fault %: 0%\n- Assessed repair: SAR 26,600\n- Client says / إفادة العميل: 2026-01-15 بـالطائف واحد دعمني جوالي 0568416654. رقم المطالبة بلاتطبيق CLM-20862. الطرف الثاني كان محترم.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-6416708\",\"accident_date\":\"2026-01-15\",\"report_number\":\"NJ-26787962\",\"damage_amount_sar\":26600,\"fault_share\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 243,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 64,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1513.7,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T02:50:37.469097Z"
+}

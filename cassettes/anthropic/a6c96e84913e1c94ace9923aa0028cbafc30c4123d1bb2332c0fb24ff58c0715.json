@@ -1,0 +1,52 @@
+{
+ "request_hash": "a6c96e84913e1c94ace9923aa0028cbafc30c4123d1bb2332c0fb24ff58c0715",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: intent\n\n<ticket>\nCall note - اتصال من عمر بخصوص claim.\nكيف أرجّع باسوورد الشاشة الذكية؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"other\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 69,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 59,
+   "thinking_tokens": 48
+  },
+  "latency_ms": 1277.1,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T02:56:09.001248Z"
+}

@@ -25,9 +25,25 @@ OUT = ROOT / "reports" / "phase3"
 O1_DEFAULT = O1Options()
 DEADLINE_TABLE = (None, 6.0, 5.0)  # D3.2: the deadline values compared on dev
 
+# Audit caveats (Phase 3 review), printed at the end of every Phase 3 / Phase 4 report file.
+CAVEATS = (
+    "Caveats (read with every number above)",
+    "- Parallel timing is MODELLED: haiku-low and haiku-medium were recorded as separate matrix calls, not sent",
+    "  together; O1's adjudicate latency is computed from those recorded latencies (max / deadline arithmetic).",
+    "  Contention from truly concurrent calls is not in the replay; `engine final` measures O1 live on held-out.",
+    "- Oracle rule for unsolvable tickets: a ticket that no config answers correctly within its budget is charged",
+    "  the cheapest config's cost (lowest mean headline cost) and counts as a failure for the oracle too.",
+    "- Router thresholds were chosen IN-SAMPLE on dev (the local router's probabilities are out-of-fold, but the",
+    "  threshold was picked on the same dev tickets that score it; Jev is zero-shot). This favours the routers,",
+    "  so their negative result (D3.4) is conservative.",
+    "- Replayed results are simulated from recorded calls (SPEC 6.5); costs and latencies are the recorded ones.",
+)
+
 
 class Context:
     """Everything a Phase 3 report needs, loaded once from the recorded dev matrix."""
+
+    split = "dev"
 
     def __init__(self, run_id: str):
         self.run_id = run_id
@@ -287,7 +303,7 @@ def ablations_report(ctx: Context) -> str:
     """Each O1 layer toggled off one at a time (SPEC 7.5), compared with O1 on the same tickets (paired)."""
     base, _ = ctx.o1()
     lines = [
-        "Ablations: one O1 layer off at a time, paired against O1 on the same 400 dev tickets",
+        f"Ablations: one O1 layer off at a time, paired against O1 on the same {len(ctx.tickets)} {ctx.split} tickets",
         "'saving' > 0 = the ablation is cheaper per successful task than O1 (the layer costs money and is kept only",
         "if it is needed to meet a floor). Accuracy/success deltas are ablation - O1 (paired bootstrap 95% CI).",
         "A layer that is 'needed for the floor' is needed to clear the PRE-REGISTERED floor on dev by the stated",
@@ -320,13 +336,19 @@ def ablations_report(ctx: Context) -> str:
         adj = [x for x in outs if x.task == "adjudicate"]
         need = math.ceil(ctx.floors.per_task["adjudicate"].floor * len(adj) - 1e-9)
         got = sum(x.correct for x in adj)
+        base_got = sum(x.correct for x in base if x.task == "adjudicate")
+        if got >= need:
+            verdict = f"this ablation has {got}: floor met"
+        elif base_got >= need:
+            verdict = f"this ablation has {got}: short by {need - got} ticket(s), so the layer is needed to clear the floor"
+        else:
+            verdict = (
+                f"this ablation has {got} vs O1 {base_got}: O1 itself is short by {need - base_got}, so the floor "
+                f"is missed either way; the layer changes adjudicate correct by {base_got - got:+d}"
+            )
         lines.append(
             f"    adjudicate floor {ctx.floors.per_task['adjudicate'].floor:.6f} x {len(adj)} needs >= {need} correct; "
-            + (
-                f"this ablation has {got}: short by {need - got} ticket(s), so the layer is needed to clear the floor"
-                if got < need
-                else f"this ablation has {got}: floor met"
-            )
+            + verdict
         )
         lines += [f"    per task ({name})", *per_task_lines(outs, ctx)]
     return "\n".join(lines)
@@ -450,7 +472,7 @@ def write(run_id: str, reports: dict[str, callable], out: Path = OUT) -> list[Pa
     paths = []
     for name, fn in reports.items():
         path = out / name
-        path.write_text(header + fn(ctx) + "\n", encoding="utf-8")
+        path.write_text(header + fn(ctx) + "\n\n" + "\n".join(CAVEATS) + "\n", encoding="utf-8")
         paths.append(path)
     return paths
 

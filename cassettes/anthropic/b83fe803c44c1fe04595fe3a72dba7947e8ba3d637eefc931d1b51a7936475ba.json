@@ -1,0 +1,53 @@
+{
+ "request_hash": "b83fe803c44c1fe04595fe3a72dba7947e8ba3d637eefc931d1b51a7936475ba",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\n[voice message transcript] uh hi yes hello, so\nbasically, my name is Khalid and I drive a Nissan Patrol 2022. ... I'm thinking about my cover before a trip to Tabuk, inshlalah. ... I'm a customer in Tabuk. ... what % of sum insured makes it a total loss\nanyway yeah call me back\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "c08187c74160fac60c23cc074f06769513a8585654aea3ff2cac5a236d37a109"
+ },
+ "response": {
+  "text": "{\"answer\":50}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 140,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 35,
+   "thinking_tokens": 26
+  },
+  "latency_ms": 1778.9,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T02:54:52.201921Z"
+}

@@ -1,0 +1,93 @@
+{
+ "request_hash": "236a6eb0e35504d30facb4d7933475e7e55d1a2daede6127293a4bb11fc63de1",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\nCall note - اتصال من حصة بخصوص claim.\n- Policy / policy: OMI-1481318\n- Cover: شامل\n- Expiry: 10 أكتوبر 2026\n- Accident date / تاريخ الحادث: 2026-01-17\n- Report by: نجم\n- Report no.: NJ-64662377\n- Fault %: 75%\n- Filed on: 2026-01-26\n- Client says / إفادة العميل: 2026-01-17 بـتبوك واحد دعمني رقم المطالبة بالتطبيق CLM-89248. جوالي 0559162095. الطرف الثاني كان محترم.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-1481318\",\"accident_date\":\"2026-01-17\",\"report_number\":\"NJ-64662377\",\"damage_amount_sar\":null,\"fault_share\":75}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 240,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 143,
+   "thinking_tokens": 80
+  },
+  "latency_ms": 1164.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T02:50:36.915584Z"
+}

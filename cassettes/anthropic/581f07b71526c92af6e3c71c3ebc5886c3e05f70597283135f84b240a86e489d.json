@@ -1,0 +1,93 @@
+{
+ "request_hash": "581f07b71526c92af6e3c71c3ebc5886c3e05f70597283135f84b240a86e489d",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\nOn behalf of our client Abeer, please find the claim details below:\n- Client policy: OMI-1259254\n- Plan: comprehensive\n- Valid to: 12 May 2026\n- Date of loss: 8 Mar 2026\n- Reported to: Najm\n- Ref. (report): NJ-73803916\n- Liability %: 100%\n- Repair cost (assessment): SAR 33,000.00\n- Notified on: 10 Mar 2026\n- Client's account: so on 8 Mar 2026 this other car crashed into me in Jeddah My phone number is 0577768876, ya akhi.\nRegards, Al-Waha Brokers (fictional)\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-1259254\",\"accident_date\":\"2026-03-08\",\"report_number\":\"NJ-73803916\",\"damage_amount_sar\":33000,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 243,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 564,
+   "thinking_tokens": 500
+  },
+  "latency_ms": 2825.7,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T02:53:38.574914Z"
+}

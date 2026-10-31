@@ -1,0 +1,53 @@
+{
+ "request_hash": "77e28dc48ebee5dd6943ecf1abd9423ec22f05275eb22f71056297209b5856a0",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\n[voice message transcript] uh hi yes hello, so\num, hi, Reem here. ... My friend told me something different, so I want to check. ... anyway, 25% my fault, how much deductible\nok thats it bye\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "c08187c74160fac60c23cc074f06769513a8585654aea3ff2cac5a236d37a109"
+ },
+ "response": {
+  "text": "{\"answer\":1500}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 95,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 10,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 689.5,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T02:50:28.426257Z"
+}

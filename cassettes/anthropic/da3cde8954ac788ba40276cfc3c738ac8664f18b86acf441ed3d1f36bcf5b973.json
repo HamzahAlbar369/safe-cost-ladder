@@ -1,0 +1,93 @@
+{
+ "request_hash": "da3cde8954ac788ba40276cfc3c738ac8664f18b86acf441ed3d1f36bcf5b973",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\n[voice message transcript] uh hi yes hello, so\npolicy is OMI-0957999, comprehensive, it expires 30 November 2026 ... the traffic police came, report no TP-71042190 ... basically, my phone number is 0552647167. ... My car is a Nissan Patrol 2022. ... I have been your customer for 9 years. ... honestly, assessment report says my repairs are 43800 riyals ... a few days ago I hit a wall in Riyadh, just me, no other car\nanyway yeah call me back\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-0957999\",\"accident_date\":null,\"report_number\":\"TP-71042190\",\"damage_amount_sar\":43800,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 196,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1185.9,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T02:55:13.996383Z"
+}

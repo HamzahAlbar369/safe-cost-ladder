@@ -1,0 +1,52 @@
+{
+ "request_hash": "5a23734a2c9e830b137a1bba236a20447082a385addc163e24f68091db21f909",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: intent\n\n<ticket>\nالسلام عليكم\nوثيقتي OMI-9930872.\nمعك بندر.\nحطيت آيبان غلط لتعويض المطابلة CLM-49986، كيف أعدله؟\nالله يعطيكم العافية\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"payment_issue\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 103,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 15,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 927.6,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T02:52:04.723052Z"
+}

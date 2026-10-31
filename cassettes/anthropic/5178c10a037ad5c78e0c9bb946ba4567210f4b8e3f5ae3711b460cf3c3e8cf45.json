@@ -1,0 +1,53 @@
+{
+ "request_hash": "5178c10a037ad5c78e0c9bb946ba4567210f4b8e3f5ae3711b460cf3c3e8cf45",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nOn behalf of our client Reem, please find the claim details below:\nclaim under 2000, how many working days to pay, inshallah.\nRegards, Al-Waha Brokers (fictional)\n</ticket>",
+  "max_tokens": 64,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1793414974,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":5}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 84,
+   "cache_creation_tokens": 7219,
+   "cache_read_tokens": 0,
+   "output_tokens": 9,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1554.4,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T02:49:36.732311Z"
+}

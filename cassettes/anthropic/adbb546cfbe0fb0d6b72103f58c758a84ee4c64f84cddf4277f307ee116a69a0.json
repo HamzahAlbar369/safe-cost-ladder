@@ -1,0 +1,93 @@
+{
+ "request_hash": "adbb546cfbe0fb0d6b72103f58c758a84ee4c64f84cddf4277f307ee116a69a0",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\nWe act for Bandar (policyholder). Details:\n- Client policy: OMI-3676441\n- Plan: comprehensive\n- Valid to: 2 Dec 2026\n- Date of loss: 12 Feb 2026\n- Reported to: Najm\n- Ref. (report): NJ-97185551\n- Repair cost (asssesment): SAR 10,400.00\n- Notified on: 22-02-2026\n- Client's account: 12 Feb 2026 I hit a wall in Tabuk, just me, no other car My car is a Hyundai Accent 2019. My claim reference from the app is CLM-39851. It was raining a little that evening, ya akhi.\nBroker desk\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-3676441\",\"accident_date\":\"2026-02-12\",\"report_number\":\"NJ-97185551\",\"damage_amount_sar\":10400,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 250,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 208,
+   "thinking_tokens": 144
+  },
+  "latency_ms": 1372.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T02:52:59.135561Z"
+}

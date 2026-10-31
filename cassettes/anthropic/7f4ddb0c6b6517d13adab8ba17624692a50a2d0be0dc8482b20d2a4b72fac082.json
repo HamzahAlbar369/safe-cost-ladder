@@ -1,0 +1,93 @@
+{
+ "request_hash": "7f4ddb0c6b6517d13adab8ba17624692a50a2d0be0dc8482b20d2a4b72fac082",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nWe act for Khalid (policyholder). Details:\n- Client policy: OMI-4492897\n- Plan: comprehensive\n- Valid to: 18-08-2026\n- Date of loss: 3 Jul 2026\n- Repair cost (assessment): SAR 8,100.00\n- Notified on: 5 Jul 2026\n- Client's account: 3 Jul 2026, Madinah, somebody smashed into my car and just drove away, hit and run It was raining a little that evening, inshallah.\nRegards, Al-Waha Brokers (fictional)\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-4492897\",\"accident_date\":\"2026-07-03\",\"report_number\":null,\"damage_amount_sar\":8100,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 209,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1828.9,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T02:53:00.454335Z"
+}

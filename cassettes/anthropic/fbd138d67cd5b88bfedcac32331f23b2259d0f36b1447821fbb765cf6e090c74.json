@@ -1,0 +1,53 @@
+{
+ "request_hash": "fbd138d67cd5b88bfedcac32331f23b2259d0f36b1447821fbb765cf6e090c74",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nCall note - اتصال من مها بخصوص claim.\nخويي قال لي شي ثاني وأبي أتأكد.\nكم النسبة للخسارة الكلية\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "c08187c74160fac60c23cc074f06769513a8585654aea3ff2cac5a236d37a109"
+ },
+ "response": {
+  "text": "{\"answer\":50}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 83,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 74,
+   "thinking_tokens": 65
+  },
+  "latency_ms": 1278.8,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T02:56:14.567131Z"
+}

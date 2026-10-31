@@ -1,0 +1,53 @@
+{
+ "request_hash": "acd92f939a0aaeba8db2623a6e8c6ef1f4752d569603a698b8bef4da7a2cc9b2",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nOn behalf of our client Reem, please find the claim details below:\nclaim under 2000, how many working days to pay, inshallah.\nRegards, Al-Waha Brokers (fictional)\n</ticket>",
+  "max_tokens": 64,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1793414974,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":5}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 84,
+   "cache_creation_tokens": 7219,
+   "cache_read_tokens": 0,
+   "output_tokens": 9,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1521.6,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T02:49:36.967675Z"
+}

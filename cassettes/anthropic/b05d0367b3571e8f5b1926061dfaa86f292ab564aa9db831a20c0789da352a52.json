@@ -1,0 +1,53 @@
+{
+ "request_hash": "b05d0367b3571e8f5b1926061dfaa86f292ab564aa9db831a20c0789da352a52",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nCall note - اتصال من حصة بخصوص claim.\nمعليش طوّلت عليكم، الأسبوع كان طويل وأكتب لكم من الجوال بين الاجتماعات.\nالعيال كانوا معي بالسيارة بس الحمد لله بخير، كل همهم الآيسكريم اللي توه شاريينه.\nوبعدين المواقف عند ذاك المول زحمة مرة ولازم أحد يحلها.\nالسنة اللي فاتت كنت بغير الشركة بس ولد عمي قال لي خلك معهم.\nسؤال سريع عن وثيقتي OMI-1144202.\nهلا، معك حصة.\nأنا من عملائكم في بريدة.\nالخسارة الكلية فيها تحمل؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 290,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 154,
+   "thinking_tokens": 142
+  },
+  "latency_ms": 1405.8,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T02:51:22.668337Z"
+}

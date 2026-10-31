@@ -1,0 +1,53 @@
+{
+ "request_hash": "a9b14fd61e22eee7b41ab74be39110ed112e17d480c0ecdabf1b2bea9e6d7ac5",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nOn behalf of our client Abeer, please find the claim details below:\nHi, Abeer here.\nMy friend told me something different, so I want to check.\ntowing limit inside city, ya akhi?\nBroker desk\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":500}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 91,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 9,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1750.8,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T02:55:06.123531Z"
+}

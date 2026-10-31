@@ -339,6 +339,15 @@ def phase3_report(run_id: str = typer.Option("matrix-dev-full-1")) -> None:
         typer.echo(f"wrote {path.relative_to(path.parents[2]).as_posix()}")
 
 
+@app.command("phase4-report")
+def phase4_report(run_id: str = typer.Option("matrix-shifted-full-1")) -> None:
+    """Write reports/phase4/* (frozen policy on shifted, baselines, ablations) by replay; no API calls."""
+    from engine.eval.phase4_report import write
+
+    for path in write(run_id):
+        typer.echo(f"wrote {path.relative_to(path.parents[2]).as_posix()}")
+
+
 @app.command("jev-router")
 def jev_router(
     yes: bool = typer.Option(False, "--yes", help="make the paid calls (otherwise print the estimate only)"),

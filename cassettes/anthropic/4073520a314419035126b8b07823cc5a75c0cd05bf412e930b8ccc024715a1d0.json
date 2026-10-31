@@ -1,0 +1,53 @@
+{
+ "request_hash": "4073520a314419035126b8b07823cc5a75c0cd05bf412e930b8ccc024715a1d0",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\n[transcribed call] okay so basically\nHi, Reem here, ya akhi. ... anyway, quick question about policy OMI-1000266. ... 25% my fault, how much dedutcible\nok thats it bye\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "c08187c74160fac60c23cc074f06769513a8585654aea3ff2cac5a236d37a109"
+ },
+ "response": {
+  "text": "{\"answer\":375}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 96,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 61,
+   "thinking_tokens": 52
+  },
+  "latency_ms": 1437.1,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T02:55:28.151785Z"
+}

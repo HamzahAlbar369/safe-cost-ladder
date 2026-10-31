@@ -1,0 +1,53 @@
+{
+ "request_hash": "ca8262c8ed9683c8b8887c8bec514fa0b6103e09298e95d5b52db4184faca170",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\n[transcribed call] okay so basically\nbasically, I'm thinking about my cover before a trip to Jeddah. ... um, my name is Haya and I drive a Chevrolet Tahoe 2021, inshallah. ... tpl expired licence grace how many days\nanyway yeah call me back\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":50}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 120,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 62,
+   "thinking_tokens": 53
+  },
+  "latency_ms": 2291.0,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T02:53:56.212181Z"
+}

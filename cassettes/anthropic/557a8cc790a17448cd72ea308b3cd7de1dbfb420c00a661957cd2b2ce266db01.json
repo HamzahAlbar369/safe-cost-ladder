@@ -1,0 +1,93 @@
+{
+ "request_hash": "557a8cc790a17448cd72ea308b3cd7de1dbfb420c00a661957cd2b2ce266db01",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\n[voice message transcript] uh hi yes hello, so\npolicy is OMI-8892377, comprehensive, it expires 4 October 2026 ... anyway, 30 March 2026, Buraidah, somebody smashed into my car and just drove away, hit and run ... anyway, the traffic police came, report no TP-75583006 ... assessment report says my reparis are 6600 riyals ... Thank God nobody was hurt. ... so my claim reference from the app is CLM-74263. ... Sorry, it has been a very long week and I'm writing this from my phone between meetings. ... My kids were in the car with me but they are fine, they were mostly worried about the ice cream we had just bought, inshallah. ... I also want to say that the parking situation near that mall is terrible and someone should fix it.\nok thats it bye\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-8892377\",\"accident_date\":\"2026-03-30\",\"report_number\":\"TP-75583006\",\"damage_amount_sar\":6600,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 292,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 63,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1751.2,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T02:51:58.465043Z"
+}

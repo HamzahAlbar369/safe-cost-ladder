@@ -1,0 +1,53 @@
+{
+ "request_hash": "788c86842f1ccc309fe011bd923030a7c8ef2d278cd2caa613ac967b06181ea4",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\n[voice message transcript] uh hi yes hello, so\nHi, Yousef here. ... Quick question about policy OMI-4092185. ... honestly, claim under 2000, how many working days to pay\nok thats it bye\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":5}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 98,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 9,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1168.5,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T02:51:51.190362Z"
+}

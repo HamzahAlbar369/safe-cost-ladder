@@ -1,0 +1,53 @@
+{
+ "request_hash": "c1b4a0dc9fdb5d4c71473878a08f3e30995974e33d77b6a787882e9731b009d6",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nWe act for Noura (policyholder). Details:\nI'm thinking about my cover before a trip to Tabuk.\nI'm a customer in Tabuk.\nMy friend told me something different, so I want to check.\nbig claim, how many days to settle\nRegards, Al-Waha Brokers (fictional)\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 15}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 121,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 114,
+   "thinking_tokens": 104
+  },
+  "latency_ms": 1315.6,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T02:56:08.999162Z"
+}

@@ -1,0 +1,93 @@
+{
+ "request_hash": "04f7394fc72781f72a292a94472cd6ecb7a71e1b768e1e678e0e01a1cf692684",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\n[voice message transcript] uh hi yes hello, so\npolicy is OMI-3696928, comperhensive, it expires 19 May 2026, ya akhi. ... filing it today 7 April 2026 ... like, 28 March 2026 in Abha a guy hit me and he doesnt even have insurance ... basically, najm report NJ-05707391, they gave me 0% ... The other driver was polite about the whole thing. ... basically, my claim reference from the app is CLM-46348.\nanyway yeah call me back\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-3696928\",\"accident_date\":\"2026-03-28\",\"report_number\":\"NJ-05707391\",\"damage_amount_sar\":null,\"fault_share\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 194,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 63,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1989.8,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T02:55:47.673526Z"
+}

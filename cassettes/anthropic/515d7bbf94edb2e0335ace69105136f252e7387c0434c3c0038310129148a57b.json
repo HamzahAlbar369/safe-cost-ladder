@@ -1,0 +1,53 @@
+{
+ "request_hash": "515d7bbf94edb2e0335ace69105136f252e7387c0434c3c0038310129148a57b",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nهلا والله، السلام عليكم\nسؤال سريع عن وثيقتي OMI-4736377.\nصدم وهروب كم التحمل\nابي رد بسرعة\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 86,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 55,
+   "thinking_tokens": 45
+  },
+  "latency_ms": 1374.4,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T02:54:31.299492Z"
+}

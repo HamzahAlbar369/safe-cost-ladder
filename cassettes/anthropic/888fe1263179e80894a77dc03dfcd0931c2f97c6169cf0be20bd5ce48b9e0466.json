@@ -1,0 +1,53 @@
+{
+ "request_hash": "888fe1263179e80894a77dc03dfcd0931c2f97c6169cf0be20bd5ce48b9e0466",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nهلا والله، السلام عليكم\nقبل لا أسافر الخبر أبي أتأكد من تأميني.\nأنا من عملائكم في الخبر.\nعلي 25 بالمية كم التحمل\nالله يعطيكم العافية\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "c08187c74160fac60c23cc074f06769513a8585654aea3ff2cac5a236d37a109"
+ },
+ "response": {
+  "text": "{\"answer\":375}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 109,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 53,
+   "thinking_tokens": 44
+  },
+  "latency_ms": 1706.8,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T02:50:40.848646Z"
+}

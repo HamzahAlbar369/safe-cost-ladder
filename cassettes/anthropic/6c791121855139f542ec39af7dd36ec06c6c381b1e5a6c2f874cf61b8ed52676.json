@@ -1,0 +1,53 @@
+{
+ "request_hash": "6c791121855139f542ec39af7dd36ec06c6c381b1e5a6c2f874cf61b8ed52676",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\n[voice message transcript] uh hi yes hello, so\nHi, Bandar here. ... I'm thinking about my cover before a trip to Abha. ... honestly, quick question about policy OMI-6037765. ... comprehensive expired licence grace, how many business days, ya akhi.\nok thats it bye\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":50}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 127,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 51,
+   "thinking_tokens": 42
+  },
+  "latency_ms": 937.4,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T02:51:12.585034Z"
+}

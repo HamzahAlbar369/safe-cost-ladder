@@ -1,0 +1,53 @@
+{
+ "request_hash": "41927751753da354194aece8af93f43f5e26c1a83f8490eaa23421e01d25857a",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nOn behalf of our client Yousef, please find the claim details below:\nHi, Yousef here.\nQuick question about policy OMI-2816640.\nnot my fault at all, how much deductible, inshallah.\nBroker desk\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 96,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 61,
+   "thinking_tokens": 52
+  },
+  "latency_ms": 2586.7,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T02:51:32.585318Z"
+}

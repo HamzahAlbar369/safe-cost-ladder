@@ -71,3 +71,18 @@ def test_committed_recalibration_report_reproduces():
 
     text = (ROOT / "reports" / "phase4" / "recalibration.txt").read_text(encoding="utf-8")
     assert R.report() in text and R.LABEL in text
+
+
+def test_failsafe_reverts_only_alarmed_tasks_to_b1_and_selects_nothing_else():
+    t = next(x for x in load_split("dev") if x.task_type == "adjudicate")
+    idx = index_cells(
+        [cell(t, c, latency_s=1, correct=False) for c in ("haiku-low", "haiku-medium", "opus-low")]
+    )
+    fc = _fc()
+    r = R.recalibrate(fc, [t], idx).model_copy(
+        update={"drift_binomial": {"faq": False, "intent": True, "extract": False, "adjudicate": True}}
+    )
+    a = R.failsafe(fc, r)
+    assert a.static == {**fc.static, "intent": fc.b1, "adjudicate": fc.b1} and a.o1 is None
+    calm = r.model_copy(update={"drift_binomial": dict.fromkeys(fc.static, False)})
+    assert R.failsafe(fc, calm).static == fc.static and R.failsafe(fc, calm).o1 == fc.o1

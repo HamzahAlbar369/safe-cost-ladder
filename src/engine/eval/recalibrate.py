@@ -96,6 +96,16 @@ def recalibrate(fc: FrozenChoices, audit: list[Ticket], index: CellIndex) -> Rec
     )
 
 
+def failsafe(fc: FrozenChoices, r: Recalibration) -> Adapted:
+    """D4.7 fail-safe (added AFTER observing shifted; it selects nothing from shifted or from the sample): every
+    task whose binomial detector fired reverts to B1's config for that task (`fc.b1`, chosen on dev); every
+    other task keeps its frozen O1 config. An alarmed adjudicate drops the cascade and calls B1 alone."""
+    static = {t: fc.b1 if r.drift_binomial[t] else c for t, c in fc.static.items()}
+    return Adapted(
+        floors=fc.floors, static=static, b1=fc.b1, o1=None if r.drift_binomial["adjudicate"] else fc.o1
+    )
+
+
 def stratified_folds(tickets: list[Ticket], k: int = 2, seed: int = SEED) -> list[list[Ticket]]:
     strata: dict[tuple[str, str], list[Ticket]] = defaultdict(list)
     for t in sorted(tickets, key=lambda t: t.id):
@@ -156,7 +166,7 @@ def _row(name: str, outs: list[Outcome], ref: list[Outcome], floor: float) -> li
 
 def cross_fold(fc: FrozenChoices, tickets: list[Ticket], index: CellIndex) -> tuple[list[str], dict]:
     folds = stratified_folds(tickets)
-    scored: dict[str, dict[str, Outcome]] = {"frozen O1": {}, "recalibrated": {}, "B1": {}}
+    scored: dict[str, dict[str, Outcome]] = {"frozen O1": {}, "recalibrated": {}, "fail-safe": {}, "B1": {}}
     lines = []
     for i, (audit, score) in enumerate(((folds[0], folds[1]), (folds[1], folds[0]))):
         r = recalibrate(fc, audit, index)
@@ -175,11 +185,20 @@ def cross_fold(fc: FrozenChoices, tickets: list[Ticket], index: CellIndex) -> tu
             ),
             f"    adjudicate ladder: {'cascade kept' if r.cascade_kept else 'cascade dropped (missed the floor on the sample)'}"
             f", top {r.picks['adjudicate']}",
+            "    fail-safe (D4.7): "
+            + ", ".join(
+                f"{t} {fc.b1 + ' (binomial alarm)' if r.drift_binomial[t] else fc.static[t] + ' (no alarm, frozen)'}"
+                for t in TASKS
+            ),
+            "    scored-fold n per task: "
+            + ", ".join(f"{t} {sum(x.task_type == t for x in score)}" for t in TASKS),
         ]
         for o in frozen_o1(fc, score, index):
             scored["frozen O1"][o.ticket_id] = o
         for o in run_adapted(r.adapted, score, index):
             scored["recalibrated"][o.ticket_id] = o
+        for o in run_adapted(failsafe(fc, r), score, index):
+            scored["fail-safe"][o.ticket_id] = o
         for o in run_policy(lambda t: (fc.b1,), score, index, fc.floors):
             scored["B1"][o.ticket_id] = o
     return lines, scored
@@ -259,19 +278,27 @@ def report() -> str:
         "Audit-and-recalibrate on shifted, 2 folds stratified by task x language (seed "
         f"{SEED}): audit fold A -> score fold B, then swap; every ticket is scored once, by the policy calibrated on",
         "the OTHER fold. Floors and budgets are the frozen ones. Selection rules: src/engine/eval/recalibrate.py.",
+        "Detector history: the statistical (binomial, alpha 0.05) detector was added AFTER the naive check (sample",
+        "accuracy below the floor) falsely alarmed on dev, where O1 meets every floor (see the audit-size table).",
+        "Fail-safe (D4.7, added after observing shifted; selects nothing from shifted): a task whose binomial",
+        "detector fires on the audit fold reverts to B1's config (chosen on dev) on the scored fold.",
         "",
         *fold_lines,
         "",
-        "Per task, pooled over both scored folds (CI = 95% bootstrap; 'vs B1' = CPST saving vs B1, paired)",
+        "Per task, pooled over both scored folds (CI = 95% bootstrap; 'vs B1' = CPST saving vs B1, paired;",
+        "n per fold in each task header = scored tickets in fold B (audited on A) + fold A (audited on B))",
     ]
     for t in TASKS:
         ids = [x.id for x in tickets if x.task_type == t]
         b1 = [scored["B1"][i] for i in ids]
-        lines.append(f"  {t} (n={len(ids)})")
-        for name in ("frozen O1", "recalibrated", "B1"):
+        per_fold = " + ".join(
+            str(sum(x.task_type == t for x in f)) for f in reversed(stratified_folds(tickets))
+        )
+        lines.append(f"  {t} (n={len(ids)} = {per_fold})")
+        for name in ("frozen O1", "recalibrated", "fail-safe", "B1"):
             lines += _row(name, [scored[name][i] for i in ids], b1, fc.floors.per_task[t].floor)
     lines.append("  overall (n=200)")
-    for name in ("frozen O1", "recalibrated", "B1"):
+    for name in ("frozen O1", "recalibrated", "fail-safe", "B1"):
         s = summarize([scored[name][x.id] for x in tickets])
         lines.append(
             f"      {name:<22} acc {s['accuracy']:.3f}  success {s['success_rate']:.3f}  "

@@ -401,9 +401,53 @@ def jev_router_report(ctx: Context) -> str:
     )
 
 
+def effort_report(ctx: Context) -> str:
+    """Per model: accuracy and cost by effort level, over the same 400 dev tickets (paired)."""
+    from engine.eval.metrics import mean, percentile
+
+    efforts = ("low", "medium", "high")
+    ids = [t.id for t in ctx.tickets]
+    lines = [
+        "Effort finding (dev, 400 tickets, every config answers every ticket; all matrix calls read a warm cache)",
+        "Cost per call is the mean over all 400 tickets. Accuracy delta vs low: paired bootstrap 95% CI.",
+        "",
+        f"{'model':<8}{'effort':<8}{'acc':>7}{'adjud.':>8}{'vs low (acc)':>24}{'with caching $/call':>21}"
+        f"{'x low':>7}{'headline $/call':>17}{'out tok':>9}{'think tok':>10}{'p50 s':>7}{'p95 s':>7}",
+    ]
+    for model in ("haiku", "sonnet", "opus"):
+        cells = {e: [ctx.index[(i, f"{model}-{e}")] for i in ids] for e in efforts}
+        low_cost = mean(c.cost_usd for c in cells["low"])
+        for e in efforts:
+            cs = cells[e]
+            acc = mean(c.correct for c in cs)
+            adj = mean(c.correct for c in cs if c.task == "adjudicate")
+            if e == "low":
+                delta = ""
+            else:
+                lo, hi = B.paired_mean_diff_ci(
+                    [float(c.correct) for c in cs], [float(c.correct) for c in cells["low"]], ctx.samples
+                )
+                delta = f"{acc - mean(c.correct for c in cells['low']):+.3f} [{lo:+.3f}, {hi:+.3f}]"
+            cost = mean(c.cost_usd for c in cs)
+            lines.append(
+                f"{model:<8}{e:<8}{acc:>7.3f}{adj:>8.3f}{delta:>24}{cost:>21.6f}{cost / low_cost:>7.2f}"
+                f"{mean(c.cost_usd_nocache for c in cs):>17.6f}{mean(c.output_tokens for c in cs):>9.0f}"
+                f"{mean(c.thinking_tokens or 0 for c in cs):>10.0f}"
+                f"{percentile([c.latency_ms for c in cs], 50) / 1000:>7.2f}"
+                f"{percentile([c.latency_ms for c in cs], 95) / 1000:>7.2f}"
+            )
+        lines.append("")
+    lines.append(
+        "Reading: compare rows within a model. 'x low' = Cost with caching (actual) per call relative to the same "
+        "model at low effort."
+    )
+    return "\n".join(lines)
+
+
 REPORTS = {
     "o1.txt": o1_report,
     "ablations.txt": ablations_report,
     "router_local.txt": local_router_report,
     "router_jev.txt": jev_router_report,
+    "effort.txt": effort_report,
 }

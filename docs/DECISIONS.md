@@ -808,3 +808,22 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   that detection power depends on per-task counts. Hero uses O1 live, labelled "live, held-out".
 - **Cut (time-box):** config x task heatmap with the Pareto frontier, oracle-gap gauge, interactive scenario toggle.
   The heatmap's data stays in `reports/metrics.json` (`splits.heldout.cells`); the scenarios remain a static table.
+
+### D5.4 · Phase 5 handoff build (report, demo, README)
+- **Report:** `engine report` -> `reports/metrics.json` (one JSON; dev and shifted by replay, held-out only from the
+  D5.2 export and the O1 live run), `reports/report.html` (self-contained), 9 PNG figures + `reports/figures/INDEX.md`,
+  and the README results block. Every on-page number is a `data-metric` span; `tests/test_report.py` checks spans
+  against the JSON, lints for raw digits outside spans, checks SPEC §7.5 labels and the fiction label, and that the
+  export reproduces `reports/final/heldout.txt`. Added at Hamzah's request: `cost_vs_accuracy` and `ablations`
+  figures and spend per 100,000 tickets (from held-out per-ticket means). Built at `a0b0532`.
+- **Demo:** `engine demo --replay` replays the demo set (rule in `report/collect.py: demo_set`, first matching dev
+  ticket by id per task, plus the first escalated one) through the frozen O1 over cassettes; floors from
+  `config/policy.yaml`. `--verify` recomputes every metric and compares with `reports/metrics.json`.
+- **Tooling notes:** kaleido (PNG export) hangs under Git Bash and occasionally under PowerShell; run `engine report`
+  from PowerShell and re-export with `--no-collect` if it stalls. A stale git commit-graph cache made gitleaks fail
+  in pre-commit; it was moved aside and regenerated (`git fsck` clean). pre-commit's stash of large unstaged binary
+  outputs failed twice ("unable to write new index file"); outputs are now committed together with their build.
+  One intermediate build (committed as `a0b0532`) was marked `-dirty` and is superseded by the build at `a0b0532`
+  committed in `45eaf1e`. Full `engine check` GREEN at `45eaf1e`; full-history gitleaks (85 commits, all refs) clean;
+  `engine demo --replay --verify` recomputes every metric and matches `reports/metrics.json`.
+- **Licence:** MIT added as a placeholder (copyright Hamzah) because the README needs one; Hamzah to confirm.

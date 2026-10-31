@@ -1,30 +1,49 @@
-run: matrix-dev-full-1 | split: dev | git: 6cc190843b405889b210b42c5c05de9157aeaf48 | config_hash: 1201126a080c897a
+run: matrix-dev-full-1 | split: dev | git: 283886712a1967870cede869aa14e2b4a08886d2 | config_hash: 1201126a080c897a
 
 O1 = per-task cheapest config meeting the floor + risk-tiered verification on adjudicate (SPEC 7.3)
     faq/intent/extract: faq haiku-low, intent haiku-high, extract haiku-low (no verification)
-    adjudicate: haiku-low || haiku-medium in parallel; wait for haiku-medium at most 6.0s; accept haiku-low iff V0-V2 pass and the two agree (decision, payout +-1 SAR); if haiku-medium is late, iff haiku-low passes V0-V2; else escalate to opus-low
+    adjudicate: haiku-low || haiku-medium in parallel; wait for haiku-medium at most 6.0s; accept haiku-low iff V0-V2 pass and the two agree (decision, payout +-1 SAR); if haiku-medium is late, iff haiku-low passes V0-V2; else escalate to opus-low. If haiku-low fails V0-V2, opus-low starts the moment haiku-low returns (D3.5; haiku-medium still charged in full)
     floors and budgets: config/policy.yaml (frozen, budget rule premium)
     Tier 0 in front of every task: empty reject, exact-duplicate reuse, FAQ table (empty by default)
 
-Adjudicate: correct 178/180  success 170/180  escalated 11/180 (6.1%)  second opinion late 37
-    escalation reasons: disagree 3, first failed (second late) 3, first failed checks 3, second failed checks 2
+Adjudicate: correct 178/180  success 171/180  escalated 11/180 (6.1%)  V3 coverage 143/180
+    escalation reasons: first failed checks 6, disagree 3, second failed checks 2
 
 O1
-    correct 396/400  accuracy 0.990  success 0.965  p50 1.56s  p95 6.55s  meets every floor: yes
-    CPST, Cost without caching (headline):  $0.00277 [0.00210, 0.00353]
-        vs B1 (opus-low): $0.03533 -> $0.00277  saving +92.2% [+90.0%, +94.0%]
-        vs B3 (static per task): $0.01785 -> $0.00277  saving +84.5% [+80.5%, +88.1%]
-    CPST, Cost with caching (actual):       $0.00080 [0.00064, 0.00097]
-        vs B1 (opus-low): $0.00452 -> $0.00080  saving +82.4% [+78.9%, +85.5%]
-        vs B3 (static per task): $0.00308 -> $0.00080  saving +74.1% [+69.2%, +78.3%]
+    correct 396/400  accuracy 0.990  success 0.968  p50 1.56s  p95 6.41s  meets every floor: yes
+    CPST, Cost without caching (headline):  $0.00276 [0.00210, 0.00351]
+        vs B1 (opus-low): $0.03533 -> $0.00276  saving +92.2% [+90.0%, +94.0%]
+        vs B3 (static per task): $0.01785 -> $0.00276  saving +84.5% [+80.5%, +88.1%]
+    CPST, Cost with caching (actual):       $0.00079 [0.00064, 0.00097]
+        vs B1 (opus-low): $0.00452 -> $0.00079  saving +82.4% [+79.0%, +85.5%]
+        vs B3 (static per task): $0.00308 -> $0.00079  saving +74.2% [+69.4%, +78.3%]
+
+Oracle gap captured (SPEC 7.5; oracle = cheapest correct config within budget, per ticket)
+    Cost without caching (headline): B1 $0.03533, O1 $0.00276, oracle $0.00113 -> captured 95.2%
+    Cost with caching (actual): B1 $0.00452, O1 $0.00079, oracle $0.00032 -> captured 88.6%
+
+Escalated adjudicate tickets: latency with early escalation (D3.5) vs waiting for the second opinion; budget 8.5s
+    ticket    reason                          now s  before s  within budget now / before
+    dev-0018  disagree                         9.60      9.60  no / no
+    dev-0058  first failed checks              6.22      8.39  yes / yes
+    dev-0101  disagree                         7.71      7.71  yes / yes
+    dev-0109  disagree                        13.50     13.50  no / no
+    dev-0168  second failed checks            11.39     11.39  no / no
+    dev-0263  first failed checks             14.10     14.10  no / no
+    dev-0292  first failed checks              9.90      9.90  no / no
+    dev-0309  first failed checks              7.89      7.89  yes / yes
+    dev-0375  first failed checks              7.83      8.69  yes / no
+    dev-0391  first failed checks              7.28      7.28  yes / yes
+    dev-0397  second failed checks             7.33      7.33  yes / yes
+    adjudicate success 171 now vs 170 before; correct 178 vs 178; total headline cost $0.900092 vs $0.900092
 
 Per task (O1)
     task          n  correct    acc  floor  success   p95 s  budget s
     faq         100       99  0.990  0.980    0.980    1.79       2.5
     intent       60       60  1.000  0.980    1.000    1.41       4.5
     extract      60       59  0.983  0.980    0.967    2.10       3.5
-    adjudicate  180      178  0.989  0.984    0.944    8.33       8.5
-    language en: n=280  accuracy 0.993  success 0.971
+    adjudicate  180      178  0.989  0.984    0.950    7.83       8.5
+    language en: n=280  accuracy 0.993  success 0.975
     language ar: n=120  accuracy 0.983  success 0.950
 
 Verifier quality on the haiku-low adjudicate answer (n=180; wrong 6, correct 174)
@@ -34,15 +53,17 @@ Verifier quality on the haiku-low adjudicate answer (n=180; wrong 6, correct 174
     false-reject rate, V0-V2 + V3 (O1):   7/174 (4.0%)  (correct answers escalated)
 
 Deadline for the second opinion (D3.2; tuned on dev only; late calls charged in full)
-         D  correct  success  escalated  second late  adjudicate CPST (headline)
-      none      178      161         13            0  $0.00607
-      6.0s      178      170         11           37  $0.00529
-      5.0s      178      170         10           69  $0.00508
+V3 coverage = adjudicate tickets whose second opinion arrived in time (by max(haiku-low latency, D)).
+         D  correct  success  escalated      V3 coverage  adjudicate CPST (headline)
+      none      178      163         13  180/180 (100.0%)  $0.00600
+      6.0s      178      171         11  143/180 (79.4%)  $0.00526
+      5.0s      178      171         10  111/180 (61.7%)  $0.00505
 
 Tier 0 on dev (n=400): answered without a model 0/400 (0.0%); pass 400
     language detection agrees with the ticket label on 400/400
     dev has no empty tickets and no exact duplicates by construction (Phase 1 QA), and no FAQ table exists;
-    Tier 0 is kept for robustness (shifted adversarial / near-empty items, Phase 4), not for dev savings.
+    Tier 0 is kept for robustness (shifted adversarial / near-empty items), not for dev savings. Pre-registered
+    rule (D3.6): if Tier 0 answers no shifted item correctly in Phase 4, it is removed before freeze-v1.
 
 Remaining failures (wrong, or correct but over the task's latency budget)
     dev-0018  adjudicate over budget   9.60s / 8.5s  path haiku-low > haiku-medium > opus-low
@@ -57,5 +78,4 @@ Remaining failures (wrong, or correct but over the task's latency budget)
     dev-0263  adjudicate over budget  14.10s / 8.5s  path haiku-low > haiku-medium > opus-low
     dev-0292  adjudicate over budget   9.90s / 8.5s  path haiku-low > haiku-medium > opus-low
     dev-0355  adjudicate over budget   9.04s / 8.5s  path haiku-low > haiku-medium
-    dev-0375  adjudicate over budget   8.69s / 8.5s  path haiku-low > haiku-medium > opus-low
     dev-0378  adjudicate wrong         3.43s / 8.5s  path haiku-low > haiku-medium

@@ -1,36 +1,38 @@
-run: matrix-dev-full-1 | split: dev | git: 6cc190843b405889b210b42c5c05de9157aeaf48 | config_hash: 1201126a080c897a
+run: matrix-dev-full-1 | split: dev | git: 283886712a1967870cede869aa14e2b4a08886d2 | config_hash: 1201126a080c897a
 
 Local router (SPEC 6.4): TF-IDF char 2-5-grams (char_wb) + length, language, digits, amounts, dates
 -> logistic regression (class_weight balanced), 5-fold stratified out-of-fold on dev adjudicate.
 faq / intent / extract: no router action (O1 already starts at the cheapest config meeting the floor).
 
-Ceiling: a PERFECT router (routes exactly the 11 tickets O1 escalates) gives CPST (headline) $0.00264 vs O1 $0.00277 (+4.4%), p95 6.00s vs 6.55s, success 0.980 vs 0.965
+Ceiling: a PERFECT router (routes exactly the 11 tickets O1 escalates) gives CPST (headline) $0.00264 vs O1 $0.00276 (+4.2%), p95 6.00s vs 6.41s, success 0.980 vs 0.968
 
 local router: label = 'O1 escalates this adjudicate ticket' (11/180 positive on dev)
+    (SPEC 6.4 says 'cheapest sufficient rung'; under O1 this is equivalent, because the bottom rung is already
+    the cheapest and the only cheaper-than-O1 action left is skipping straight to the top rung; D3.4)
     ROC AUC on dev (local: out-of-fold; Jev: zero-shot) 0.393
     threshold (tuned on dev; lowest headline CPST meeting every floor): never route
     routed straight to opus-low: 0/180  (would have escalated: 0; misroute up = routed but O1 would not escalate: 0; misroute down = escalated but not routed: 11)
     collapse check: nothing routed
 
 O1 + local router
-    correct 396/400  accuracy 0.990  success 0.965  p50 1.56s  p95 6.55s  meets every floor: yes
-    CPST, Cost without caching (headline):  $0.00277 [0.00210, 0.00353]
-        vs O1: $0.00277 -> $0.00277  saving +0.0% [+0.0%, +0.0%]
-    CPST, Cost with caching (actual):       $0.00080 [0.00064, 0.00097]
-        vs O1: $0.00080 -> $0.00080  saving +0.0% [+0.0%, +0.0%]
-    p95 latency: O1 6.55s -> 6.55s  improvement +0.0% [+0.0%, +0.0%]
+    correct 396/400  accuracy 0.990  success 0.968  p50 1.56s  p95 6.41s  meets every floor: yes
+    CPST, Cost without caching (headline):  $0.00276 [0.00210, 0.00351]
+        vs O1: $0.00276 -> $0.00276  saving +0.0% [+0.0%, +0.0%]
+    CPST, Cost with caching (actual):       $0.00079 [0.00064, 0.00097]
+        vs O1: $0.00079 -> $0.00079  saving +0.0% [+0.0%, +0.0%]
+    p95 latency: O1 6.41s -> 6.41s  improvement +0.0% [+0.0%, +0.0%]
 
-SPEC 7.7 on dev only (PROVISIONAL: final only with the Phase 4 shifted matrix)
+SPEC 7.7 (FINAL, D3.4: a router must pass on BOTH dev and shifted, so failing dev means drop)
     (a) CPST improves >= 5% with CI excluding 0: no (+0.0% [+0.0%, +0.0%])
         or p95 improves >= 20% with CI excluding 0: no (+0.0% [+0.0%, +0.0%])
     (b) no per-task floor breached: yes
-    dev verdict: fails on dev -> drop (7.7 needs BOTH dev and shifted; shifted cannot reverse this)
+    verdict: fails on dev -> DROPPED (final negative finding; not run on shifted)
 
 Per task (with router)
     task          n  correct    acc  floor  success   p95 s  budget s
     faq         100       99  0.990  0.980    0.980    1.79       2.5
     intent       60       60  1.000  0.980    1.000    1.41       4.5
     extract      60       59  0.983  0.980    0.967    2.10       3.5
-    adjudicate  180      178  0.989  0.984    0.944    8.33       8.5
-    language en: n=280  accuracy 0.993  success 0.971
+    adjudicate  180      178  0.989  0.984    0.950    7.83       8.5
+    language en: n=280  accuracy 0.993  success 0.975
     language ar: n=120  accuracy 0.983  success 0.950

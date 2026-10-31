@@ -589,6 +589,11 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   running, throwing away a second opinion that had already arrived; it showed D = 5.0 losing 2 correct answers
   (176). With the rule as implemented above, D = 5.0 keeps 178 correct. **D = 6.0 stays as approved**; the stated
   reason for rejecting 5.0 no longer holds and is for Hamzah to revisit.
+- **Updated after D3.5 (early escalation), `reports/phase3/o1.txt` at `2838867`:** none / 6.0 / 5.0 s → correct
+  178 / 178 / 178, success 163 / 171 / 171, adjudicate CPST (headline) $0.00600 / $0.00526 / $0.00505, V3 coverage
+  (second opinion in time) 180/180 / 143/180 / 111/180.
+- **Sign-off (Hamzah, 2026-10-31): D stays 6.0 s**, because the second opinion covers more tickets (143 vs 111)
+  at equal correct and success counts.
 
 ### D3.3 · Jev router: questions and answer → rung mapping, declared BEFORE the run (approved spend ≤ $0.10)
 - **Where a router can act:** on faq / intent / extract, O1 already starts at the cheapest config meeting the
@@ -602,20 +607,55 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   that meets every floor; "never route" is a candidate). Jev's cost and latency are added to every adjudicate
   ticket it is asked about.
 - **Run:** `engine jev-router --yes` → run `jev-router-dev-1`, 180 dev adjudicate tickets + 1 untimed warm-up
-  call (Phase 0 cold start 42.8 s). Estimate $0.00630, cap $0.10. Held-out untouched. Results are provisional:
-  §7.7 keep/drop is final only after the Phase 4 shifted matrix.
+  call (Phase 0 cold start 42.8 s). Estimate $0.00630, cap $0.10. Held-out untouched. (Outcome: D3.4.)
 
-### D3.4 · Routers on dev: both fail §7.7 (PROVISIONAL negative finding; shifted pending)
+### D3.4 · Routers: both fail §7.7 on dev — FINAL negative finding (Hamzah, 2026-10-31)
 - **Evidence:** `reports/phase3/router_local.txt`, `reports/phase3/router_jev.txt` (replay of `matrix-dev-full-1`
-  and `jev-router-dev-1`). Label = "O1 escalates this adjudicate ticket" (11/180 on dev).
+  and `jev-router-dev-1`, regenerated at `2838867` after D3.5). Label = "O1 escalates this adjudicate ticket"
+  (11/180 on dev).
   - Local router (TF-IDF + LR, 5-fold out-of-fold): ROC AUC 0.393; the tuned threshold is "never route", so
     O2 = O1 (CPST change 0.0%).
-  - Jev router (zero-shot): ROC AUC 0.442 (complexity "complex": 80 tickets, 6 of them escalated); the tuned
-    threshold is "never route", so O3 = O1 + Jev's cost and latency: CPST (headline) 1.0% worse, p95 4.8% worse.
+  - Jev router (zero-shot): ROC AUC 0.442; the tuned threshold is "never route", so O3 = O1 + Jev's cost and
+    latency: CPST (headline) 0.8% worse [−1.4%, −0.4%], p95 4.9% worse.
   - **Ceiling:** a perfect router that routes exactly the 11 tickets O1 escalates improves CPST (headline) by only
-    4.4% and p95 from 6.55 s to 6.00 s, below both §7.7(a) thresholds (5% CPST, 20% p95). O1 already
-    captures almost all the headroom (Phase 2 headroom was measured against B3, before O1 existed), so no
-    router can pass §7.7 on dev.
-- **Decision (provisional):** neither router is kept; reported as a negative finding. §7.7 requires both dev and
-  shifted, so a dev failure cannot be reversed by shifted; the shifted rows will be added in Phase 4 for completeness.
+    4.2% and p95 from 6.41 s to 6.00 s, below both §7.7(a) thresholds (5% CPST, 20% p95). O1 already captures
+    almost all the headroom (the Phase 2 headroom was measured against B3, before O1 existed).
+- **Decision (final):** neither router is kept. §7.7 requires a pass on BOTH dev and shifted, so failing dev is a
+  drop that shifted cannot reverse. Phase 4 does not run Jev on shifted. Reported as a negative finding.
+- **Label vs SPEC §6.4:** the router label "O1 escalates" differs from §6.4's "cheapest sufficient rung" but is
+  equivalent under O1, because the bottom rung is already the cheapest; the only routing action left is going
+  straight to the top rung.
 - **Spend:** OpenRouter $0.005373 (run `jev-router-dev-1`, 181 calls incl. warm-up, 0 errors; estimate $0.00630).
+
+### D3.5 · Escalate the moment `haiku-low` fails V0-V2 (Hamzah's review)
+- **Found:** the first O1 build waited for `haiku-medium` (or the 6.0 s deadline) before starting `opus-low`, even
+  when `haiku-low` had already failed V0-V2, a case the second opinion cannot rescue.
+- **Decision:** `opus-low` starts the moment `haiku-low` returns with a V0-V2 failure; `haiku-medium` is still
+  charged in full. Option `O1Options.escalate_early` (default True; False = the earlier build, kept for the test).
+- **Evidence (`reports/phase3/o1.txt` at `2838867`):** correct 178 vs 178 and total adjudicate headline cost
+  $0.900092 vs $0.900092 (identical); only latency changes. Adjudicate success 171 vs 170 (dev-0375 now within
+  budget), adjudicate p95 7.83 s. `tests/test_o1.py` asserts, ticket by ticket on dev, identical path, correctness
+  and both costs, and latency never higher.
+
+### D3.6 · Tier 0 kept, with a pre-registered removal rule (Hamzah, 2026-10-31; logged before Phase 4)
+- Tier 0 answers 0/400 dev tickets (no empty tickets or exact duplicates in dev by construction; no FAQ table).
+  It is kept for robustness on the shifted split's adversarial and near-empty items.
+- **Rule:** if Tier 0 answers no shifted item correctly in Phase 4, it is removed from the final policy before
+  `freeze-v1`.
+
+### D3.7 · O4 extract-then-compute (SPEC §6.6): cut (Hamzah, 2026-10-31)
+- Not built; listed as future work. It needs a new extraction prompt and schema and a new paid dev run.
+
+### Phase 3 closed (2026-10-31, Hamzah's sign-off)
+- **Gate (SPEC §10 row 3):**
+  - Ablation row with a CI for every layer: `reports/phase3/ablations.txt`. V3 and V2 are needed to clear the
+    pre-registered adjudicate floor on dev (178 correct needed) by 2 and 1 tickets respectively (drop V3 → 176,
+    drop V2 → 177). Their accuracy-delta CIs touch 0, so no significant accuracy gain is claimed; both layers
+    cost money (the policy without either one is cheaper per successful task) and are kept only for the floor. The deadline
+    (D3.2) improves success, not accuracy. Tier 0: no gain on dev, kept under D3.6.
+  - Verifier false-accept rate per task: V0-V2 in `reports/phase2/verifiers.txt`; with V3 on adjudicate, 2/6 wrong
+    `haiku-low` answers still accepted (was 4/6), `reports/phase3/o1.txt`.
+  - Router keep/drop by §7.7: both dropped (D3.4, final).
+  - Chosen policy O1 meets every floor on dev; oracle gap captured 95.2% (headline) / 88.6% (with caching).
+- **Effort finding:** `reports/phase3/effort.txt`.
+- **Spend in Phase 3:** OpenRouter $0.005373; no Anthropic spend (all O1 / ablation results are replay).

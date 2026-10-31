@@ -237,6 +237,9 @@ All JSONL; one record per line; never mutate a committed run file (write a new r
 | V2 | Consistency: payout recomputed from the model's own stated `inputs` with the published formula; decision consistent with stated reasons | adjudicate |
 | V3 | Second opinion: one rung higher must agree, only when expected loss (p_error × cost_of_error) exceeds the check's cost | adjudicate (high payout) |
 Verifier false-accept rate (wrong answer passing all checks) is measured per task on dev.
+As built (Phase 3, D3.2/D3.5): V3 runs on every adjudicate ticket as `haiku-medium` in parallel with `haiku-low`,
+waited for at most 6.0 s; agreement = same decision and payout within 1 SAR. A V0-V2 failure of `haiku-low`
+escalates to `opus-low` at once. faq / intent / extract run no verification (V0 never failed for their configs).
 
 ### §6.4 Routers
 - **Local**: TF-IDF char 2–5-grams over ticket text + features (length, language, count of digits/amounts/dates,
@@ -247,6 +250,9 @@ Verifier false-accept rate (wrong answer passing all checks) is measured per tas
   Probabilities used as confidence. All calls recorded/replayed like LLM calls. Ticket text only (no policy doc).
 - **Cascade-only**: no router; always start at the bottom rung.
 Thresholds for both routers tuned on dev out-of-fold data only.
+As built (D3.3/D3.4): under O1 the only routing action left is adjudicate → straight to `opus-low`, so both routers
+predict "O1 escalates this ticket" (equivalent to the cheapest sufficient rung, since the bottom rung is already the
+cheapest). Both failed §7.7 on dev and were dropped (final negative finding).
 
 ### §6.5 Record/replay
 Every API call goes through `llm/client.py`. Key = sha256 of (model, effort, system, user, max_tokens, schema,
@@ -258,7 +264,7 @@ is exempt (DECISIONS D0.10).
 Modes: `live` (call + record), `replay` (cassette only; miss = error), `auto` (replay if present). Recorded latency
 is stored and reused in replay; replayed results are labelled `replayed=true` and reports say "simulated".
 
-### §6.6 PROPOSED (needs Hamzah's OK): extract-then-compute variant
+### §6.6 CUT (D3.7, future work): extract-then-compute variant
 For `adjudicate`, a cheap model extracts structured facts and the deterministic rules engine computes decision
 and payout (LLMs don't do the arithmetic). Evaluated as one more policy; likely large savings at high accuracy and
 a strong "simpler alternative" result. Gold labels remain independent (engine applied to TRUE facts; the variant
@@ -286,7 +292,7 @@ A task is a success iff the grader marks it correct AND total latency ≤ that t
 Baselines: B1 always-best (most accurate config) · B2 always-cheapest (`haiku-low`) · B3 static rules by task type ·
 B4 cheapest single config meeting every floor · B5 naive cascade (`haiku-low` → most accurate config on V0 failure).
 Ours: O1 Tier 0 + ladder cascade + risk-tiered verification + caching · O2 = O1 + local router · O3 = O1 + Jev router ·
-(O4 extract-then-compute, if approved).
+(O4 extract-then-compute: cut, D3.7). Result: O2 and O3 dropped by §7.7 (D3.4); O1 is the chosen policy.
 
 ### §7.4 Counterfactual replay
 Record all 9 configs on every dev and shifted ticket once (`engine matrix`). Any policy is then evaluated by lookup:
@@ -424,8 +430,10 @@ done / evidence / next.
 Cut order under time pressure: router experiment → scenario switcher → audit sampling → bring-your-own-tasks.
 Never cut: held-out protocol, replay, report, secret hygiene.
 
-OPEN: product name · approval of §6.6 extract-then-compute · Jev access confirmation (Phase 0) ·
+OPEN: product name · Jev access confirmation (Phase 0) ·
 Hamzah's review of rules.yaml wording and intent labels.
+
+CUT (D3.7): §6.6 extract-then-compute (O4), future work.
 
 DEFERRED (Phase 3, if time allows; D1.6): AI rewrite of the shifted split only, by a non-Anthropic model via
 OpenRouter, with a fact-preservation check that rejects any rewrite changing a gold-relevant value (`meta.facts`).

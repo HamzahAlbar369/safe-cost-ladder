@@ -1,0 +1,74 @@
+runs: matrix-dev-full-1, matrix-shifted-full-1 | git: 94622108d484265546e16c7d5f0acf42143773ea
+
+Scenario switcher (SPEC 8): replay over the recorded matrices, no API calls. The controller
+re-applies the frozen selection rules ON DEV to the changed world (src/engine/eval/scenarios.py
+docstring); the split being scored is never used to choose. 'as recorded' = the frozen O1 with no
+change. CIs: 95% bootstrap. Floors and budgets in each line are the scenario's.
+
+=== split dev (run matrix-dev-full-1, n=400)
+
+Scenario: Opus price 2x
+    change: price {'opus': 2.0} | outage - | budgets - | floor delta +0.00
+    controller picks (on dev): faq haiku-low, intent haiku-high, extract haiku-low; adjudicate haiku-low || haiku-medium -> opus-low; B1 opus-low
+    O1 CPST headline      $0.00387 [0.00260, 0.00534] (as recorded $0.00276); vs B1 $0.07066: saving +94.5% [+92.5%, +96.3%]
+    O1 CPST with caching  $0.00101 [0.00074, 0.00132] (as recorded $0.00079); vs B1 $0.00904: saving +88.9% [+85.6%, +91.8%]
+    O1 accuracy 0.990 (as recorded 0.990)  success 0.968 (as recorded 0.968)  p95 6.41s  meets every (scenario) floor: yes
+    per task: faq acc 0.990 succ 0.980 | intent acc 1.000 succ 1.000 | extract acc 0.983 succ 0.967 | adjudicate acc 0.989 succ 0.950
+
+Scenario: Haiku outage
+    change: price - | outage ['haiku'] | budgets - | floor delta +0.00
+    controller picks (on dev): faq sonnet-low, intent sonnet-low, extract sonnet-high; adjudicate cascade unavailable: opus-low alone; B1 opus-low
+    O1 CPST headline      $0.02617 [0.02503, 0.02739] (as recorded $0.00276); vs B1 $0.03533: saving +25.9% [+22.9%, +29.0%]
+    O1 CPST with caching  $0.00375 [0.00346, 0.00406] (as recorded $0.00079); vs B1 $0.00452: saving +17.1% [+14.1%, +20.2%]
+    O1 accuracy 0.998 (as recorded 0.990)  success 0.973 (as recorded 0.968)  p95 4.60s  meets every (scenario) floor: yes
+    per task: faq acc 1.000 succ 0.960 | intent acc 1.000 succ 1.000 | extract acc 1.000 succ 0.917 | adjudicate acc 0.994 succ 0.989
+
+Scenario: Tighter adjudicate budget (6.0 s)
+    change: price - | outage - | budgets {'adjudicate': 6.0} | floor delta +0.00
+    controller picks (on dev): faq haiku-low, intent haiku-high, extract haiku-low; adjudicate haiku-low || haiku-medium -> opus-low; B1 opus-low
+    O1 CPST headline      $0.00292 [0.00221, 0.00376] (as recorded $0.00276); vs B1 $0.03580: saving +91.8% [+89.5%, +93.8%]
+    O1 CPST with caching  $0.00084 [0.00067, 0.00104] (as recorded $0.00079); vs B1 $0.00458: saving +81.6% [+77.7%, +85.0%]
+    O1 accuracy 0.990 (as recorded 0.990)  success 0.912 (as recorded 0.968)  p95 6.41s  meets every (scenario) floor: yes
+    per task: faq acc 0.990 succ 0.980 | intent acc 1.000 succ 1.000 | extract acc 0.983 succ 0.967 | adjudicate acc 0.989 succ 0.828
+
+Scenario: Floors 2 pts lower
+    change: price - | outage - | budgets - | floor delta -0.02
+    controller picks (on dev): faq haiku-low, intent haiku-medium, extract haiku-low; adjudicate haiku-low || haiku-medium -> opus-low; B1 opus-low
+    O1 CPST headline      $0.00277 [0.00211, 0.00353] (as recorded $0.00276); vs B1 $0.03533: saving +92.2% [+90.0%, +94.0%]
+    O1 CPST with caching  $0.00080 [0.00065, 0.00097] (as recorded $0.00079); vs B1 $0.00452: saving +82.4% [+78.9%, +85.4%]
+    O1 accuracy 0.985 (as recorded 0.990)  success 0.963 (as recorded 0.968)  p95 6.41s  meets every (scenario) floor: yes
+    per task: faq acc 0.990 succ 0.980 | intent acc 0.967 succ 0.967 | extract acc 0.983 succ 0.967 | adjudicate acc 0.989 succ 0.950
+
+=== split shifted (run matrix-shifted-full-1, n=200)
+
+Scenario: Opus price 2x
+    change: price {'opus': 2.0} | outage - | budgets - | floor delta +0.00
+    controller picks (on dev): faq haiku-low, intent haiku-high, extract haiku-low; adjudicate haiku-low || haiku-medium -> opus-low; B1 opus-low
+    O1 CPST headline      $0.00559 [0.00308, 0.00860] (as recorded $0.00373); vs B1 $0.07010: saving +92.0% [+87.9%, +95.5%]
+    O1 CPST with caching  $0.00155 [0.00090, 0.00230] (as recorded $0.00112); vs B1 $0.00943: saving +83.6% [+76.6%, +89.9%]
+    O1 accuracy 0.910 (as recorded 0.910)  success 0.880 (as recorded 0.880)  p95 6.69s  meets every (scenario) floor: NO
+    per task: faq acc 0.840 succ 0.840 | intent acc 1.000 succ 1.000 | extract acc 1.000 succ 1.000 | adjudicate acc 0.889 succ 0.822
+
+Scenario: Haiku outage
+    change: price - | outage ['haiku'] | budgets - | floor delta +0.00
+    controller picks (on dev): faq sonnet-low, intent sonnet-low, extract sonnet-high; adjudicate cascade unavailable: opus-low alone; B1 opus-low
+    O1 CPST headline      $0.02643 [0.02462, 0.02834] (as recorded $0.00373); vs B1 $0.03505: saving +24.6% [+20.9%, +28.6%]
+    O1 CPST with caching  $0.00406 [0.00357, 0.00461] (as recorded $0.00112); vs B1 $0.00472: saving +13.8% [+10.7%, +17.4%]
+    O1 accuracy 0.975 (as recorded 0.910)  success 0.975 (as recorded 0.880)  p95 4.41s  meets every (scenario) floor: NO
+    per task: faq acc 0.980 succ 0.980 | intent acc 1.000 succ 1.000 | extract acc 1.000 succ 1.000 | adjudicate acc 0.956 succ 0.956
+
+Scenario: Tighter adjudicate budget (6.0 s)
+    change: price - | outage - | budgets {'adjudicate': 6.0} | floor delta +0.00
+    controller picks (on dev): faq haiku-low, intent haiku-high, extract haiku-low; adjudicate haiku-low || haiku-medium -> opus-low; B1 opus-low
+    O1 CPST headline      $0.00379 [0.00244, 0.00537] (as recorded $0.00373); vs B1 $0.03541: saving +89.3% [+85.1%, +93.0%]
+    O1 CPST with caching  $0.00114 [0.00077, 0.00157] (as recorded $0.00112); vs B1 $0.00477: saving +76.1% [+68.7%, +83.1%]
+    O1 accuracy 0.910 (as recorded 0.910)  success 0.865 (as recorded 0.880)  p95 6.69s  meets every (scenario) floor: NO
+    per task: faq acc 0.840 succ 0.840 | intent acc 1.000 succ 1.000 | extract acc 1.000 succ 1.000 | adjudicate acc 0.889 succ 0.789
+
+Scenario: Floors 2 pts lower
+    change: price - | outage - | budgets - | floor delta -0.02
+    controller picks (on dev): faq haiku-low, intent haiku-medium, extract haiku-low; adjudicate haiku-low || haiku-medium -> opus-low; B1 opus-low
+    O1 CPST headline      $0.00373 [0.00242, 0.00529] (as recorded $0.00373); vs B1 $0.03505: saving +89.4% [+85.2%, +93.0%]
+    O1 CPST with caching  $0.00112 [0.00076, 0.00153] (as recorded $0.00112); vs B1 $0.00472: saving +76.3% [+68.9%, +83.1%]
+    O1 accuracy 0.910 (as recorded 0.910)  success 0.880 (as recorded 0.880)  p95 6.69s  meets every (scenario) floor: NO
+    per task: faq acc 0.840 succ 0.840 | intent acc 1.000 succ 1.000 | extract acc 1.000 succ 1.000 | adjudicate acc 0.889 succ 0.822

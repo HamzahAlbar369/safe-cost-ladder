@@ -700,3 +700,13 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
 - **Decision (rule D3.6, applied as written):** removed before freeze-v1. `O1Options.tier0` now defaults to False;
   the ablation row becomes "add Tier 0". Results are identical (it answered nothing), asserted ticket by ticket on dev
   in `tests/test_o1.py`. Language detection stays a utility (agrees with the label on 199/200 shifted tickets).
+
+### D4.4 · Scenario switcher (`engine scenario`, replay, no API calls): 4 presets on dev and shifted
+- **Rule (declared in `src/engine/eval/scenarios.py`):** a scenario changes prices (per model), removes a model
+  (outage), overrides latency budgets or shifts every floor. The controller re-applies the frozen selection rules
+  ON DEV to the changed world (cheapest config meeting the floor per task; the adjudicate cascade only if
+  haiku-low, haiku-medium and its top rung are available, else the task's static config alone); the scored split
+  is never used to choose. "No change" reproduces the frozen O1 ticket for ticket (`tests/test_scenarios.py`).
+- **Evidence:** `reports/phase4/scenarios.txt` (at `9462210`): Opus price 2x, Haiku outage, adjudicate budget 6.0 s,
+  floors 2 pts lower. Example (dev, headline): under a Haiku outage the controller moves faq/intent/extract to
+  Sonnet and adjudicate to opus-low alone; O1 still meets every floor and CPST rises from $0.00276 to $0.02617.

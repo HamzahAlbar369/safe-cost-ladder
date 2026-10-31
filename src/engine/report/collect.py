@@ -466,11 +466,20 @@ def shifted_extras(ctx, o1: list[Outcome], fc) -> dict:
         mean(ctx.index[(t.id, c)].correct for t in ctx.tickets if t.task_type == "adjudicate")
         for c in {cfg for _, cfg in ctx.index}
     )
+    configs = sorted({cfg for _, cfg in ctx.index})
+    best_single = {}
+    for t in TASKS:
+        ids = [x.id for x in ctx.tickets if x.task_type == t]
+        acc = {c: mean(ctx.index[(i, c)].correct for i in ids) for c in configs}
+        cost = {c: mean(ctx.index[(i, c)].cost_usd_nocache for i in ids) for c in configs}
+        c = min(configs, key=lambda c: (-acc[c], cost[c]))  # most accurate; ties -> cheapest
+        best_single[t] = {"config": c, "acc": acc[c]}
     return {
         "analysis": analysis,
         "scenario": scen,
         "opus_high_adjudicate_wrong": top_wrong,
         "best_single_adjudicate_acc": best_adj,
+        "best_single": best_single,  # diagnosis only: chosen ON shifted, never used by any policy
     }
 
 

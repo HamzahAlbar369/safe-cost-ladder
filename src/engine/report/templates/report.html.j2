@@ -32,7 +32,7 @@
   <div class="ar">طبقة كفاءة تختار أرخص نموذج ومستوى جهد يحقق الدقة المطلوبة لكل مهمة، دون انتظار غير ضروري.</div>
   <div class="hero-grid">
     <div class="hero-figure">{{ m(H ~ ".O1_live.saving_nocache", "pct1") }}
-      <small>lower cost per successful task than always-best (B1), O1 {{ T.LIVE }} on held-out,
+      <small>lower cost per successful task than always-best (B1) · O1 {{ T.LIVE }}, held-out ·
         {{ T.HEADLINE }}. 95% CI {{ ci(H ~ ".O1_live.saving_nocache", "pct1") }}.
         CPST {{ m(H ~ ".B1.cpst_nocache", "usd5") }} → {{ m(H ~ ".O1_live.cpst_nocache", "usd5") }}.
         {{ T.CACHED }}: {{ m(H ~ ".O1_live.saving_cached", "pct1") }} lower {{ ci(H ~ ".O1_live.saving_cached", "pct1") }}.</small>
@@ -146,13 +146,18 @@
     {{ m("splits.heldout.oracle_gap.cached", "pct1") }} ({{ T.CACHED }}); O1 {{ T.LIVE }}
     {{ m("splits.heldout.oracle_gap_live.nocache", "pct1") }} / {{ m("splits.heldout.oracle_gap_live.cached", "pct1") }}
     (point values; no CI computed).</p>
-  {%- if v(H ~ ".B2.meets_floors") and v(H ~ ".B2.cpst_nocache") < v(H ~ ".O1_live.cpst_nocache") %}
-  <div class="note"><b>Read this with the table:</b> on held-out, always-cheapest (B2) also meets every floor and is
-    cheaper than O1 ({{ m(H ~ ".B2.cpst_nocache", "usd5") }} vs {{ m(H ~ ".O1_live.cpst_nocache", "usd5") }}). On dev, the
-    split where policies were chosen, B2 {{ 'breaches' if not v(D ~ ".B2.meets_floors") else 'meets' }} the floors
-    (accuracy {{ m(D ~ ".B2.acc", "f3") }}); on shifted it {{ 'breaches' if not v(S ~ ".B2.meets_floors") else 'meets' }} them
-    (accuracy {{ m(S ~ ".B2.acc", "f3") }}). O1's extra checks are insurance that this held-out sample didn't need.</div>
-  {%- endif %}
+  {%- set b2_ok, b2_cheaper = v(H ~ ".B2.meets_floors"), v(H ~ ".B2.cpst_nocache") < v(H ~ ".O1_live.cpst_nocache") %}
+  {%- set over = [] %}{% for t in tasks %}{% if v(H ~ ".O1_live.per_task." ~ t ~ ".p95_s") > v("floors." ~ t ~ ".budget_s") %}{% set _ = over.append(t) %}{% endif %}{% endfor %}
+  <div class="note"><b>Two things to read with this table.</b>
+    <p style="margin:6px 0 0">B2 (always-cheapest) {{ 'met every floor' if b2_ok else 'breached a floor' }} on held-out and was
+      {{ 'cheaper' if b2_cheaper else 'more expensive' }} than O1 ({{ m(H ~ ".B2.cpst_nocache", "usd5") }} vs O1 {{ T.LIVE }} {{ m(H ~ ".O1_live.cpst_nocache", "usd5") }}),
+      but it {{ 'breached' if not v(D ~ ".B2.meets_floors") else 'met' }} the floors on dev (accuracy {{ m(D ~ ".B2.acc", "f3") }})
+      and {{ 'breached' if not v(S ~ ".B2.meets_floors") else 'met' }} them on shifted (accuracy {{ m(S ~ ".B2.acc", "f3") }}).
+      O1 was chosen on dev, where B2 was not an option.</p>
+    <p style="margin:6px 0 0">{{ T.LIVE | capitalize }} p95 latency {{ 'exceeded' if v(H ~ ".O1_live.p95_s") > v(H ~ ".O1.p95_s") else 'stayed within' }}
+      the {{ T.SIMULATED }} value ({{ m(H ~ ".O1_live.p95_s", "s2") }} vs {{ m(H ~ ".O1.p95_s", "s2") }}){% if over %};{% for t in over %} {{ t }} ran over its latency budget {{ T.LIVE }} (p95 {{ m(H ~ ".O1_live.per_task." ~ t ~ ".p95_s", "s2") }} vs budget {{ m("floors." ~ t ~ ".budget_s", "s1") }}){{ "," if not loop.last }}{% endfor %},
+      so {{ T.LIVE }} success is {{ m(H ~ ".O1_live.success", "f3") }} vs {{ m(H ~ ".O1.success", "f3") }} {{ T.SIMULATED }}{% endif %}.</p>
+  </div>
   </div>
 
   <div class="card"><figure><h3>{{ title("cpst_forest") }}</h3>{{ figs["cpst_forest"] }}
@@ -203,7 +208,7 @@
   <div class="kicker">Robustness</div>
   <h2>Shifted traffic breaks two floors; a cheap audit catches it</h2>
   <div class="card"><figure><h3>{{ title("robustness") }}</h3>{{ figs["robustness"] }}
-    <figcaption>{{ caption("robustness") }}. Dotted line = frozen per-task floor; ✓/✗ = met/breached. Fail-safe: <b>analysis added after observing shifted; it selects nothing from shifted; the held-out run uses the dev-frozen O1.</b></figcaption></figure></div>
+    <figcaption>{{ caption("robustness") }}. Dotted line = frozen per-task floor; ✓/✗ = met/breached. Open diamond = best single config on shifted, picked on shifted for diagnosis only (no policy uses it): it shows the adjudicate floor is out of reach for every config. Fail-safe: <b>analysis added after observing shifted; it selects nothing from shifted; the held-out run uses the dev-frozen O1.</b></figcaption></figure></div>
 
   <h3 style="margin-top:28px">Drift monitor: how big must a labelled audit sample be?</h3>
   <p>Audit sizes below are the <b>total</b> audit sample (all tasks together, stratified by task); the faq and adjudicate
@@ -221,7 +226,12 @@
       <td class="r">{{ m("monitor." ~ i ~ ".either", "pct1") }}</td>
       <td class="r">{{ m("monitor." ~ j.idx ~ ".either", "pct1") }}</td></tr>
     {%- endif %}{%- endfor %}{%- endfor %}
-  </table></div>
+  </table>
+  {%- set mon = namespace(i=0) %}{% for i in range(v("monitor") | length) %}{% if v("monitor")[i].split == "shifted" and v("monitor")[i].detector == "binomial" and v("monitor")[i].n == 100 %}{% set mon.i = i %}{% endif %}{% endfor %}
+  <p class="muted" style="font-size:13.5px">Detection power depends on the per-task counts, not the total: in a binomial audit of
+    {{ m("monitor." ~ mon.i ~ ".n", "int") }} tickets ({{ m("monitor." ~ mon.i ~ ".faq_n", "int") }} faq, {{ m("monitor." ~ mon.i ~ ".adjudicate_n", "int") }} adjudicate),
+    the faq alarm fires in {{ m("monitor." ~ mon.i ~ ".faq", "pct1") }} of shifted samples and the adjudicate alarm in {{ m("monitor." ~ mon.i ~ ".adjudicate", "pct1") }}.</p>
+  </div>
 
   <h3 style="margin-top:28px">Policy change and adversarial tickets (shifted split, frozen O1, {{ T.SIMULATED }})</h3>
   <p>Policy change: some tickets were generated under a second rules file; the system was pointed at the new policy document,

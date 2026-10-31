@@ -797,3 +797,14 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   verifier reason is written. `engine report` reads these files and never `heldout.jsonl`.
 - **Evidence:** the manifest's summary reproduces every row of the heldout.txt policy table exactly (accuracy,
   success, p95, both CPSTs); asserted by a test in the report step.
+
+### D5.3 · Report checkpoint review (Hamzah): fixes applied; stretch items cut
+- **Fixes:** Sankey accepted node relabelled "accepted (checks pass; agreed, or second opinion late)"; O1 live and
+  O1 simulated in adjacent forest rows; robustness value labels moved off the floor line plus a "best single config
+  on shifted" marker (picked on shifted for diagnosis only; no policy uses it); sim-vs-live title "<task> ran over its
+  latency budget live"; receipt figure tidied. The proof section states, generated from metrics, that B2 met every
+  floor on held-out and was cheaper than O1 but breached floors on dev and shifted, and that live p95 exceeded
+  simulated (faq over budget live). Monitor table stays as totals with a per-task column, plus a generated sentence
+  that detection power depends on per-task counts. Hero uses O1 live, labelled "live, held-out".
+- **Cut (time-box):** config x task heatmap with the Pareto frontier, oracle-gap gauge, interactive scenario toggle.
+  The heatmap's data stays in `reports/metrics.json` (`splits.heldout.cells`); the scenarios remain a static table.

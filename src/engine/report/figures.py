@@ -54,7 +54,7 @@ H = "splits.heldout.policies"
 
 # --- 1. CPST forest plot: policy x split, CIs ----------------------------------------------------------
 
-FOREST_ROWS = ("B1", "B3", "B2", "O1", "O1_live", "Oracle")
+FOREST_ROWS = ("B1", "B3", "B2", "O1_live", "O1", "Oracle")  # top to bottom
 FOREST_TICKS = (0.0003, 0.001, 0.003, 0.01, 0.03, 0.1)
 
 
@@ -112,7 +112,8 @@ def forest(m: dict, s: T.Size) -> go.Figure:
         fig.update_xaxes(type="log", range=rng, tickvals=ticks, ticktext=[f"${t:g}" for t in ticks], row=1, col=col,
                          title_text="CPST, " + T.HEADLINE + ", log scale" if col == 2 else None,
                          title_font={"size": s.small, "color": T.MUTED})  # fmt: skip
-    fig.update_yaxes(tickfont={"size": s.label, "color": T.INK_2})
+    fig.update_yaxes(tickfont={"size": s.label, "color": T.INK_2}, categoryorder="array",
+                     categoryarray=[labels[k] for k in rows])  # fmt: skip
     fig.update_annotations(selector={"text": "dev"}, font={"size": s.label, "color": T.INK})
     T.layout(fig, s, title=title_text(m, forest_title(m)), caption=caption(m, "cpst_forest"), height=430)
     for a in fig.layout.annotations:
@@ -175,7 +176,7 @@ def sankey(m: dict, s: T.Size) -> go.Figure:
     nodes = [
         f"haiku-low ‖ haiku-medium<br>{d['n']} tickets · {fmt_value(rc['haiku-low'], 'usd4')} + "
         f"{fmt_value(rc['haiku-medium'], 'usd4')} per call",
-        f"accepted (checks pass, both agree)<br>{d['accepted']}",
+        f"accepted (checks pass; agreed, or second opinion late)<br>{d['accepted']}",
         f"escalated to opus-low<br>{d['escalated']} · {fmt_value(rc.get('opus-low', 0), 'usd4')} per call",
     ]
     fates = [f for f in fate_label if d["accepted_fate"][f] + d["escalated_fate"][f] > 0]
@@ -266,7 +267,12 @@ def simlive_title(m: dict) -> list[Segment]:
         t for t in TASKS if lookup(m, f"{H}.O1_live.per_task.{t}.p95_s") > lookup(m, f"floors.{t}.budget_s")
     ]
     if over:
-        segs += ["; over its latency budget live: " + ", ".join(over)]
+        segs += [
+            "; "
+            + " and ".join(over)
+            + (" ran" if len(over) == 1 else " ran")
+            + " over its latency budget live"
+        ]
     return segs
 
 
@@ -314,6 +320,7 @@ ROB = (
     ("shifted", "splits.shifted.policies.O1", "O1 · shifted (" + T.SIMULATED + ")", "O1"),
     ("failsafe", "splits.shifted.analysis.failsafe", "fail-safe · shifted (analysis)", "failsafe"),
 )
+BEST = "best single config · shifted"
 
 
 def robust_title(m: dict) -> list[Segment]:
@@ -330,7 +337,7 @@ def robust_title(m: dict) -> list[Segment]:
 def robust(m: dict, s: T.Size) -> go.Figure:
     tasks = list(TASKS)
     fig = make_subplots(rows=1, cols=4, shared_yaxes=True, horizontal_spacing=0.02, subplot_titles=tasks)
-    allv = []
+    allv, rows = [], []
     for col, t in enumerate(tasks, start=1):
         fl = lookup(m, f"floors.{t}.floor")
         ys = [r[2] for r in ROB]
@@ -340,17 +347,24 @@ def robust(m: dict, s: T.Size) -> go.Figure:
                       "width": s.line, "dash": "dot"}, row=1, col=col)  # fmt: skip
         fig.add_annotation(x=fl, y=1, yref="y domain", text=f"floor {fl:.3f}", showarrow=False, yanchor="bottom",
                            xanchor="right", font={"size": s.small, "color": T.INK_2}, row=1, col=col)  # fmt: skip
+        best = lookup(m, f"splits.shifted.best_single.{t}")
+        allv.append(best["acc"])
+        rows.append((xs, ys, best, fl, t))
+    lo = math.floor(min(allv) * 20) / 20 - 0.05
+    for col, (xs, ys, best, fl, t) in enumerate(rows, start=1):
         for x, y, r in zip(xs, ys, ROB, strict=True):
             ok = x >= fl
             st = T.POLICY[r[3]]
-            fig.add_trace(go.Scatter(
-                x=[x], y=[y], mode="markers+text", text=[("✓ " if ok else "✗ ") + f"{x:.3f}"],
-                textposition="middle left",
-                textfont={"size": s.small, "color": T.GOOD if ok else T.BAD},
-                marker={"size": s.marker, "color": st.color, "symbol": st.symbol},
-                hovertemplate=f"{r[2]} · {t}: {x:.3f} vs floor {fl:.3f}<extra></extra>",
-            ), row=1, col=col)  # fmt: skip
-    lo = math.floor(min(allv) * 20) / 20 - 0.05
+            fig.add_trace(go.Scatter(x=[x], y=[y], mode="markers", marker={"size": s.marker, "color": st.color, "symbol": st.symbol},
+                                     hovertemplate=f"{r[2]} · {t}: {x:.3f} vs floor {fl:.3f}<extra></extra>"), row=1, col=col)  # fmt: skip
+            fig.add_annotation(x=lo, y=y, text=("✓ " if ok else "✗ ") + f"{x:.3f}", showarrow=False, xanchor="left",
+                               xshift=4, font={"size": s.small, "color": T.GOOD if ok else T.BAD}, row=1, col=col)  # fmt: skip
+        ok = best["acc"] >= fl
+        fig.add_trace(go.Scatter(x=[best["acc"]], y=[BEST], mode="markers", marker={"size": s.marker, "color": T.SURFACE,
+                                 "symbol": "diamond", "line": {"color": T.INK_2, "width": s.line}},
+                                 hovertemplate=f"{best['config']} on shifted · {t}: {best['acc']:.3f}<extra></extra>"), row=1, col=col)  # fmt: skip
+        fig.add_annotation(x=lo, y=BEST, text=("✓ " if ok else "✗ ") + f"{best['acc']:.3f} {best['config']}", showarrow=False,
+                           xanchor="left", xshift=4, font={"size": s.small, "color": T.GOOD if ok else T.BAD}, row=1, col=col)  # fmt: skip
     for col in range(1, 5):
         fig.update_xaxes(range=[lo, 1.02], tickformat=".2f", row=1, col=col)
     fig.update_xaxes(title_text=f"accuracy (axis starts at {lo:.2f})", title_font={"size": s.small, "color": T.MUTED},
@@ -374,48 +388,45 @@ def receipt_title(m: dict) -> list[Segment]:
 
 
 def receipt(m: dict, s: T.Size) -> go.Figure:
+    """Two itemised receipts in one table: a shaded header row per policy, its calls, a bold total."""
     r = m["receipt"]
-    hdr = [
-        "policy",
-        "call",
-        "model-effort",
-        "tokens in / out*",
-        T.HEADLINE,
-        T.CACHED,
-        "latency",
-        "checks",
-        "verdict",
-    ]
-    rows = []
+    hdr = ["call", "model-effort", "tokens in / out*", T.HEADLINE, T.CACHED, "latency", "checks / verdict"]
+    rows, fills, colors = [], [], []
     for pol in ("B1", "O1"):
-        p = r[pol]
-        for i, ln in enumerate(p["lines"]):
-            rows.append([T.POLICY[pol].label if i == 0 else "", ln["role"], ln["config"],
-                         f"{ln['input_tokens']:,} / {ln['output_tokens']:,}", fmt_value(ln["usd_nocache"], "usd5"),
-                         fmt_value(ln["usd_cached"], "usd5"), fmt_value(ln["latency_s"], "s2"),
-                         "✓ pass" if ln["checks_pass"] else "✗ fail", ""])  # fmt: skip
+        p, st = r[pol], T.POLICY[pol]
+        n = len(p["lines"])
+        rows.append([f"<b>{st.label}</b>", f"{n} call" + ("s" if n > 1 else ""), "", "", "", "", ""])
+        fills.append("#eef4fc" if pol == "O1" else "#f1f0ec")
+        colors.append(st.color if pol == "O1" else T.INK)
+        for ln in p["lines"]:
+            rows.append([ln["role"], ln["config"], f"{ln['input_tokens']:,} / {ln['output_tokens']:,}",
+                         fmt_value(ln["usd_nocache"], "usd5"), fmt_value(ln["usd_cached"], "usd5"),
+                         fmt_value(ln["latency_s"], "s2"), "✓ pass" if ln["checks_pass"] else "✗ fail"])  # fmt: skip
+            fills.append(T.SURFACE)
+            colors.append(T.INK_2)
         verdict = ("✓ correct" if p["correct"] else "✗ wrong") + (
             ", in budget" if p["success"] else ", over budget"
         )
-        rows.append(["", "TOTAL", "", "", fmt_value(p["usd_nocache"], "usd5"), fmt_value(p["usd_cached"], "usd5"),
-                     fmt_value(p["latency_s"], "s2"), "", verdict])  # fmt: skip
-    cols = list(zip(*rows, strict=True))
-    fills = [
-        [
-            ("#eef4fc" if (r_[0] == "" and r_[1] != "TOTAL" and i > 1) or "O1" in r_[0] else T.SURFACE)
-            for i, r_ in enumerate(rows)
-        ]
-    ]  # noqa: E501
+        rows.append(["<b>total</b>", "", "", f"<b>{fmt_value(p['usd_nocache'], 'usd5')}</b>",
+                     f"<b>{fmt_value(p['usd_cached'], 'usd5')}</b>", f"<b>{fmt_value(p['latency_s'], 's2')}</b>",
+                     f"<b>{verdict}</b>"])  # fmt: skip
+        fills.append(T.SURFACE)
+        colors.append(T.INK)
+    cols = [list(c) for c in zip(*rows, strict=True)]
     fig = go.Figure(go.Table(
-        columnwidth=[2.2, 2.6, 1.8, 1.9, 2.4, 2.2, 1.3, 1.2, 2.4],
-        header={"values": hdr, "fill_color": T.SURFACE, "line_color": T.AXIS, "align": "left",
-                "font": {"size": s.small, "color": T.MUTED}, "height": 64 if s.png else 30},
-        cells={"values": cols, "fill_color": fills * len(hdr), "line_color": T.GRID, "align": "left",
-               "font": {"size": s.label, "color": T.INK}, "height": 60 if s.png else 28},
+        columnwidth=[2.6, 1.7, 1.9, 2.3, 2.1, 1.2, 2.6],
+        header={"values": [f"<b>{h}</b>" for h in hdr], "fill_color": T.SURFACE, "line_color": T.AXIS,
+                "align": ["left", "left", "right", "right", "right", "right", "left"],
+                "font": {"size": s.small, "color": T.MUTED}, "height": 70 if s.png else 30},
+        cells={"values": cols, "fill_color": [fills] * len(hdr), "line_color": T.GRID,
+               "align": ["left", "left", "right", "right", "right", "right", "left"],
+               "font": {"size": s.label + (4 if s.png else 0), "color": [colors] * len(hdr)},
+               "height": 78 if s.png else 30},
+        domain={"x": [0, 1], "y": [0, 1]},
     ))  # fmt: skip
     T.layout(fig, s, title=title_text(m, receipt_title(m)),
-             caption=caption(m, "receipt") + " · *token counts use each model's own tokenizer; "
-             "not comparable across models")  # fmt: skip
+             caption=caption(m, "receipt") + " · *each model counts tokens with its own tokenizer; not comparable "
+             "across models · the two Haiku calls run in parallel, so O1's latency is the slower one")  # fmt: skip
     return fig
 
 

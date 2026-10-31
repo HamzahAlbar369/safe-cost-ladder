@@ -20,6 +20,8 @@ from engine.contracts import Frozen, Ticket
 from engine.eval.baselines import CellIndex, Outcome
 from engine.eval.cells import Cell
 from engine.eval.floors import Floors
+from engine.tasks.graders import grade
+from engine.tier0 import Tier0, Tier0Result
 
 ALL_CHECKS = ("V0", "V1", "V2")
 PAYOUT_TOLERANCE_SAR = 1.0
@@ -31,6 +33,7 @@ class O1Options(Frozen):
     top: str = "opus-low"
     deadline_s: float | None = 6.0  # None = wait for the second opinion however long it takes
     checks: tuple[str, ...] = ALL_CHECKS  # verifier levels that can reject (drop V2 = ("V0", "V1"))
+    tier0: bool = True  # Tier 0 (empty reject, duplicate reuse, FAQ table) in front of every task
 
 
 class Trace(Frozen):
@@ -107,12 +110,39 @@ def run_o1(
     """`static` = per task, the cheapest config meeting the floor (B3's choice); used for faq/intent/extract,
     which have no verification step (V0 never failed for those configs on dev)."""
     outcomes, traces = [], []
+    tier0 = Tier0() if o.tier0 else None
+    by_id: dict[str, Outcome] = {}
     for t in tickets:
-        if t.task_type == "adjudicate":
+        hit = tier0.check(t.id, t.task_type, t.text) if tier0 else None
+        if hit is not None and hit.action != "pass":
+            out = _tier0_outcome(t, hit, by_id)
+        elif t.task_type == "adjudicate":
             out, tr = adjudicate(t, index, floors, o)
             traces.append(tr)
         else:
             cell = index[(t.id, static[t.task_type])]
             out = _outcome(t, [cell], cell, cell.latency_ms, floors)
         outcomes.append(out)
+        by_id[t.id] = out
     return outcomes, traces
+
+
+def _tier0_outcome(t: Ticket, hit: Tier0Result, by_id: dict[str, Outcome]) -> Outcome:
+    """A Tier 0 answer: no model call, cost 0, latency 0 (local work is microseconds)."""
+    if hit.action == "duplicate":
+        correct = by_id[hit.duplicate_of].correct  # same text and task -> same gold (deterministic rules)
+    elif hit.action == "faq":
+        correct = grade("faq", t.gold.model_dump(mode="json"), {"answer": hit.faq_answer}).correct
+    else:  # reject_empty: no answer, a failed task
+        correct = False
+    return Outcome(
+        ticket_id=t.id,
+        task=t.task_type,
+        language=t.language,
+        path=(f"tier0:{hit.action}",),
+        correct=correct,
+        success=correct,
+        cost_nocache=0.0,
+        cost_cached=0.0,
+        latency_ms=0.0,
+    )

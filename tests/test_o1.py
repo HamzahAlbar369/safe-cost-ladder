@@ -131,6 +131,7 @@ def test_o1_on_the_committed_dev_matrix():
 
     ctx = Context("matrix-dev-full-1")
     outs, traces = ctx.o1()
+    outs_default = outs
     adj = [o for o in outs if o.task == "adjudicate"]
     assert sum(o.correct for o in adj) == 178 and len(adj) == 180
     assert sum(o.success for o in adj) == 170
@@ -143,3 +144,5 @@ def test_o1_on_the_committed_dev_matrix():
         outs, _ = ctx.o1(opts)
         assert sum(o.correct for o in outs if o.task == "adjudicate") == correct
         assert not _meets(outs, ctx.floors)
+    no_tier0, _ = ctx.o1(O1Options(tier0=False))
+    assert no_tier0 == outs_default  # Tier 0 answers no dev ticket (reports/phase3/o1.txt)

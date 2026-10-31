@@ -18,6 +18,7 @@ from engine.eval.metrics import TASKS
 from engine.llm.pricing import ROOT
 from engine.policy.cascade import O1Options, Trace, passes, run_o1
 from engine.policy.controller import floors_for, load_policy
+from engine.tier0 import Tier0
 
 OUT = ROOT / "reports" / "phase3"
 O1_DEFAULT = O1Options()
@@ -166,7 +167,7 @@ def o1_report(ctx: Context) -> str:
         f"accept {o.first} iff V0-V2 pass and the two agree (decision, payout +-1 SAR); "
         f"if {o.second} is late, iff {o.first} passes V0-V2; else escalate to {o.top}",
         f"    floors and budgets: config/policy.yaml (frozen, budget rule {ctx.policy.budget_rule})",
-        "    Tier 0: not yet included (Phase 3 step c)",
+        "    Tier 0 in front of every task: empty reject, exact-duplicate reuse, FAQ table (empty by default)",
         "",
         f"Adjudicate: correct {sum(x.correct for x in adj)}/{len(adj)}  success {sum(x.success for x in adj)}/"
         f"{len(adj)}  escalated {sum(t.escalated for t in traces)}/{len(traces)} "
@@ -183,15 +184,34 @@ def o1_report(ctx: Context) -> str:
         "",
         *deadline_table(ctx),
         "",
+        *tier0_lines(ctx),
+        "",
         *misses(outs, ctx),
     ]
     return "\n".join(lines)
+
+
+def tier0_lines(ctx: Context) -> list[str]:
+    t0 = Tier0()
+    hits = [t0.check(t.id, t.task_type, t.text) for t in ctx.tickets]
+    actions = Counter(h.action for h in hits)
+    lang_ok = sum(h.language == t.language for h, t in zip(hits, ctx.tickets, strict=True))
+    n = len(ctx.tickets)
+    answered = n - actions["pass"]
+    return [
+        f"Tier 0 on dev (n={n}): answered without a model {answered}/{n} ({answered / n:.1%}); "
+        + ", ".join(f"{a} {k}" for a, k in sorted(actions.items())),
+        f"    language detection agrees with the ticket label on {lang_ok}/{n}",
+        "    dev has no empty tickets and no exact duplicates by construction (Phase 1 QA), and no FAQ table exists;",
+        "    Tier 0 is kept for robustness (shifted adversarial / near-empty items, Phase 4), not for dev savings.",
+    ]
 
 
 ABLATIONS: dict[str, O1Options] = {
     "O1 as specified (no deadline)": O1_DEFAULT.model_copy(update={"deadline_s": None}),
     "drop V3 (haiku-low -> opus-low on a V0-V2 failure)": O1_DEFAULT.model_copy(update={"second": None}),
     "drop V2 (V0-V1 + V3 only)": O1_DEFAULT.model_copy(update={"checks": ("V0", "V1")}),
+    "drop Tier 0": O1_DEFAULT.model_copy(update={"tier0": False}),
 }
 
 

@@ -482,6 +482,19 @@ def final(
     typer.echo(f"wrote {F.report(token, tickets).relative_to(F.ROOT).as_posix()}")
 
 
+@app.command()
+def report(
+    collect: bool = typer.Option(True, help="Recompute reports/metrics.json from the committed runs first."),
+    png: bool = typer.Option(True, help="Also export reports/figures/*.png (needs Chrome via kaleido)."),
+) -> None:
+    """reports/report.html + reports/figures/*.png from committed runs (replay only, no API key)."""
+    from engine.llm.pricing import ROOT
+    from engine.report.build import build
+
+    for p in build(recollect=collect, png=png, progress=typer.echo):
+        typer.echo(f"wrote {p.relative_to(ROOT).as_posix()}")
+
+
 @app.command("jev-router")
 def jev_router(
     yes: bool = typer.Option(False, "--yes", help="make the paid calls (otherwise print the estimate only)"),

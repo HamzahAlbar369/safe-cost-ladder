@@ -219,15 +219,21 @@ DETECTORS = {
 }
 
 
-def detection_table(fc: FrozenChoices, splits: dict[str, tuple[list[Ticket], CellIndex]]) -> list[str]:
-    lines = [
-        f"Audit sample size vs drift detection ({RESAMPLES} stratified resamples per size). On shifted a firing is",
-        "a DETECTION (the drift is real, D4.2); on dev it is a FALSE ALARM (O1 meets every floor on dev).",
-        "Detectors on frozen O1's per-task result in the sample: naive = sample accuracy below the frozen floor;",
-        f"binomial = one-sided exact binomial test rejects 'accuracy >= floor' at alpha {ALPHA}.",
-        f"    {'split':<9}{'n':>5}{'faq n':>7}{'adj n':>7}  {'detector':<10}{'faq fires':>11}{'adj fires':>11}"
-        f"{'either fires':>14}",
-    ]
+class DetectionRow(Frozen):
+    split: str
+    n: int  # audit sample size, in TOTAL (all tasks); per-task counts below
+    faq_n: int
+    adjudicate_n: int
+    detector: str
+    faq: float  # share of resamples in which the detector fired for faq
+    adjudicate: float
+    either: float
+
+
+def detection_rates(
+    fc: FrozenChoices, splits: dict[str, tuple[list[Ticket], CellIndex]]
+) -> list[DetectionRow]:
+    rows = []
     for split, (tickets, index) in splits.items():
         outs = {o.ticket_id: o for o in frozen_o1(fc, tickets, index)}
         for n in SAMPLE_SIZES:
@@ -248,10 +254,35 @@ def detection_table(fc: FrozenChoices, splits: dict[str, tuple[list[Ticket], Cel
                     fires[d]["either"] += hit["faq"] or hit["adjudicate"]
             for d in DETECTORS:
                 f = fires[d]
-                lines.append(
-                    f"    {split:<9}{n:>5}{sizes['faq']:>7}{sizes['adjudicate']:>7}  {d:<10}"
-                    f"{f['faq'] / RESAMPLES:>11.1%}{f['adjudicate'] / RESAMPLES:>11.1%}{f['either'] / RESAMPLES:>14.1%}"
+                rows.append(
+                    DetectionRow(
+                        split=split,
+                        n=n,
+                        faq_n=sizes["faq"],
+                        adjudicate_n=sizes["adjudicate"],
+                        detector=d,
+                        faq=f["faq"] / RESAMPLES,
+                        adjudicate=f["adjudicate"] / RESAMPLES,
+                        either=f["either"] / RESAMPLES,
+                    )
                 )
+    return rows
+
+
+def detection_table(fc: FrozenChoices, splits: dict[str, tuple[list[Ticket], CellIndex]]) -> list[str]:
+    lines = [
+        f"Audit sample size vs drift detection ({RESAMPLES} stratified resamples per size). On shifted a firing is",
+        "a DETECTION (the drift is real, D4.2); on dev it is a FALSE ALARM (O1 meets every floor on dev).",
+        "Detectors on frozen O1's per-task result in the sample: naive = sample accuracy below the frozen floor;",
+        f"binomial = one-sided exact binomial test rejects 'accuracy >= floor' at alpha {ALPHA}.",
+        f"    {'split':<9}{'n':>5}{'faq n':>7}{'adj n':>7}  {'detector':<10}{'faq fires':>11}{'adj fires':>11}"
+        f"{'either fires':>14}",
+    ]
+    for r in detection_rates(fc, splits):
+        lines.append(
+            f"    {r.split:<9}{r.n:>5}{r.faq_n:>7}{r.adjudicate_n:>7}  {r.detector:<10}"
+            f"{r.faq:>11.1%}{r.adjudicate:>11.1%}{r.either:>14.1%}"
+        )
     return lines
 
 

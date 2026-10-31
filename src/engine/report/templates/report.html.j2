@@ -1,0 +1,329 @@
+{#- Presentation only. Every number is m(key, fmt) (a data-metric span from reports/metrics.json); v(key) is used
+    ONLY in conditions. tests/test_report.py lints the rendered text for digits outside spans. -#}
+{%- set H = "splits.heldout.policies" -%}
+{%- set S = "splits.shifted.policies" -%}
+{%- set D = "splits.dev.policies" -%}
+{%- set FS = "splits.shifted.analysis" -%}
+{%- macro okbad(flag, yes="meets", no="breach") -%}
+{%- if flag -%}<span class="pass">✓ {{ yes }}</span>{%- else -%}<span class="fail">✗ {{ no }}</span>{%- endif -%}
+{%- endmacro -%}
+{%- macro sw(k) -%}<span class="swatch" style="background:{{ T.POLICY[k].color }}"></span>{%- endmacro -%}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Less Compute Report</title>
+<meta name="description" content="Efficiency layer for a fictional bilingual claims desk: cost per successful task on held-out, with CIs.">
+<style>{{ css }}</style>
+<script>{{ plotlyjs }}</script>
+</head>
+<body>
+<header class="top">
+  <span>HUMAIN × Misk Hackathon · Challenge: Deliver AI with Less Compute</span>
+  <span class="fiction">FICTIONAL insurer and rules · synthetic data · not Najm, SAMA or any real insurer</span>
+</header>
+<main>
+
+<!-- 1. HERO -->
+<section class="hero">
+  <div class="kicker">Held-out result · {{ m("splits.heldout.n", "int") }} sealed tickets, evaluated once</div>
+  <h1>Pick the cheapest model and effort that still meets each task's accuracy floor.</h1>
+  <div class="ar">طبقة كفاءة تختار أرخص نموذج ومستوى جهد يحقق الدقة المطلوبة لكل مهمة، دون انتظار غير ضروري.</div>
+  <div class="hero-grid">
+    <div class="hero-figure">{{ m(H ~ ".O1_live.saving_nocache", "pct1") }}
+      <small>lower cost per successful task than always-best (B1), O1 {{ T.LIVE }} on held-out,
+        {{ T.HEADLINE }}. 95% CI {{ ci(H ~ ".O1_live.saving_nocache", "pct1") }}.
+        CPST {{ m(H ~ ".B1.cpst_nocache", "usd5") }} → {{ m(H ~ ".O1_live.cpst_nocache", "usd5") }}.
+        {{ T.CACHED }}: {{ m(H ~ ".O1_live.saving_cached", "pct1") }} lower {{ ci(H ~ ".O1_live.saving_cached", "pct1") }}.</small>
+    </div>
+    <div>
+      <p class="lede">Most tickets don't need the biggest model. O1 answers them with Haiku, has a second Haiku check
+        the hard ones, and calls Opus only when the checks fail.</p>
+      <div class="badges">
+        {%- set all_ok = v(H ~ ".O1_live.meets_floors") %}
+        <span class="badge {{ 'ok' if all_ok else 'bad' }}">{{ '✓' if all_ok else '✗' }} accuracy floors: {{ 'all tasks met' if all_ok else 'breach' }}</span>
+        <span class="badge">accuracy {{ m(H ~ ".O1_live.acc", "f3") }} (B1 {{ m(H ~ ".B1.acc", "f3") }})</span>
+        <span class="badge">p95 {{ m(H ~ ".O1_live.p95_s", "s2") }} {{ T.LIVE }}</span>
+        <span class="badge">success {{ m(H ~ ".O1_live.success", "f3") }} (B1 {{ m(H ~ ".B1.success", "f3") }})</span>
+      </div>
+    </div>
+  </div>
+  <div class="shifted-line"><b>Under shifted traffic</b> (unseen phrasings, dialect, policy change, adversarial;
+    {{ T.SIMULATED }}): O1 still costs {{ m(S ~ ".O1.saving_nocache", "pct1") }} less per successful task than B1
+    {{ ci(S ~ ".O1.saving_nocache", "pct1") }}, but its accuracy drops to {{ m(S ~ ".O1.acc", "f3") }} vs B1's
+    {{ m(S ~ ".B1.acc", "f3") }} and it {{ 'meets every floor' if v(S ~ ".O1.meets_floors") else 'breaches two task floors' }}.
+    The fail-safe analysis (drift alarm → revert the alarmed task to B1's config) recovers accuracy to
+    {{ m(FS ~ ".failsafe.acc", "f3") }} at CPST {{ m(FS ~ ".failsafe.cpst_nocache", "usd5") }}
+    (B1 {{ m(S ~ ".B1.cpst_nocache", "usd5") }}). <a href="#robustness">Details</a>.</div>
+</section>
+
+<!-- 2. PROBLEM -->
+<section>
+  <div class="kicker">The problem</div>
+  <h2>Always using the best model pays premium prices for easy tickets</h2>
+  <p class="lede">On dev, the cheapest config ({{ m("o1_config.first", "raw") }}) answers {{ m("problem.cheap.acc", "pct1") }}
+    of tickets correctly; the most accurate ({{ m("o1_config.b1", "raw") }}) answers {{ m("problem.best.acc", "pct1") }} and costs
+    {{ m("problem.cost_ratio", "x1") }} as much per call ({{ T.HEADLINE }}). On held-out, a Haiku config is the cheapest
+    correct answer within budget for {{ m("splits.heldout.haiku_suffices", "pct1") }} of tickets. The skill is spotting
+    the few tickets that need more, cheaply and without waiting.</p>
+  <div class="receipts">
+    {%- for pol in ("B1", "O1") %}
+    {%- set r = "receipt." ~ pol %}
+    <div class="receipt {{ 'o1' if pol == 'O1' else '' }}">
+      <h3>{{ sw(pol) }}{{ T.POLICY[pol].label }} · dev ticket {{ m("receipt.ticket_id", "raw") }} ({{ m("receipt.task", "raw") }}, {{ m("receipt.language", "raw") }})</h3>
+      <div class="table-wrap"><table>
+        <tr><th>call</th><th>config</th><th class="r">tokens in / out*</th><th class="r">{{ T.HEADLINE }}</th><th class="r">{{ T.CACHED }}</th><th class="r">latency</th><th>checks</th></tr>
+        {%- for ln in v(r ~ ".lines") %}{% set k = r ~ ".lines." ~ loop.index0 %}
+        <tr><td>{{ m(k ~ ".role", "raw") }}</td><td>{{ m(k ~ ".config", "raw") }}</td>
+          <td class="r">{{ m(k ~ ".input_tokens", "int") }} / {{ m(k ~ ".output_tokens", "int") }}</td>
+          <td class="r">{{ m(k ~ ".usd_nocache", "usd5") }}</td><td class="r">{{ m(k ~ ".usd_cached", "usd5") }}</td>
+          <td class="r">{{ m(k ~ ".latency_s", "s2") }}</td><td>{{ okbad(ln.checks_pass, "pass", "fail") }}</td></tr>
+        {%- endfor %}
+        <tr class="total"><td>total</td><td></td><td></td><td class="r">{{ m(r ~ ".usd_nocache", "usd5") }}</td>
+          <td class="r">{{ m(r ~ ".usd_cached", "usd5") }}</td><td class="r">{{ m(r ~ ".latency_s", "s2") }}</td>
+          <td>{{ okbad(v(r ~ ".correct") and v(r ~ ".success"), "correct, in budget", "failed") }}</td></tr>
+      </table></div>
+    </div>
+    {%- endfor %}
+  </div>
+  <figcaption>{{ caption("receipt") }}. Ticket chosen by a declared rule (first Arabic dev adjudicate ticket the Haiku pair settles; <code>report/collect.py: demo_set</code>). Latency budget {{ m("receipt.budget_s", "s1") }}. The two Haiku calls run in parallel, so O1's latency is the slower of the two. *Each model counts tokens with its own tokenizer; don't compare token counts across models.</figcaption>
+</section>
+
+<!-- 3. HOW IT WORKS -->
+<section>
+  <div class="kicker">How it works</div>
+  <h2>A cost ladder with checks between the rungs</h2>
+  <p class="lede">For each task, configs, floors and budgets were chosen on dev and frozen before anything was scored.
+    faq, intent and extract go to the cheapest config that meets their floor on dev
+    ({{ m("o1_config.faq", "raw") }}, {{ m("o1_config.intent", "raw") }}, {{ m("o1_config.extract", "raw") }}); no checks.
+    Adjudicate (a payout decision) climbs the ladder:</p>
+  <div class="ladder" role="img" aria-label="Adjudicate ladder: two Haiku configs in parallel, checks, then Opus">
+    <div class="rung o1"><div class="cfg">{{ m("o1_config.first", "raw") }} ‖ {{ m("o1_config.second", "raw") }}</div>
+      <div class="sub">in parallel · {{ m("splits.heldout.sankey.rung_cost_nocache.haiku-low", "usd4") }} + {{ m("splits.heldout.sankey.rung_cost_nocache.haiku-medium", "usd4") }} per call ({{ T.LIVE }}, {{ T.HEADLINE }})</div></div>
+    <div class="arrow">→</div>
+    <div class="gate"><b>checks</b>V0 valid JSON · V1 grounded in the ticket · V2 payout recomputes · V3 both Haikus agree
+      (wait at most {{ m("o1_config.deadline_s", "s1") }} for the second)</div>
+    <div class="arrow">→</div>
+    <div class="rung top"><div class="cfg">{{ m("o1_config.top", "raw") }}</div>
+      <div class="sub">only if a check fails · {{ m("splits.heldout.sankey.rung_cost_nocache.opus-low", "usd4") }} per call; starts the moment the first answer fails</div></div>
+  </div>
+  <p class="muted" style="font-size:14px">Dropped along the way: Tier 0 (rule-based short-cuts; answered nothing), two learned routers (see
+    <a href="#negatives">What didn't work</a>), and higher effort levels (next chart).</p>
+  <div class="card"><figure><h3>{{ title("effort") }}</h3>{{ figs["effort"] }}
+    <figcaption>{{ caption("effort") }}. Bars start at zero; labels: cost vs low effort, accuracy change vs low with a paired 95% CI.</figcaption></figure></div>
+</section>
+
+<!-- 4. PROOF -->
+<section>
+  <div class="kicker">The proof</div>
+  <h2>Held-out: every policy, the oracle, with 95% CIs</h2>
+  <p class="lede">CPST = all USD spent (every call, second opinion, escalation) ÷ tickets answered correctly <em>and</em>
+    within the task's latency budget. Baselines, O1 {{ T.SIMULATED }} and the oracle replay the held-out matrix
+    ({{ prov(v("provenance.runs.heldout_matrix")) }}); O1 {{ T.LIVE }} is the real run
+    ({{ prov(v("provenance.runs.heldout_live")) }}). Savings are vs B1, paired bootstrap.</p>
+  <div class="card table-wrap"><table>
+    <tr><th>policy</th><th class="r">accuracy</th><th class="r">success</th><th class="r">p95</th>
+      <th class="r">CPST, {{ T.HEADLINE }}</th><th class="r">saving vs B1</th><th class="r">CPST, {{ T.CACHED }}</th><th class="r">saving vs B1</th><th>floors</th></tr>
+    {%- for k, name in (("B1", "B1 always-best (" ~ v("o1_config.b1") ~ ")"), ("B2", "B2 always-cheapest"), ("B3", "B3 best static config per task"),
+        ("B4", "B4 cheapest single config meeting every dev floor"), ("B5", "B5 naive cascade"), ("O1", "O1 (" ~ T.SIMULATED ~ ")"),
+        ("O1_live", "O1 (" ~ T.LIVE ~ ")"), ("Oracle", "Oracle: cheapest correct config within budget")) %}
+    {%- set p = H ~ "." ~ k %}
+    <tr class="{{ 'o1' if k.startswith('O1') else ('oracle' if k == 'Oracle' else '') }}">
+      <td>{{ sw(k) }}{{ name }}</td>
+      <td class="r">{{ m(p ~ ".acc", "f3") }} {{ ci(p ~ ".acc", "f3") }}</td>
+      <td class="r">{{ m(p ~ ".success", "f3") }}</td>
+      <td class="r">{{ m(p ~ ".p95_s", "s2") }}</td>
+      <td class="r">{{ m(p ~ ".cpst_nocache", "usd5") }} {{ ci(p ~ ".cpst_nocache", "usd5") }}</td>
+      <td class="r">{% if k != "B1" %}{{ m(p ~ ".saving_nocache", "pct1") }} {{ ci(p ~ ".saving_nocache", "pct1") }}{% else %}reference{% endif %}</td>
+      <td class="r">{{ m(p ~ ".cpst_cached", "usd5") }} {{ ci(p ~ ".cpst_cached", "usd5") }}</td>
+      <td class="r">{% if k != "B1" %}{{ m(p ~ ".saving_cached", "pct1") }} {{ ci(p ~ ".saving_cached", "pct1") }}{% else %}reference{% endif %}</td>
+      <td>{{ okbad(v(p ~ ".meets_floors"), "all met", "breach") }}</td></tr>
+    {%- endfor %}
+  </table>
+  <p class="muted" style="font-size:13.5px">Oracle gap captured, (CPST<sub>B1</sub> − CPST<sub>O1</sub>) ÷ (CPST<sub>B1</sub> − CPST<sub>oracle</sub>):
+    O1 {{ T.SIMULATED }} {{ m("splits.heldout.oracle_gap.nocache", "pct1") }} ({{ T.HEADLINE }}),
+    {{ m("splits.heldout.oracle_gap.cached", "pct1") }} ({{ T.CACHED }}); O1 {{ T.LIVE }}
+    {{ m("splits.heldout.oracle_gap_live.nocache", "pct1") }} / {{ m("splits.heldout.oracle_gap_live.cached", "pct1") }}
+    (point values; no CI computed).</p>
+  {%- if v(H ~ ".B2.meets_floors") and v(H ~ ".B2.cpst_nocache") < v(H ~ ".O1_live.cpst_nocache") %}
+  <div class="note"><b>Read this with the table:</b> on held-out, always-cheapest (B2) also meets every floor and is
+    cheaper than O1 ({{ m(H ~ ".B2.cpst_nocache", "usd5") }} vs {{ m(H ~ ".O1_live.cpst_nocache", "usd5") }}). On dev, the
+    split where policies were chosen, B2 {{ 'breaches' if not v(D ~ ".B2.meets_floors") else 'meets' }} the floors
+    (accuracy {{ m(D ~ ".B2.acc", "f3") }}); on shifted it {{ 'breaches' if not v(S ~ ".B2.meets_floors") else 'meets' }} them
+    (accuracy {{ m(S ~ ".B2.acc", "f3") }}). O1's extra checks are insurance that this held-out sample didn't need.</div>
+  {%- endif %}
+  </div>
+
+  <div class="card"><figure><h3>{{ title("cpst_forest") }}</h3>{{ figs["cpst_forest"] }}
+    <figcaption>{{ caption("cpst_forest") }}. Dot = CPST, whisker = 95% CI (bootstrap); log scale. An open marker with ✗ = breaches a per-task accuracy floor.
+      B4 and B5 are in the table only: their choices coincide with B1 ({{ m("o1_config.b1", "raw") }}) and with B2 when {{ m("o1_config.first", "raw") }} passes V0.</figcaption></figure></div>
+
+  <h3 style="margin-top:28px">O1 {{ T.LIVE }} on held-out, per task and per language</h3>
+  <div class="card table-wrap"><table>
+    <tr><th>subset</th><th class="r">n</th><th class="r">accuracy</th><th class="r">floor</th><th class="r">success</th>
+      <th class="r">CPST, {{ T.HEADLINE }}</th><th class="r">saving vs B1</th><th class="r">CPST, {{ T.CACHED }}</th><th class="r">saving vs B1</th></tr>
+    {%- for g in ("task_faq", "task_intent", "task_extract", "task_adjudicate", "lang_en", "lang_ar") %}
+    {%- set p = H ~ ".O1_live.breakdown." ~ g %}
+    <tr><td>{{ g.replace("task_", "").replace("lang_", "language ") }}</td><td class="r">{{ m(p ~ ".n", "int") }}</td>
+      <td class="r">{{ m(p ~ ".acc", "f3") }} {{ ci(p ~ ".acc", "f3") }}</td>
+      <td class="r">{% if g.startswith("task_") %}{{ m("floors." ~ g[5:] ~ ".floor", "f3") }}{% endif %}</td>
+      <td class="r">{{ m(p ~ ".success", "f3") }}</td>
+      <td class="r">{{ m(p ~ ".cpst_nocache", "usd5") }} {{ ci(p ~ ".cpst_nocache", "usd5") }}</td>
+      <td class="r">{{ m(p ~ ".saving_nocache", "pct1") }} {{ ci(p ~ ".saving_nocache", "pct1") }}</td>
+      <td class="r">{{ m(p ~ ".cpst_cached", "usd5") }} {{ ci(p ~ ".cpst_cached", "usd5") }}</td>
+      <td class="r">{{ m(p ~ ".saving_cached", "pct1") }} {{ ci(p ~ ".saving_cached", "pct1") }}</td></tr>
+    {%- endfor %}
+  </table></div>
+
+  <div class="card"><figure><h3>{{ title("sim_vs_live") }}</h3>{{ figs["sim_vs_live"] }}
+    <figcaption>{{ caption("sim_vs_live") }}. {{ T.SIMULATED }} = replay of recorded calls with modelled parallel timing; {{ T.LIVE }} = real parallel calls, wall-clock latency.
+      Same correctness on {{ m("splits.heldout.sim_vs_live.same_correct", "int") }} of {{ m("splits.heldout.sim_vs_live.n", "int") }} tickets, same path on {{ m("splits.heldout.sim_vs_live.same_path", "int") }}.
+      {{ T.LIVE }} CPST {{ m(H ~ ".O1_live.cpst_nocache", "usd5") }} vs {{ T.SIMULATED }} {{ m(H ~ ".O1.cpst_nocache", "usd5") }} ({{ T.HEADLINE }}).</figcaption></figure></div>
+</section>
+
+<!-- 5. WHERE THE MONEY GOES -->
+<section>
+  <div class="kicker">Where the money goes</div>
+  <h2>Adjudicate carries most of the bill</h2>
+  <div class="card"><figure><h3>{{ title("spend_by_task") }}</h3>{{ figs["spend_by_task"] }}
+    <figcaption>{{ caption("spend_by_task") }}. Bars start at zero. {{ T.CACHED }}: O1 {{ T.LIVE }} {{ m("splits.heldout.spend_by_task.total.O1_live.cached", "usd2") }} vs B1 {{ m("splits.heldout.spend_by_task.total.B1.cached", "usd2") }}.</figcaption></figure></div>
+</section>
+
+<!-- 6. INSIDE ONE REQUEST -->
+<section>
+  <div class="kicker">Inside one request</div>
+  <h2>Where each adjudicate ticket ended up, {{ T.LIVE }} on held-out</h2>
+  <div class="card"><figure><h3>{{ title("adjudicate_sankey") }}</h3>{{ figs["adjudicate_sankey"] }}
+    <figcaption>{{ caption("adjudicate_sankey") }}. Band width = ticket count. Node costs = mean cost per call in the {{ T.LIVE }} run ({{ T.HEADLINE }}). Latency budget {{ m("splits.heldout.sankey.budget_s", "s1") }}.</figcaption></figure></div>
+</section>
+
+<!-- 7. ROBUSTNESS -->
+<section id="robustness">
+  <div class="kicker">Robustness</div>
+  <h2>Shifted traffic breaks two floors; a cheap audit catches it</h2>
+  <div class="card"><figure><h3>{{ title("robustness") }}</h3>{{ figs["robustness"] }}
+    <figcaption>{{ caption("robustness") }}. Dotted line = frozen per-task floor; ✓/✗ = met/breached. Fail-safe: <b>analysis added after observing shifted; it selects nothing from shifted; the held-out run uses the dev-frozen O1.</b></figcaption></figure></div>
+
+  <h3 style="margin-top:28px">Drift monitor: how big must a labelled audit sample be?</h3>
+  <p>Audit sizes below are the <b>total</b> audit sample (all tasks together, stratified by task); the faq and adjudicate
+    columns give how many of those tickets fall in each task. On shifted, a firing is a correct detection; on dev
+    (where O1 meets every floor) it is a false alarm. Each row is the share of resampled audits in which the detector fired.</p>
+  <div class="card table-wrap"><table>
+    <tr><th>detector</th><th class="r">audit size (total)</th><th class="r">faq / adjudicate in it</th><th class="r">detects shifted drift</th><th class="r">false alarms on dev</th></tr>
+    {%- for det in ("binomial", "naive") %}
+    {%- for i in range(v("monitor") | length) %}{% set row = v("monitor")[i] %}
+    {%- if row.split == "shifted" and row.detector == det %}
+    {%- set j = namespace(idx=0) %}{% for k in range(v("monitor") | length) %}{% if v("monitor")[k].split == "dev" and v("monitor")[k].detector == det and v("monitor")[k].n == row.n %}{% set j.idx = k %}{% endif %}{% endfor %}
+    <tr><td>{{ det }}{{ " (exact test)" if det == "binomial" else " (below floor)" }}</td>
+      <td class="r">{{ m("monitor." ~ i ~ ".n", "int") }}</td>
+      <td class="r">{{ m("monitor." ~ i ~ ".faq_n", "int") }} / {{ m("monitor." ~ i ~ ".adjudicate_n", "int") }}</td>
+      <td class="r">{{ m("monitor." ~ i ~ ".either", "pct1") }}</td>
+      <td class="r">{{ m("monitor." ~ j.idx ~ ".either", "pct1") }}</td></tr>
+    {%- endif %}{%- endfor %}{%- endfor %}
+  </table></div>
+
+  <h3 style="margin-top:28px">Policy change and adversarial tickets (shifted split, frozen O1, {{ T.SIMULATED }})</h3>
+  <p>Policy change: some tickets were generated under a second rules file; the system was pointed at the new policy document,
+    with no code or prompt change. O1 answered {{ m("splits.shifted.scenario.policy_change.correct", "int") }} of
+    {{ m("splits.shifted.scenario.policy_change.n", "int") }} correctly ({{ m("splits.shifted.scenario.policy_change.acc", "f3") }}),
+    below the floors. Adversarial (prompt injection, garbled, off-topic, rambling):
+    {{ m("splits.shifted.scenario.adversarial.correct", "int") }} of {{ m("splits.shifted.scenario.adversarial.n", "int") }}
+    ({{ m("splits.shifted.scenario.adversarial.acc", "f3") }}). Normal shifted tickets:
+    {{ m("splits.shifted.scenario.normal.acc", "f3") }}.</p>
+</section>
+
+<!-- 8. WHAT DIDN'T WORK -->
+<section id="negatives">
+  <div class="kicker" style="color:var(--bad)">What didn't work</div>
+  <h2>Negative results, reported at full weight</h2>
+  <div class="neg-grid">
+    <div class="neg"><h3>Both routers were dropped</h3>
+      <p>A local classifier (ROC AUC {{ m("routers.local_auc", "f3") }}) and the Jev decision model (AUC {{ m("routers.jev_auc", "f3") }})
+        could not predict which adjudicate tickets need Opus. Even a perfect router would save only
+        {{ m("routers.ceiling_cpst_gain", "pct1") }}, below the pre-registered bar of {{ m("routers.bar_cpst", "pct0") }}.</p>
+      <div class="src">{{ prov(v("routers.source")) }} (parsed)</div></div>
+    <div class="neg"><h3>Always-cheapest beat O1 on held-out</h3>
+      <p>On held-out, B2 meets every floor at CPST {{ m(H ~ ".B2.cpst_nocache", "usd5") }} vs O1 {{ T.LIVE }}
+        {{ m(H ~ ".O1_live.cpst_nocache", "usd5") }}. O1's adjudicate checks were needed on dev, where B2 reaches only
+        {{ m(D ~ ".B2.acc", "f3") }} accuracy, but not on this sample.</p></div>
+    <div class="neg"><h3>Shifted traffic breaches two floors</h3>
+      <p>Frozen O1 on shifted: faq {{ m(S ~ ".O1.per_task.faq.acc", "f3") }} vs floor {{ m("floors.faq.floor", "f3") }};
+        adjudicate {{ m(S ~ ".O1.per_task.adjudicate.acc", "f3") }} vs {{ m("floors.adjudicate.floor", "f3") }}. No single config reaches
+        the adjudicate floor on shifted (best {{ m("splits.shifted.best_single_adjudicate_acc", "f3") }}).</p></div>
+    <div class="neg"><h3>Correlated verifier errors</h3>
+      <p>The checks can't catch two Haikus that pass V0–V2 and agree on the same wrong answer. Of
+        {{ m("splits.shifted.verifier.first_wrong", "int") }} wrong first answers on shifted, O1 still accepted
+        {{ m("splits.shifted.verifier.accepted_wrong", "int") }}; {{ m("splits.shifted.verifier.agreed_wrong", "int") }} with both
+        Haikus agreeing (the rest: second opinion late). Dev: {{ m("splits.dev.verifier.agreed_wrong", "int") }} of
+        {{ m("splits.dev.verifier.first_wrong", "int") }}; held-out {{ T.SIMULATED }}: {{ m("splits.heldout.verifier.agreed_wrong", "int") }} of
+        {{ m("splits.heldout.verifier.first_wrong", "int") }}.</p></div>
+    <div class="neg"><h3>Re-picking configs on the audit sample made it worse</h3>
+      <p>Re-running the selection rule on an audit fold: shifted adjudicate accuracy {{ m(FS ~ ".frozen.per_task.adjudicate.acc", "f3") }}
+        → {{ m(FS ~ ".recalibrated.per_task.adjudicate.acc", "f3") }}, overall CPST {{ m(FS ~ ".frozen.cpst_nocache", "usd5") }}
+        → {{ m(FS ~ ".recalibrated.cpst_nocache", "usd5") }}. Detection works; selection on a small sample is too noisy.</p></div>
+    <div class="neg"><h3>Simulated latency was optimistic</h3>
+      <p>Parallel timing was modelled from separate calls. {{ T.LIVE }} p95 was {{ m(H ~ ".O1_live.p95_s", "s2") }} vs
+        {{ m(H ~ ".O1.p95_s", "s2") }} {{ T.SIMULATED }}; {{ T.LIVE }} faq success {{ m(H ~ ".O1_live.per_task.faq.success", "f3") }}
+        vs {{ m(H ~ ".O1.per_task.faq.success", "f3") }} (budget {{ m("floors.faq.budget_s", "s1") }}).</p></div>
+    <div class="neg"><h3>Name collisions in the synthetic tickets</h3>
+      <p>The generator sometimes gives two people the same first name. Dev has {{ m("names.dev_visible", "int") }} visible clashes
+        (shifted {{ m("names.shifted_visible", "int") }}); on them Opus scores {{ m("names.opus_clash_acc", "f3") }} vs
+        {{ m("names.opus_other_acc", "f3") }} elsewhere. Data left unchanged.</p>
+      <div class="src">{{ prov(v("names.source")) }} (parsed)</div></div>
+    <div class="neg"><h3>Suspect shifted tickets</h3>
+      <p>{{ m("splits.shifted.opus_high_adjudicate_wrong", "int") }} shifted adjudicate tickets defeat even opus-high; read by hand, they look like
+        generator defects (typos and contradictions on the deciding fact). They stay in the data; excluding them would not remove the breach.</p></div>
+  </div>
+</section>
+
+<!-- 9. SCENARIOS -->
+<section>
+  <div class="kicker">Scenarios</div>
+  <h2>What if prices change, or a model goes down?</h2>
+  <p>Replay only, no API calls. The controller re-applies the frozen selection rules on dev to the changed world; the
+    scored split is never used to choose.</p>
+  <div class="card table-wrap"><table>
+    <tr><th>split</th><th>scenario</th><th>controller's picks</th><th class="r">O1 CPST, {{ T.HEADLINE }}</th><th class="r">B1 CPST</th><th class="r">saving vs B1</th><th class="r">accuracy</th><th>floors</th></tr>
+    {%- for sp in ("dev", "shifted") %}{% for i in range(v("scenarios." ~ sp) | length) %}{% set p = "scenarios." ~ sp ~ "." ~ i %}
+    <tr><td>{{ sp }}</td><td>{{ m(p ~ ".name", "raw") }}</td>
+      <td style="font-size:12.5px">faq {{ m(p ~ ".picks.faq", "raw") }}, intent {{ m(p ~ ".picks.intent", "raw") }}, extract {{ m(p ~ ".picks.extract", "raw") }}, adjudicate {{ 'ladder → ' if v(p ~ '.picks.adjudicate_cascade') else '' }}{{ m(p ~ ".picks.adjudicate", "raw") }}</td>
+      <td class="r">{{ m(p ~ ".cpst_nocache", "usd5") }}</td><td class="r">{{ m(p ~ ".b1_cpst_nocache", "usd5") }}</td>
+      <td class="r">{{ m(p ~ ".saving_nocache", "pct1") }} {{ ci(p ~ ".saving_nocache", "pct1") }}</td>
+      <td class="r">{{ m(p ~ ".acc", "f3") }}</td><td>{{ okbad(v(p ~ ".meets_floors"), "met", "breach") }}</td></tr>
+    {%- endfor %}{% endfor %}
+  </table></div>
+</section>
+
+<!-- 10. METHOD -->
+<section>
+  <div class="kicker">Method, caveats, provenance</div>
+  <h2>How these numbers were made</h2>
+  <ul class="caveats">
+    <li>Data: fully synthetic, generated from one rules file that is the source of both the policy document and the gold labels. English and Arabic (MSA and Saudi dialect).
+      <b>The insurer and its rules are fictional.</b></li>
+    <li>Configs: three Claude models × three effort levels. Floors (best dev accuracy − tolerance) and latency budgets were frozen on dev before any optimisation (tag <code>floors-v1</code>).</li>
+    <li>Evaluation: counterfactual replay over a recorded matrix of every config on every ticket. Held-out was sealed, then evaluated once at <code>{{ v("provenance.heldout_tag") }}</code> with O1 run {{ T.LIVE }}.</li>
+    <li>CIs: paired bootstrap over tickets, {{ m("provenance.bootstrap.resamples", "int") }} resamples, fixed seed.</li>
+    <li>“{{ T.HEADLINE }}” prices all prompt tokens at the base input rate; “{{ T.CACHED }}” is what was billed.</li>
+    <li>Parallel timing in replay is modelled; held-out O1 was also measured {{ T.LIVE }} (gap shown above).</li>
+    <li>Oracle: per ticket, the cheapest config that is correct within budget; a ticket no config solves is charged the cheapest config and counts as a failure.</li>
+    <li>Router thresholds were tuned in-sample on dev, which favours the routers; their negative result is conservative.</li>
+  </ul>
+  <div class="card" style="font-size:13.5px">
+    <div>Runs: {{ prov(v("provenance.runs.dev")) }} · {{ prov(v("provenance.runs.shifted")) }} · {{ prov(v("provenance.runs.heldout_matrix")) }} · {{ prov(v("provenance.runs.heldout_live")) }} · {{ prov(v("provenance.runs.heldout_export")) }}</div>
+    <div>Config hash: dev {{ prov(v("provenance.config_hash.dev")) }} · shifted {{ prov(v("provenance.config_hash.shifted")) }} · held-out {{ prov(v("provenance.config_hash.heldout")) }}</div>
+    <div>Report built at git {{ prov(v("provenance.build_git_sha")) }}; held-out run at {{ prov(v("provenance.heldout_tag")) }} {{ prov(v("provenance.heldout_git_sha")) }}</div>
+    <div class="muted">Every number on this page is a <code>data-metric</code> span read from <code>reports/metrics.json</code>; decisions are logged in <code>docs/DECISIONS.md</code>.</div>
+  </div>
+</section>
+</main>
+<footer>Fictional demo insurer and rules; synthetic data; not real Najm, SAMA or insurer rules. Self-contained page: open from disk, no network needed.</footer>
+<script>
+document.querySelectorAll('script[data-fig]').forEach(function (s) {
+  var spec = JSON.parse(s.textContent);
+  Plotly.newPlot(s.getAttribute('data-fig'), spec.data, spec.layout, {responsive: true, displayModeBar: false});
+});
+</script>
+</body>
+</html>

@@ -56,3 +56,4 @@ markers = ["slow: over ~10 s (committed-matrix replay, data regeneration, gold s
 "src/engine/eval/phase3_report.py" = ["E501"]  # report layout strings
 "src/engine/eval/recalibrate.py" = ["E501"]  # report layout strings
 "src/engine/router/*.py" = ["E501"]  # docstrings and Jev question text
+"src/engine/report/*.py" = ["E501"]  # chart layout specs and report strings

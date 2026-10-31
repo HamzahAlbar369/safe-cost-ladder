@@ -85,6 +85,11 @@ def cells_from_calls(
     return list(cells.values()), problems
 
 
+def cell_from_call(ticket: Ticket, call: ModelCall, response: LLMResponse) -> Cell:
+    """One graded, verified cell from a live call (the live O1 executor uses the same checks as replay)."""
+    return _cell(ticket, call, response, load_version(ticket.rules_version))
+
+
 def _cell(ticket: Ticket, call: ModelCall, response: LLMResponse, rules) -> Cell:
     task = ticket.task_type
     verdicts = verify(task, response.text, ticket.text, rules, stop_reason=response.stop_reason)

@@ -384,6 +384,69 @@ def scenario(
     typer.echo(S.report([sc], split))
 
 
+@app.command()
+def final(
+    estimate_only: bool = typer.Option(False, "--estimate", help="Print the estimate and exit (no spend)."),
+    cap_anthropic: float = typer.Option(0.0, help="Approved Anthropic cap for the whole held-out run (USD)."),
+    yes: bool = typer.Option(False, "--yes", help="Confirm the estimate was approved; required to spend."),
+    report_only: bool = typer.Option(False, "--report", help="Rebuild reports/final/heldout.txt (no spend)."),
+) -> None:
+    """Held-out, once (SPEC 7.6): refuses unless HEAD is a clean commit tagged freeze-*. O1 live + 9-config
+    held-out matrix + simulated-vs-live report. Prints a cost estimate first."""
+    from engine import final as F
+    from engine.eval.estimate import format_estimate
+    from engine.llm.client import Ledger
+    from engine.policy.frozen import frozen_choices
+
+    try:
+        token = F.guard()  # before anything reads held-out
+    except F.FinalRefused as e:
+        typer.echo(str(e))
+        raise typer.Exit(2) from None
+    tickets = F.load_heldout(token)
+    if report_only:
+        typer.echo(f"wrote {F.report(token, tickets).relative_to(F.ROOT).as_posix()}")
+        return
+    fc = frozen_choices()
+    est = F.estimate(tickets, token, fc.static, fc.o1)
+    remaining = Ledger().remaining("anthropic")
+    typer.echo(f"engine final at {token.tag} ({token.sha[:12]}): {len(tickets)} held-out tickets")
+    done = F.live_outcomes(token)
+    typer.echo(format_estimate("O1 live" + (" (already done)" if done else ""), est.o1_live, remaining))
+    typer.echo(format_estimate("Held-out matrix (9 configs, pending cells)", est.matrix, remaining))
+    need = est.matrix.cost_with_caching + (0.0 if done else est.o1_live.cost_with_caching)
+    typer.echo(
+        f"TOTAL still to spend, Cost with caching (actual): ${need:.4f} | worst case ${est.worst_case:.2f}"
+    )
+    if estimate_only:
+        return
+    if not yes or cap_anthropic < need or cap_anthropic > remaining:
+        typer.echo(
+            "Paid run refused: pass --yes with --cap-anthropic >= the estimate and <= the ledger remaining."
+        )
+        raise typer.Exit(2)
+    spent = 0.0
+    if done == len(tickets):
+        typer.echo("O1 live already complete for this tag; resuming the held-out matrix only")
+    elif done:
+        typer.echo(
+            f"O1 live is PARTIAL ({done}/{len(tickets)}): held-out runs once; report it, do not re-run"
+        )
+        raise typer.Exit(1)
+    else:
+        run_id, results = F.run_o1_live(token, tickets, cap_anthropic, progress=typer.echo)
+        spent = sum(c.cost_usd for r in results for c in r.calls)
+        typer.echo(f"O1 live done: {run_id}, {len(results)} tickets, ${spent:.4f}")
+    summary = F.run_matrix(token, tickets, cap_anthropic - spent, progress=typer.echo)
+    typer.echo(summary.model_dump_json(indent=1))
+    if summary.n_errors:
+        typer.echo(
+            f"{summary.n_errors} matrix cells have no response; re-run `engine final` to resume the matrix"
+        )
+        raise typer.Exit(1)
+    typer.echo(f"wrote {F.report(token, tickets).relative_to(F.ROOT).as_posix()}")
+
+
 @app.command("jev-router")
 def jev_router(
     yes: bool = typer.Option(False, "--yes", help="make the paid calls (otherwise print the estimate only)"),

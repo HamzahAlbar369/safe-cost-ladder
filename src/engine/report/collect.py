@@ -25,6 +25,7 @@ HELDOUT_EXPORT = "heldout-outcomes-freeze-v1"
 HELDOUT_MATRIX, HELDOUT_LIVE = "matrix-heldout-freeze-v1", "o1-live-heldout-freeze-v1"
 OUT = ROOT / "reports" / "metrics.json"
 LANGS = ("en", "ar")
+PER_N = 100_000  # scale for the "spend per 100,000 tickets" line
 FIRST, SECOND, TOP = "haiku-low", "haiku-medium", "opus-low"
 
 
@@ -69,6 +70,8 @@ def stats(outs: list[Outcome], ref: list[Outcome] | None, floors: dict, *, ci: b
         "usd_cached": s["usd_cached"],
         "cpst_nocache": _finite(s["cpst_nocache"]),
         "cpst_cached": _finite(s["cpst_cached"]),
+        "per_ticket_nocache": s["usd_nocache"] / len(outs),
+        "per_ticket_cached": s["usd_cached"] / len(outs),
     }
     if not ci:
         return d
@@ -227,6 +230,11 @@ def heldout(fc) -> dict:
         "haiku_suffices": _haiku_suffices(pols["Oracle"]),
         "sankey": sankey(live, floors),
         "spend_by_task": spend_by_task(b1, live),
+        "per_100k": {
+            k: {base: PER_N * entries[k][f"usd_{base}"] / entries[k]["n"] for base in ("nocache", "cached")}
+            for k in ("B1", "O1_live")
+        },
+        "per_100k_n": PER_N,
         "cells": _heatmap(cells),
     }
 
@@ -422,6 +430,31 @@ def ablations(ctx) -> dict:
             "meets_floors": meets_all(outs, floors),
         }
     return out
+
+
+def ablation_summary(ctx) -> dict:
+    """The ablation chart's reference: O1's adjudicate correct count and how many the frozen floor needs."""
+    import math
+
+    n = sum(t.task_type == "adjudicate" for t in ctx.tickets)
+    floor = ctx.fc.floors.per_task["adjudicate"].floor
+    o1, _ = ctx.o1()
+    return {
+        "n": n,
+        "needed": math.ceil(floor * n - 1e-9),
+        "o1_correct": sum(o.correct for o in o1 if o.task == "adjudicate"),
+    }
+
+
+def pareto(eff: dict) -> list[str]:
+    """Dev configs on the cost-accuracy frontier: no cheaper config is at least as accurate."""
+    pts = sorted(((r["cost_nocache"], -r["acc"], f"{mo}-{e}") for mo, d in eff.items() for e, r in d.items()))
+    front, best = [], -1.0
+    for _cost, neg_acc, cid in pts:
+        if -neg_acc > best:
+            front.append(cid)
+            best = -neg_acc
+    return front
 
 
 # --- shifted-only evidence -------------------------------------------------------------------------
@@ -625,9 +658,11 @@ def collect(progress=print) -> dict:
             "b1": fc.b1,
         },
         "splits": {"dev": dev, "shifted": shifted, "heldout": held},
-        "effort": effort(dctx),
+        "effort": (eff := effort(dctx)),
+        "pareto_dev": pareto(eff),
         "problem": problem(dctx),
         "ablations": ablations(dctx),
+        "ablation_ref": ablation_summary(dctx),
         "demo": demo,
         "receipt": receipt(dctx, demo["adjudicate"], do1, _b1(dctx)),
         "monitor": monitor(fc, dctx, sctx),

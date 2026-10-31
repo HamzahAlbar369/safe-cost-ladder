@@ -88,6 +88,9 @@
     {%- endfor %}
   </div>
   <figcaption>{{ caption("receipt") }}. Ticket chosen by a declared rule (first Arabic dev adjudicate ticket the Haiku pair settles; <code>report/collect.py: demo_set</code>). Latency budget {{ m("receipt.budget_s", "s1") }}. The two Haiku calls run in parallel, so O1's latency is the slower of the two. *Each model counts tokens with its own tokenizer; don't compare token counts across models.</figcaption>
+
+<div class="card"><figure><h3>{{ title("cost_vs_accuracy") }}</h3>{{ figs["cost_vs_accuracy"] }}
+  <figcaption>{{ caption("cost_vs_accuracy") }}. Grey points = the nine configs (each answering every dev ticket); step line = Pareto frontier; coloured markers = policies (O1 {{ T.SIMULATED }} by replay). Log x-axis.</figcaption></figure></div>
 </section>
 
 <!-- 3. HOW IT WORKS -->
@@ -110,6 +113,8 @@
   </div>
   <p class="muted" style="font-size:14px">Dropped along the way: Tier 0 (rule-based short-cuts; answered nothing), two learned routers (see
     <a href="#negatives">What didn't work</a>), and higher effort levels (next chart).</p>
+  <div class="card"><figure><h3>{{ title("ablations") }}</h3>{{ figs["ablations"] }}
+    <figcaption>{{ caption("ablations") }}. Each row switches one O1 layer off on dev. Dotted line = the pre-registered adjudicate floor ({{ m("ablation_ref.needed", "int") }} of {{ m("ablation_ref.n", "int") }} correct). Labels: CPST change vs O1 ({{ T.HEADLINE }}), paired 95% CI.</figcaption></figure></div>
   <div class="card"><figure><h3>{{ title("effort") }}</h3>{{ figs["effort"] }}
     <figcaption>{{ caption("effort") }}. Bars start at zero; labels: cost vs low effort, accuracy change vs low with a paired 95% CI.</figcaption></figure></div>
 </section>
@@ -141,6 +146,10 @@
       <td>{{ okbad(v(p ~ ".meets_floors"), "all met", "breach") }}</td></tr>
     {%- endfor %}
   </table>
+  <p style="font-size:14.5px"><b>At scale:</b> per {{ m("splits.heldout.per_100k_n", "int") }} tickets like these, O1 {{ T.LIVE }} would spend
+    {{ m("splits.heldout.per_100k.O1_live.nocache", "usd2") }} ({{ T.HEADLINE }}) / {{ m("splits.heldout.per_100k.O1_live.cached", "usd2") }} ({{ T.CACHED }})
+    vs always-best {{ m("splits.heldout.per_100k.B1.nocache", "usd2") }} / {{ m("splits.heldout.per_100k.B1.cached", "usd2") }},
+    from the held-out mean cost per ticket.</p>
   <p class="muted" style="font-size:13.5px">Oracle gap captured, (CPST<sub>B1</sub> − CPST<sub>O1</sub>) ÷ (CPST<sub>B1</sub> − CPST<sub>oracle</sub>):
     O1 {{ T.SIMULATED }} {{ m("splits.heldout.oracle_gap.nocache", "pct1") }} ({{ T.HEADLINE }}),
     {{ m("splits.heldout.oracle_gap.cached", "pct1") }} ({{ T.CACHED }}); O1 {{ T.LIVE }}

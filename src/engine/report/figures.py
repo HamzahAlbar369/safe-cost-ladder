@@ -430,7 +430,144 @@ def receipt(m: dict, s: T.Size) -> go.Figure:
     return fig
 
 
+# --- 8. cost vs accuracy on dev: 9 configs, Pareto frontier, policies ------------------------------------
+
+DP = "splits.dev.policies"
+POL4 = ("B1", "B3", "O1", "Oracle")
+
+
+def costacc_title(m: dict) -> list[Segment]:
+    return ["On dev, O1 reaches ", (f"{DP}.O1.acc", "f3"), " accuracy at ", (f"{DP}.O1.per_ticket_nocache", "usd5"),
+            " per ticket; always-best reaches ", (f"{DP}.B1.acc", "f3"), " at ", (f"{DP}.B1.per_ticket_nocache", "usd5"),
+            " (" + T.HEADLINE + ")"]  # fmt: skip
+
+
+def costacc(m: dict, s: T.Size) -> go.Figure:
+    e = m["effort"]
+    pts = {f"{mo}-{ef}": (r["cost_nocache"], r["acc"]) for mo, d in e.items() for ef, r in d.items()}
+    front = [pts[c] for c in m["pareto_dev"]]
+    pol = m["splits"]["dev"]["policies"]
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=[p[0] for p in front], y=[p[1] for p in front], mode="lines",
+                             line={"color": T.AXIS, "width": s.line, "shape": "hv"}, hoverinfo="skip"))  # fmt: skip
+    for cid, (x, y) in pts.items():
+        on = cid in m["pareto_dev"]
+        fig.add_trace(go.Scatter(
+            x=[x], y=[y], mode="markers+text", text=[cid], textposition="bottom center",
+            textfont={"size": s.small, "color": T.INK_2 if on else T.MUTED},
+            marker={"size": s.marker * 0.8, "color": T.INK_2 if on else T.SURFACE,
+                    "line": {"color": T.INK_2, "width": s.line / 2}},
+            hovertemplate=f"{cid}: %{{x:$.5f}} per ticket, accuracy %{{y:.3f}}<extra></extra>",
+        ))  # fmt: skip
+    names = {"O1": "O1 (" + T.SIMULATED + ")", "B1": "B1 always-best", "B3": "B3 static", "Oracle": "Oracle"}
+    for k in POL4:
+        d, st = pol[k], T.POLICY[k]
+        fig.add_trace(go.Scatter(
+            x=[d["per_ticket_nocache"]], y=[d["acc"]], mode="markers+text", text=[f"<b>{names[k]}</b>"],
+            textposition="top left" if k == "B1" else "top center", textfont={"size": s.label, "color": st.color},
+            marker={"size": s.marker * 1.5, "symbol": st.symbol, "color": st.color if st.fill else T.SURFACE,
+                    "line": {"color": st.color, "width": s.line}},
+            hovertemplate=f"{names[k]}: %{{x:$.5f}} per ticket, accuracy %{{y:.3f}}<extra></extra>",
+        ))  # fmt: skip
+    xs = [p[0] for p in pts.values()] + [pol[k]["per_ticket_nocache"] for k in POL4]
+    ys = [p[1] for p in pts.values()] + [pol[k]["acc"] for k in POL4]
+    lo = math.floor(min(ys) * 100) / 100 - 0.005
+    ticks = [t for t in (0.0003, 0.001, 0.003, 0.01, 0.03, 0.1) if min(xs) / 2 <= t <= max(xs) * 2]
+    fig.update_xaxes(type="log", range=[math.log10(min(xs)) - 0.2, math.log10(max(xs)) + 0.15], tickvals=ticks,
+                     ticktext=[f"${t:g}" for t in ticks],
+                     title_text="mean USD per ticket, " + T.HEADLINE + ", log scale",
+                     title_font={"size": s.small, "color": T.MUTED})  # fmt: skip
+    fig.update_yaxes(range=[lo, 1.004], tickformat=".2f", title_text=f"accuracy (axis starts at {lo:.3f})",
+                     title_font={"size": s.small, "color": T.MUTED})  # fmt: skip
+    T.layout(fig, s, title=title_text(m, costacc_title(m)),
+             caption=caption(m, "cost_vs_accuracy") + " · step line = Pareto frontier (no cheaper config is as accurate)")  # fmt: skip
+    return fig
+
+
+# --- 9. ablations: adjudicate correct vs the floor, CPST change vs O1 ----------------------------------
+
+ABL = (
+    ("O1 (all layers)", None),
+    ("no deadline", "O1 as specified (no deadline)"),
+    ("drop V3", "drop V3 (haiku-low -> opus-low on a V0-V2 failure)"),
+    ("drop V2", "drop V2 (V0-V1 + V3 only)"),
+)
+
+
+def ablations_title(m: dict) -> list[Segment]:
+    need = m["ablation_ref"]["needed"]
+    miss = [lab for lab, k in ABL if k and m["ablations"][k]["saving_vs_o1_lo"] > 0
+            and m["ablations"][k]["adjudicate_correct"] < need]  # fmt: skip
+    if not miss:
+        return ["No O1 layer can be dropped without cost or floor consequences on dev"]
+    first = miss[0][0].upper() + miss[0][1:]
+    return [" and ".join([first, *miss[1:]]) + " would cut cost but miss the adjudicate floor (",
+            ("ablation_ref.needed", "int"), " correct needed), so those checks stay"]  # fmt: skip
+
+
+def ablations_fig(m: dict, s: T.Size) -> go.Figure:
+    ref = m["ablation_ref"]
+    rows = []
+    for lab, k in ABL:
+        if k is None:
+            rows.append((lab, ref["o1_correct"], None))
+        else:
+            a = m["ablations"][k]
+            rows.append(
+                (
+                    lab,
+                    a["adjudicate_correct"],
+                    (-a["saving_vs_o1"], -a["saving_vs_o1_hi"], -a["saving_vs_o1_lo"]),
+                )
+            )
+    xs = [r[1] for r in rows]
+    lo, hi = min([*xs, ref["needed"]]) - 4, ref["n"] + 0.5
+    fig = go.Figure()
+    fig.add_shape(type="line", x0=ref["needed"] - 0.5, x1=ref["needed"] - 0.5, y0=0, y1=1, yref="y domain",
+                  line={"color": T.BAD, "width": s.line, "dash": "dot"})  # fmt: skip
+    fig.add_annotation(x=ref["needed"] - 0.5, y=1, yref="y domain", yanchor="bottom", showarrow=False,
+                       text=f"floor: {ref['needed']} of {ref['n']} correct needed",
+                       font={"size": s.small, "color": T.BAD})  # fmt: skip
+    for lab, x, chg in rows:
+        ok, o1 = x >= ref["needed"], chg is None
+        color = T.ACCENT if o1 else T.INK_2
+        fig.add_trace(go.Scatter(
+            x=[x], y=[lab], mode="markers",
+            marker={"size": s.marker * (1.4 if o1 else 1.1), "symbol": "circle" if ok else "circle-open",
+                    "color": color, "line": {"color": color, "width": s.line}},
+            hovertemplate=f"{lab}: {x} correct<extra></extra>",
+        ))  # fmt: skip
+        tail = "   · reference" if o1 else f"   · CPST vs O1 {chg[0]:+.1%} [{chg[1]:+.1%}, {chg[2]:+.1%}]"
+        fig.add_annotation(x=lo, y=lab, xanchor="left", showarrow=False, xshift=4, yshift=s.label + 6,
+                           text=("✓ " if ok else "✗ ") + f"{x} correct" + tail,
+                           font={"size": s.small, "color": T.GOOD if ok else T.BAD})  # fmt: skip
+    fig.update_xaxes(range=[lo, hi], dtick=1,
+                     title_text=f"adjudicate tickets correct on dev, of {ref['n']} (axis starts at {lo})",
+                     title_font={"size": s.small, "color": T.MUTED})  # fmt: skip
+    fig.update_yaxes(autorange="reversed", tickfont={"size": s.label, "color": T.INK_2})
+    T.layout(fig, s, title=title_text(m, ablations_title(m)),
+             caption=caption(m, "ablations") + " · CPST change = ablation vs O1, " + T.HEADLINE
+             + ", paired 95% CI; negative = cheaper")  # fmt: skip
+    return fig
+
+
 FIGURES: tuple[Figure, ...] = (
+    Figure(
+        "cost_vs_accuracy",
+        [],
+        "The 9 configs on dev: cost per ticket vs accuracy, Pareto frontier, and where B1, B3, O1 and the oracle land",
+        [],
+        costacc,
+        420,
+    ),
+    Figure(
+        "ablations",
+        [],
+        "Ablations on dev: each O1 layer off in turn; adjudicate correct vs the floor; CPST change vs O1 with CI",
+        [],
+        ablations_fig,
+        340,
+    ),
     Figure(
         "cpst_forest",
         [],
@@ -490,6 +627,8 @@ FIGURES: tuple[Figure, ...] = (
 )
 
 TITLES = {
+    "cost_vs_accuracy": costacc_title,
+    "ablations": ablations_title,
     "cpst_forest": forest_title,
     "spend_by_task": spend_title,
     "adjudicate_sankey": sankey_title,
@@ -500,6 +639,8 @@ TITLES = {
 }
 
 SOURCES = {
+    "cost_vs_accuracy": ("dev",),
+    "ablations": ("dev",),
     "cpst_forest": ("dev", "shifted", "heldout_matrix", "heldout_live"),
     "spend_by_task": ("heldout_matrix", "heldout_live"),
     "adjudicate_sankey": ("heldout_live",),

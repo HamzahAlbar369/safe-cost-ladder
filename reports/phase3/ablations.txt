@@ -1,4 +1,4 @@
-run: matrix-dev-full-1 | split: dev | git: 0b6606cda808f1c691a26c272da5c2f1aaa815a2 | config_hash: 1201126a080c897a
+run: matrix-dev-full-1 | split: dev | git: ad5ff84b660fa84178a6c96bb0388b54335df63a | config_hash: 1201126a080c897a
 
 Ablations: one O1 layer off at a time, paired against O1 on the same 400 dev tickets
 'saving' > 0 = the ablation is cheaper per successful task than O1 (the layer costs money and is kept only

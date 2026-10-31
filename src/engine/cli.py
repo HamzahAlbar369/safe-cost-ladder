@@ -495,6 +495,26 @@ def report(
         typer.echo(f"wrote {p.relative_to(ROOT).as_posix()}")
 
 
+@app.command()
+def demo(
+    replay: bool = typer.Option(True, "--replay/--live", help="Replay recorded calls (no key)."),
+    pause: bool = typer.Option(False, "--pause", help="Wait for Enter between tickets (for recording)."),
+    verify: bool = typer.Option(False, "--verify", help="Recompute all metrics; check = report."),
+) -> None:
+    """Judge-facing walk-through: demo tickets through the frozen O1 (recorded calls) + headline."""
+    import logging
+    import warnings
+
+    from engine.demo import run
+
+    if not replay:
+        typer.echo("The demo replays recorded calls only; see the README for running live.")
+        raise typer.Exit(2)
+    warnings.filterwarnings("ignore")
+    logging.disable(logging.WARNING)
+    raise typer.Exit(run(pause=pause, verify=verify))
+
+
 @app.command("jev-router")
 def jev_router(
     yes: bool = typer.Option(False, "--yes", help="make the paid calls (otherwise print the estimate only)"),

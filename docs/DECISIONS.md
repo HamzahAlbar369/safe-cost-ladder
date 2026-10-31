@@ -752,3 +752,23 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   sample is NOT reliable at this size (selection is noisier than detection). Recommended product action on a
   binomial alarm: escalate the drifted task to the most accurate config on the larger pooled audit or to human
   review, not a per-sample re-pick. Not built (would be a new rule chosen after seeing shifted).
+
+### D4.7 · Fail-safe on a drift alarm: revert the alarmed task to B1's config (RECALIBRATION ANALYSIS; the held-out run uses the dev-frozen O1)
+- **Stated plainly:** this rule was added AFTER observing the shifted results (Hamzah's review of D4.6). It selects
+  nothing from shifted or from the audit sample: the only input from the sample is the binomial alarm (D4.6), and
+  the replacement config is B1's (`opus-low`, chosen on dev in Phase 2). Tasks without an alarm keep the frozen O1
+  config; an alarmed adjudicate drops the cascade and calls B1 alone. Code: `recalibrate.failsafe`.
+- Also recorded in `reports/phase4/recalibration.txt`: the binomial detector itself was added after the naive check
+  falsely alarmed on dev.
+- **Evidence (`reports/phase4/recalibration.txt` at `cc8a0f8`, same 2 shifted folds; per task n = 25 + 25 faq,
+  15 + 15 intent, 15 + 15 extract, 45 + 45 adjudicate):**
+  - Alarms: adjudicate on both audit folds; faq on fold A's audit only (fold B audit faq 0.960, not significant).
+  - adjudicate: frozen O1 0.889 [0.822, 0.944] -> fail-safe 0.956 [0.911, 0.989] = B1 (floor 0.984 missed by all;
+    no config reaches it on shifted, D4.2); success 0.822 -> 0.956; CPST headline $0.00772 -> $0.04052 (= B1).
+  - faq: 0.840 -> 0.860 [0.760, 0.960] (B1 1.000; floor 0.980 missed), because the alarm fired on one fold only;
+    CPST headline $0.00089 -> $0.01800 (41.4% [27.0%, 56.1%] below B1).
+  - intent / extract: no alarm, unchanged (1.000).
+  - Overall: accuracy 0.910 -> 0.945, success 0.880 -> 0.940, CPST headline $0.00373 -> $0.02281 (B1 $0.03505).
+- **Reading:** the alarm + fail-safe recovers B1's adjudicate accuracy on drifted traffic at B1's cost for that task
+  while keeping the cheap configs where no alarm fires; with a 25-ticket faq audit the alarm can miss (power: D4.6
+  table). Not part of the final policy.

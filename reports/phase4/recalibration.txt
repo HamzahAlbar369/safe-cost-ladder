@@ -1,63 +1,85 @@
-runs: matrix-dev-full-1, matrix-shifted-full-1 | git: caf9342b9023c3bd647c8591d0b940491eaeaf38
+runs: matrix-dev-full-1, matrix-shifted-full-1 | git: cc8a0f83caed61a254c20d643ff0606c97ce2df1
 
 RECALIBRATION ANALYSIS; the held-out run uses the dev-frozen O1
 
 Audit-and-recalibrate on shifted, 2 folds stratified by task x language (seed 20261031): audit fold A -> score fold B, then swap; every ticket is scored once, by the policy calibrated on
 the OTHER fold. Floors and budgets are the frozen ones. Selection rules: src/engine/eval/recalibrate.py.
+Detector history: the statistical (binomial, alpha 0.05) detector was added AFTER the naive check (sample
+accuracy below the floor) falsely alarmed on dev, where O1 meets every floor (see the audit-size table).
+Fail-safe (D4.7, added after observing shifted; selects nothing from shifted): a task whose binomial
+detector fires on the audit fold reverts to B1's config (chosen on dev) on the scored fold.
 
   fold A audits (n=100), fold B is scored (n=100)
     drift detection (frozen O1 on the audit sample vs frozen floor): faq 0.720 naive FIRED / binomial FIRED, intent 1.000 naive ok / binomial ok, extract 1.000 naive ok / binomial ok, adjudicate 0.911 naive FIRED / binomial FIRED
     re-picked: faq haiku-low->opus-low, intent haiku-high->haiku-low, extract haiku-low->haiku-low, adjudicate opus-low->haiku-medium (floor unreachable on this traffic)
     adjudicate ladder: cascade dropped (missed the floor on the sample), top haiku-medium
+    fail-safe (D4.7): faq opus-low (binomial alarm), intent haiku-high (no alarm, frozen), extract haiku-low (no alarm, frozen), adjudicate opus-low (binomial alarm)
+    scored-fold n per task: faq 25, intent 15, extract 15, adjudicate 45
   fold B audits (n=100), fold A is scored (n=100)
     drift detection (frozen O1 on the audit sample vs frozen floor): faq 0.960 naive FIRED / binomial ok, intent 1.000 naive ok / binomial ok, extract 1.000 naive ok / binomial ok, adjudicate 0.867 naive FIRED / binomial FIRED
     re-picked: faq haiku-low->haiku-high, intent haiku-high->haiku-low, extract haiku-low->haiku-low, adjudicate opus-low->sonnet-high (floor unreachable on this traffic)
     adjudicate ladder: cascade dropped (missed the floor on the sample), top sonnet-high
+    fail-safe (D4.7): faq haiku-low (no alarm, frozen), intent haiku-high (no alarm, frozen), extract haiku-low (no alarm, frozen), adjudicate opus-low (binomial alarm)
+    scored-fold n per task: faq 25, intent 15, extract 15, adjudicate 45
 
-Per task, pooled over both scored folds (CI = 95% bootstrap; 'vs B1' = CPST saving vs B1, paired)
-  faq (n=50)
+Per task, pooled over both scored folds (CI = 95% bootstrap; 'vs B1' = CPST saving vs B1, paired;
+n per fold in each task header = scored tickets in fold B (audited on A) + fold A (audited on B))
+  faq (n=50 = 25 + 25)
       frozen O1              acc 0.840 [0.720, 0.940]  floor 0.980 MISSED  success 0.840
           CPST headline $0.00089 [0.00080, 0.00103]  vs B1 +97.1% [+96.6%, +97.5%]
           CPST cached   $0.00012 [0.00011, 0.00014]  vs B1 +94.5% [+93.6%, +95.1%]
       recalibrated           acc 0.860 [0.760, 0.940]  floor 0.980 MISSED  success 0.840
           CPST headline $0.01802 [0.01356, 0.02255]  vs B1 +41.3% [+26.6%, +55.9%]
           CPST cached   $0.00130 [0.00100, 0.00161]  vs B1 +39.0% [+24.9%, +53.2%]
+      fail-safe              acc 0.860 [0.760, 0.960]  floor 0.980 MISSED  success 0.840
+          CPST headline $0.01800 [0.01355, 0.02250]  vs B1 +41.4% [+27.0%, +56.1%]
+          CPST cached   $0.00129 [0.00097, 0.00160]  vs B1 +39.8% [+25.2%, +54.2%]
       B1                     acc 1.000 [1.000, 1.000]  floor 0.980 met     success 0.960
           CPST headline $0.03071 [0.02946, 0.03277]  vs B1 +0.0% [+0.0%, +0.0%]
           CPST cached   $0.00214 [0.00203, 0.00230]  vs B1 +0.0% [+0.0%, +0.0%]
-  intent (n=30)
+  intent (n=30 = 15 + 15)
       frozen O1              acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
           CPST headline $0.00075 [0.00074, 0.00075]  vs B1 +97.5% [+97.5%, +97.5%]
           CPST cached   $0.00010 [0.00009, 0.00010]  vs B1 +95.4% [+95.2%, +95.6%]
       recalibrated           acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
           CPST headline $0.00074 [0.00074, 0.00074]  vs B1 +97.5% [+97.5%, +97.5%]
           CPST cached   $0.00009 [0.00009, 0.00009]  vs B1 +95.8% [+95.7%, +95.8%]
+      fail-safe              acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
+          CPST headline $0.00075 [0.00074, 0.00075]  vs B1 +97.5% [+97.5%, +97.5%]
+          CPST cached   $0.00010 [0.00009, 0.00010]  vs B1 +95.4% [+95.2%, +95.6%]
       B1                     acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
           CPST headline $0.02956 [0.02952, 0.02961]  vs B1 +0.0% [+0.0%, +0.0%]
           CPST cached   $0.00207 [0.00202, 0.00211]  vs B1 +0.0% [+0.0%, +0.0%]
-  extract (n=30)
+  extract (n=30 = 15 + 15)
       frozen O1              acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
           CPST headline $0.00081 [0.00080, 0.00082]  vs B1 +97.5% [+97.4%, +97.5%]
           CPST cached   $0.00014 [0.00013, 0.00015]  vs B1 +96.0% [+95.7%, +96.3%]
       recalibrated           acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
           CPST headline $0.00081 [0.00080, 0.00082]  vs B1 +97.5% [+97.4%, +97.5%]
           CPST cached   $0.00014 [0.00013, 0.00015]  vs B1 +96.0% [+95.7%, +96.3%]
+      fail-safe              acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
+          CPST headline $0.00081 [0.00080, 0.00082]  vs B1 +97.5% [+97.4%, +97.5%]
+          CPST cached   $0.00014 [0.00013, 0.00015]  vs B1 +96.0% [+95.7%, +96.3%]
       B1                     acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
           CPST headline $0.03178 [0.03171, 0.03186]  vs B1 +0.0% [+0.0%, +0.0%]
           CPST cached   $0.00347 [0.00340, 0.00355]  vs B1 +0.0% [+0.0%, +0.0%]
-  adjudicate (n=90)
+  adjudicate (n=90 = 45 + 45)
       frozen O1              acc 0.889 [0.822, 0.944]  floor 0.984 MISSED  success 0.822
           CPST headline $0.00772 [0.00466, 0.01188]  vs B1 +80.9% [+71.0%, +88.3%]
           CPST cached   $0.00250 [0.00169, 0.00361]  vs B1 +66.8% [+53.5%, +76.4%]
       recalibrated           acc 0.867 [0.789, 0.933]  floor 0.984 MISSED  success 0.833
           CPST headline $0.01437 [0.01174, 0.01739]  vs B1 +64.5% [+58.1%, +70.7%]
           CPST cached   $0.00446 [0.00363, 0.00546]  vs B1 +40.6% [+29.2%, +51.1%]
+      fail-safe              acc 0.956 [0.911, 0.989]  floor 0.984 MISSED  success 0.956
+          CPST headline $0.04052 [0.03877, 0.04296]  vs B1 +0.0% [+0.0%, +0.0%]
+          CPST cached   $0.00751 [0.00684, 0.00832]  vs B1 +0.0% [+0.0%, +0.0%]
       B1                     acc 0.956 [0.911, 0.989]  floor 0.984 MISSED  success 0.956
           CPST headline $0.04052 [0.03877, 0.04296]  vs B1 +0.0% [+0.0%, +0.0%]
           CPST cached   $0.00751 [0.00684, 0.00832]  vs B1 +0.0% [+0.0%, +0.0%]
   overall (n=200)
       frozen O1              acc 0.910  success 0.880  CPST headline $0.00373  cached $0.00112
       recalibrated           acc 0.905  success 0.885  CPST headline $0.01063  cached $0.00224
+      fail-safe              acc 0.945  success 0.940  CPST headline $0.02281  cached $0.00376
       B1                     acc 0.980  success 0.970  CPST headline $0.03505  cached $0.00472
 
 Audit sample size vs drift detection (500 stratified resamples per size). On shifted a firing is

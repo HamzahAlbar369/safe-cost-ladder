@@ -1,4 +1,4 @@
-run: matrix-dev-full-1 | split: dev | git: 4730dd483fbc791a8dd94f1c746f8f7efdab88d2 | config_hash: 1201126a080c897a
+run: matrix-dev-full-1 | split: dev | git: 83dc593d3263413c60bf01ab2b42340ce701fd23 | config_hash: 1201126a080c897a
 
 Jev router (D3.3): run jev-router-dev-1, model typesafe/jev-1.14, ticket text only; zero-shot, so no folds.
 Mapping (declared before the run): straight to opus-low iff P(complexity = complex) >= tau.
@@ -37,3 +37,14 @@ Per task (with router)
     adjudicate  180      178  0.989  0.984    0.944    8.19       8.5
     language en: n=280  accuracy 0.993  success 0.971
     language ar: n=120  accuracy 0.983  success 0.950
+
+Caveats (read with every number above)
+- Parallel timing is MODELLED: haiku-low and haiku-medium were recorded as separate matrix calls, not sent
+  together; O1's adjudicate latency is computed from those recorded latencies (max / deadline arithmetic).
+  Contention from truly concurrent calls is not in the replay; `engine final` measures O1 live on held-out.
+- Oracle rule for unsolvable tickets: a ticket that no config answers correctly within its budget is charged
+  the cheapest config's cost (lowest mean headline cost) and counts as a failure for the oracle too.
+- Router thresholds were chosen IN-SAMPLE on dev (the local router's probabilities are out-of-fold, but the
+  threshold was picked on the same dev tickets that score it; Jev is zero-shot). This favours the routers,
+  so their negative result (D3.4) is conservative.
+- Replayed results are simulated from recorded calls (SPEC 6.5); costs and latencies are the recorded ones.

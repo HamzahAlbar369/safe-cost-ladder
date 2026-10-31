@@ -1,0 +1,99 @@
+run: matrix-shifted-full-1 | split: shifted | frozen choices from: matrix-dev-full-1 | git: 83dc593d3263413c60bf01ab2b42340ce701fd23 | config_hash: 5f376c36936b754d
+
+Ablations: one O1 layer off at a time, paired against O1 on the same 200 shifted tickets
+'saving' > 0 = the ablation is cheaper per successful task than O1 (the layer costs money and is kept only
+if it is needed to meet a floor). Accuracy/success deltas are ablation - O1 (paired bootstrap 95% CI).
+A layer that is 'needed for the floor' is needed to clear the PRE-REGISTERED floor on dev by the stated
+number of tickets; where the accuracy-delta CI touches 0, no significant accuracy gain is claimed.
+
+O1 (all layers)
+    task          n  correct    acc  floor  success   p95 s  budget s
+    faq          50       42  0.840  0.980    0.840    1.86       2.5  FLOOR BREACH
+    intent       30       30  1.000  0.980    1.000    1.26       4.5
+    extract      30       30  1.000  0.980    1.000    1.92       3.5
+    adjudicate   90       80  0.889  0.984    0.822   10.13       8.5  FLOOR BREACH
+    language en: n=140  accuracy 0.929  success 0.893
+    language ar: n=60  accuracy 0.867  success 0.850
+
+O1 as specified (no deadline)
+    correct 183/200  accuracy 0.915  success 0.870  p50 1.32s  p95 8.92s  meets every floor: NO
+    CPST, Cost without caching (headline):  $0.00422 [0.00270, 0.00594]
+        vs O1: $0.00373 -> $0.00422  saving -13.3% [-35.9%, +0.0%]
+    CPST, Cost with caching (actual):       $0.00122 [0.00082, 0.00169]
+        vs O1: $0.00112 -> $0.00122  saving -9.2% [-24.1%, +0.0%]
+    adjudicate: accuracy delta +0.011 [+0.000, +0.033]  success delta -0.022 [-0.056, +0.000]  correct 81 vs 80  (CI touches 0: not a significant accuracy difference)
+    overall: accuracy delta +0.005 [+0.000, +0.015]  success delta -0.010 [-0.025, +0.000]  correct 183 vs 182  (CI touches 0: not a significant accuracy difference)
+    adjudicate floor 0.984444 x 90 needs >= 89 correct; this ablation has 81 vs O1 80: O1 itself is short by 9, so the floor is missed either way; the layer changes adjudicate correct by -1
+    per task (O1 as specified (no deadline))
+    task          n  correct    acc  floor  success   p95 s  budget s
+    faq          50       42  0.840  0.980    0.840    1.86       2.5  FLOOR BREACH
+    intent       30       30  1.000  0.980    1.000    1.26       4.5
+    extract      30       30  1.000  0.980    1.000    1.92       3.5
+    adjudicate   90       81  0.900  0.984    0.800   12.41       8.5  FLOOR BREACH
+    language en: n=140  accuracy 0.929  success 0.886
+    language ar: n=60  accuracy 0.883  success 0.833
+
+drop V3 (haiku-low -> opus-low on a V0-V2 failure)
+    correct 181/200  accuracy 0.905  success 0.885  p50 1.28s  p95 6.11s  meets every floor: NO
+    CPST, Cost without caching (headline):  $0.00213 [0.00128, 0.00325]
+        vs O1: $0.00373 -> $0.00213  saving +42.9% [+26.3%, +60.4%]
+    CPST, Cost with caching (actual):       $0.00063 [0.00036, 0.00095]
+        vs O1: $0.00112 -> $0.00063  saving +44.0% [+32.2%, +58.1%]
+    adjudicate: accuracy delta -0.011 [-0.044, +0.022]  success delta +0.011 [-0.022, +0.056]  correct 79 vs 80  (CI touches 0: not a significant accuracy difference)
+    overall: accuracy delta -0.005 [-0.025, +0.010]  success delta +0.005 [-0.010, +0.025]  correct 181 vs 182  (CI touches 0: not a significant accuracy difference)
+    adjudicate floor 0.984444 x 90 needs >= 89 correct; this ablation has 79 vs O1 80: O1 itself is short by 9, so the floor is missed either way; the layer changes adjudicate correct by +1
+    per task (drop V3 (haiku-low -> opus-low on a V0-V2 failure))
+    task          n  correct    acc  floor  success   p95 s  budget s
+    faq          50       42  0.840  0.980    0.840    1.86       2.5  FLOOR BREACH
+    intent       30       30  1.000  0.980    1.000    1.26       4.5
+    extract      30       30  1.000  0.980    1.000    1.92       3.5
+    adjudicate   90       79  0.878  0.984    0.833    8.78       8.5  FLOOR BREACH
+    language en: n=140  accuracy 0.914  success 0.893
+    language ar: n=60  accuracy 0.883  success 0.867
+
+drop V2 (V0-V1 + V3 only)
+    correct 180/200  accuracy 0.900  success 0.885  p50 1.32s  p95 6.34s  meets every floor: NO
+    CPST, Cost without caching (headline):  $0.00301 [0.00203, 0.00421]
+        vs O1: $0.00373 -> $0.00301  saving +19.2% [+0.0%, +37.2%]
+    CPST, Cost with caching (actual):       $0.00095 [0.00068, 0.00130]
+        vs O1: $0.00112 -> $0.00095  saving +14.7% [+0.0%, +29.8%]
+    adjudicate: accuracy delta -0.022 [-0.056, +0.000]  success delta +0.011 [+0.000, +0.033]  correct 78 vs 80  (CI touches 0: not a significant accuracy difference)
+    overall: accuracy delta -0.010 [-0.025, +0.000]  success delta +0.005 [+0.000, +0.015]  correct 180 vs 182  (CI touches 0: not a significant accuracy difference)
+    adjudicate floor 0.984444 x 90 needs >= 89 correct; this ablation has 78 vs O1 80: O1 itself is short by 9, so the floor is missed either way; the layer changes adjudicate correct by +2
+    per task (drop V2 (V0-V1 + V3 only))
+    task          n  correct    acc  floor  success   p95 s  budget s
+    faq          50       42  0.840  0.980    0.840    1.86       2.5  FLOOR BREACH
+    intent       30       30  1.000  0.980    1.000    1.26       4.5
+    extract      30       30  1.000  0.980    1.000    1.92       3.5
+    adjudicate   90       78  0.867  0.984    0.833    8.78       8.5  FLOOR BREACH
+    language en: n=140  accuracy 0.921  success 0.900
+    language ar: n=60  accuracy 0.850  success 0.850
+
+drop Tier 0
+    correct 182/200  accuracy 0.910  success 0.880  p50 1.32s  p95 6.69s  meets every floor: NO
+    CPST, Cost without caching (headline):  $0.00373 [0.00242, 0.00529]
+        vs O1: $0.00373 -> $0.00373  saving +0.0% [+0.0%, +0.0%]
+    CPST, Cost with caching (actual):       $0.00112 [0.00076, 0.00154]
+        vs O1: $0.00112 -> $0.00112  saving +0.0% [+0.0%, +0.0%]
+    adjudicate: accuracy delta +0.000 [+0.000, +0.000]  success delta +0.000 [+0.000, +0.000]  correct 80 vs 80
+    overall: accuracy delta +0.000 [+0.000, +0.000]  success delta +0.000 [+0.000, +0.000]  correct 182 vs 182
+    adjudicate floor 0.984444 x 90 needs >= 89 correct; this ablation has 80 vs O1 80: O1 itself is short by 9, so the floor is missed either way; the layer changes adjudicate correct by +0
+    per task (drop Tier 0)
+    task          n  correct    acc  floor  success   p95 s  budget s
+    faq          50       42  0.840  0.980    0.840    1.86       2.5  FLOOR BREACH
+    intent       30       30  1.000  0.980    1.000    1.26       4.5
+    extract      30       30  1.000  0.980    1.000    1.92       3.5
+    adjudicate   90       80  0.889  0.984    0.822   10.13       8.5  FLOOR BREACH
+    language en: n=140  accuracy 0.929  success 0.893
+    language ar: n=60  accuracy 0.867  success 0.850
+
+Caveats (read with every number above)
+- Parallel timing is MODELLED: haiku-low and haiku-medium were recorded as separate matrix calls, not sent
+  together; O1's adjudicate latency is computed from those recorded latencies (max / deadline arithmetic).
+  Contention from truly concurrent calls is not in the replay; `engine final` measures O1 live on held-out.
+- Oracle rule for unsolvable tickets: a ticket that no config answers correctly within its budget is charged
+  the cheapest config's cost (lowest mean headline cost) and counts as a failure for the oracle too.
+- Router thresholds were chosen IN-SAMPLE on dev (the local router's probabilities are out-of-fold, but the
+  threshold was picked on the same dev tickets that score it; Jev is zero-shot). This favours the routers,
+  so their negative result (D3.4) is conservative.
+- Replayed results are simulated from recorded calls (SPEC 6.5); costs and latencies are the recorded ones.

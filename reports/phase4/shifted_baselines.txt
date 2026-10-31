@@ -1,0 +1,130 @@
+run: matrix-shifted-full-1 | split: shifted | frozen choices from: matrix-dev-full-1 | git: 83dc593d3263413c60bf01ab2b42340ce701fd23 | config_hash: 5f376c36936b754d
+
+Baselines on shifted by subset (configs chosen on dev), CPST with 95% bootstrap CIs
+
+B1: always-best (opus-low): CPST by subset (CI = 95% bootstrap over the subset's tickets; saving vs B1 paired)
+    overall                n=200  acc 0.980  success 0.970
+        CPST headline      $0.03505 [0.03396, 0.03633]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00472 [0.00427, 0.00520]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    task faq               n= 50  acc 1.000  success 0.960
+        CPST headline      $0.03071 [0.02946, 0.03277]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00214 [0.00203, 0.00230]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    task intent            n= 30  acc 1.000  success 1.000
+        CPST headline      $0.02956 [0.02952, 0.02961]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00207 [0.00202, 0.00211]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    task extract           n= 30  acc 1.000  success 1.000
+        CPST headline      $0.03178 [0.03171, 0.03186]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00347 [0.00340, 0.00355]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    task adjudicate        n= 90  acc 0.956  success 0.956
+        CPST headline      $0.04052 [0.03877, 0.04296]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00751 [0.00684, 0.00832]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    language en            n=140  acc 0.993  success 0.986
+        CPST headline      $0.03448 [0.03341, 0.03561]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00463 [0.00412, 0.00515]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    language ar            n= 60  acc 0.950  success 0.933
+        CPST headline      $0.03646 [0.03376, 0.04026]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00493 [0.00406, 0.00603]  saving vs B1 +0.0% [+0.0%, +0.0%]
+
+B2: always-cheapest (haiku-low): CPST by subset (CI = 95% bootstrap over the subset's tickets; saving vs B1 paired)
+    overall                n=200  acc 0.890  success 0.890
+        CPST headline      $0.00113 [0.00105, 0.00121]  saving vs B1 +96.8% [+96.6%, +97.0%]
+        CPST with caching  $0.00035 [0.00030, 0.00039]  saving vs B1 +92.7% [+92.0%, +93.3%]
+    task faq               n= 50  acc 0.840  success 0.840
+        CPST headline      $0.00089 [0.00080, 0.00103]  saving vs B1 +97.1% [+96.6%, +97.5%]
+        CPST with caching  $0.00012 [0.00011, 0.00014]  saving vs B1 +94.5% [+93.6%, +95.1%]
+    task intent            n= 30  acc 1.000  success 1.000
+        CPST headline      $0.00074 [0.00074, 0.00074]  saving vs B1 +97.5% [+97.5%, +97.5%]
+        CPST with caching  $0.00009 [0.00009, 0.00009]  saving vs B1 +95.8% [+95.7%, +95.8%]
+    task extract           n= 30  acc 1.000  success 1.000
+        CPST headline      $0.00081 [0.00080, 0.00082]  saving vs B1 +97.5% [+97.4%, +97.5%]
+        CPST with caching  $0.00014 [0.00013, 0.00015]  saving vs B1 +96.0% [+95.7%, +96.3%]
+    task adjudicate        n= 90  acc 0.844  success 0.844
+        CPST headline      $0.00154 [0.00140, 0.00172]  saving vs B1 +96.2% [+95.8%, +96.5%]
+        CPST with caching  $0.00066 [0.00058, 0.00075]  saving vs B1 +91.3% [+90.1%, +92.2%]
+    language en            n=140  acc 0.900  success 0.900
+        CPST headline      $0.00110 [0.00102, 0.00120]  saving vs B1 +96.8% [+96.6%, +97.0%]
+        CPST with caching  $0.00033 [0.00028, 0.00038]  saving vs B1 +92.9% [+92.2%, +93.6%]
+    language ar            n= 60  acc 0.867  success 0.867
+        CPST headline      $0.00120 [0.00105, 0.00139]  saving vs B1 +96.7% [+96.2%, +97.1%]
+        CPST with caching  $0.00039 [0.00031, 0.00050]  saving vs B1 +92.1% [+90.5%, +93.3%]
+
+B3: best static config per task (chosen on dev): CPST by subset (CI = 95% bootstrap over the subset's tickets; saving vs B1 paired)
+    overall                n=200  acc 0.940  success 0.940
+        CPST headline      $0.01898 [0.01616, 0.02190]  saving vs B1 +45.8% [+38.6%, +53.0%]
+        CPST with caching  $0.00350 [0.00291, 0.00413]  saving vs B1 +25.8% [+19.6%, +32.4%]
+    task faq               n= 50  acc 0.840  success 0.840
+        CPST headline      $0.00089 [0.00080, 0.00103]  saving vs B1 +97.1% [+96.6%, +97.5%]
+        CPST with caching  $0.00012 [0.00011, 0.00014]  saving vs B1 +94.5% [+93.6%, +95.1%]
+    task intent            n= 30  acc 1.000  success 1.000
+        CPST headline      $0.00075 [0.00074, 0.00075]  saving vs B1 +97.5% [+97.5%, +97.5%]
+        CPST with caching  $0.00010 [0.00009, 0.00010]  saving vs B1 +95.4% [+95.2%, +95.6%]
+    task extract           n= 30  acc 1.000  success 1.000
+        CPST headline      $0.00081 [0.00080, 0.00082]  saving vs B1 +97.5% [+97.4%, +97.5%]
+        CPST with caching  $0.00014 [0.00013, 0.00015]  saving vs B1 +96.0% [+95.7%, +96.3%]
+    task adjudicate        n= 90  acc 0.956  success 0.956
+        CPST headline      $0.04052 [0.03877, 0.04296]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00751 [0.00684, 0.00832]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    language en            n=140  acc 0.957  success 0.957
+        CPST headline      $0.01863 [0.01525, 0.02183]  saving vs B1 +46.0% [+37.6%, +54.7%]
+        CPST with caching  $0.00342 [0.00274, 0.00411]  saving vs B1 +26.1% [+19.3%, +34.4%]
+    language ar            n= 60  acc 0.900  success 0.900
+        CPST headline      $0.01987 [0.01458, 0.02600]  saving vs B1 +45.5% [+32.4%, +58.4%]
+        CPST with caching  $0.00370 [0.00264, 0.00501]  saving vs B1 +25.0% [+14.1%, +37.3%]
+
+B4: cheapest single config meeting every floor on dev (opus-low): CPST by subset (CI = 95% bootstrap over the subset's tickets; saving vs B1 paired)
+    overall                n=200  acc 0.980  success 0.970
+        CPST headline      $0.03505 [0.03396, 0.03633]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00472 [0.00427, 0.00520]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    task faq               n= 50  acc 1.000  success 0.960
+        CPST headline      $0.03071 [0.02946, 0.03277]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00214 [0.00203, 0.00230]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    task intent            n= 30  acc 1.000  success 1.000
+        CPST headline      $0.02956 [0.02952, 0.02961]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00207 [0.00202, 0.00211]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    task extract           n= 30  acc 1.000  success 1.000
+        CPST headline      $0.03178 [0.03171, 0.03186]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00347 [0.00340, 0.00355]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    task adjudicate        n= 90  acc 0.956  success 0.956
+        CPST headline      $0.04052 [0.03877, 0.04296]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00751 [0.00684, 0.00832]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    language en            n=140  acc 0.993  success 0.986
+        CPST headline      $0.03448 [0.03341, 0.03561]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00463 [0.00412, 0.00515]  saving vs B1 +0.0% [+0.0%, +0.0%]
+    language ar            n= 60  acc 0.950  success 0.933
+        CPST headline      $0.03646 [0.03376, 0.04026]  saving vs B1 +0.0% [+0.0%, +0.0%]
+        CPST with caching  $0.00493 [0.00406, 0.00603]  saving vs B1 +0.0% [+0.0%, +0.0%]
+
+B5: naive cascade (haiku-low -> B1 on V0 failure): CPST by subset (CI = 95% bootstrap over the subset's tickets; saving vs B1 paired)
+    overall                n=200  acc 0.890  success 0.890
+        CPST headline      $0.00113 [0.00105, 0.00121]  saving vs B1 +96.8% [+96.6%, +97.0%]
+        CPST with caching  $0.00035 [0.00030, 0.00039]  saving vs B1 +92.7% [+92.0%, +93.3%]
+    task faq               n= 50  acc 0.840  success 0.840
+        CPST headline      $0.00089 [0.00080, 0.00103]  saving vs B1 +97.1% [+96.6%, +97.5%]
+        CPST with caching  $0.00012 [0.00011, 0.00014]  saving vs B1 +94.5% [+93.6%, +95.1%]
+    task intent            n= 30  acc 1.000  success 1.000
+        CPST headline      $0.00074 [0.00074, 0.00074]  saving vs B1 +97.5% [+97.5%, +97.5%]
+        CPST with caching  $0.00009 [0.00009, 0.00009]  saving vs B1 +95.8% [+95.7%, +95.8%]
+    task extract           n= 30  acc 1.000  success 1.000
+        CPST headline      $0.00081 [0.00080, 0.00082]  saving vs B1 +97.5% [+97.4%, +97.5%]
+        CPST with caching  $0.00014 [0.00013, 0.00015]  saving vs B1 +96.0% [+95.7%, +96.3%]
+    task adjudicate        n= 90  acc 0.844  success 0.844
+        CPST headline      $0.00154 [0.00140, 0.00172]  saving vs B1 +96.2% [+95.8%, +96.5%]
+        CPST with caching  $0.00066 [0.00058, 0.00075]  saving vs B1 +91.3% [+90.1%, +92.2%]
+    language en            n=140  acc 0.900  success 0.900
+        CPST headline      $0.00110 [0.00102, 0.00120]  saving vs B1 +96.8% [+96.6%, +97.0%]
+        CPST with caching  $0.00033 [0.00028, 0.00038]  saving vs B1 +92.9% [+92.2%, +93.6%]
+    language ar            n= 60  acc 0.867  success 0.867
+        CPST headline      $0.00120 [0.00105, 0.00139]  saving vs B1 +96.7% [+96.2%, +97.1%]
+        CPST with caching  $0.00039 [0.00031, 0.00050]  saving vs B1 +92.1% [+90.5%, +93.3%]
+
+
+Caveats (read with every number above)
+- Parallel timing is MODELLED: haiku-low and haiku-medium were recorded as separate matrix calls, not sent
+  together; O1's adjudicate latency is computed from those recorded latencies (max / deadline arithmetic).
+  Contention from truly concurrent calls is not in the replay; `engine final` measures O1 live on held-out.
+- Oracle rule for unsolvable tickets: a ticket that no config answers correctly within its budget is charged
+  the cheapest config's cost (lowest mean headline cost) and counts as a failure for the oracle too.
+- Router thresholds were chosen IN-SAMPLE on dev (the local router's probabilities are out-of-fold, but the
+  threshold was picked on the same dev tickets that score it; Jev is zero-shot). This favours the routers,
+  so their negative result (D3.4) is conservative.
+- Replayed results are simulated from recorded calls (SPEC 6.5); costs and latencies are the recorded ones.

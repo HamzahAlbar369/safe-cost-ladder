@@ -1,4 +1,4 @@
-run: matrix-dev-full-1 | split: dev | git: 4730dd483fbc791a8dd94f1c746f8f7efdab88d2 | config_hash: 1201126a080c897a
+run: matrix-dev-full-1 | split: dev | git: 83dc593d3263413c60bf01ab2b42340ce701fd23 | config_hash: 1201126a080c897a
 
 Effort finding (dev, 400 tickets, every config answers every ticket; all matrix calls read a warm cache)
 Cost per call is the mean over all 400 tickets. Accuracy delta vs low: paired bootstrap 95% CI.
@@ -17,3 +17,14 @@ opus    medium    0.998   0.994 +0.000 [-0.007, +0.007]             0.005565   1
 opus    high      0.998   0.994 +0.000 [+0.000, +0.000]             0.006004   1.39         0.035426      180       107   2.35   6.81
 
 Reading: compare rows within a model. 'x low' = Cost with caching (actual) per call relative to the same model at low effort.
+
+Caveats (read with every number above)
+- Parallel timing is MODELLED: haiku-low and haiku-medium were recorded as separate matrix calls, not sent
+  together; O1's adjudicate latency is computed from those recorded latencies (max / deadline arithmetic).
+  Contention from truly concurrent calls is not in the replay; `engine final` measures O1 live on held-out.
+- Oracle rule for unsolvable tickets: a ticket that no config answers correctly within its budget is charged
+  the cheapest config's cost (lowest mean headline cost) and counts as a failure for the oracle too.
+- Router thresholds were chosen IN-SAMPLE on dev (the local router's probabilities are out-of-fold, but the
+  threshold was picked on the same dev tickets that score it; Jev is zero-shot). This favours the routers,
+  so their negative result (D3.4) is conservative.
+- Replayed results are simulated from recorded calls (SPEC 6.5); costs and latencies are the recorded ones.

@@ -1,0 +1,183 @@
+run: matrix-shifted-full-1 | split: shifted | frozen choices from: matrix-dev-full-1 | git: 83dc593d3263413c60bf01ab2b42340ce701fd23 | config_hash: 5f376c36936b754d
+
+Shifted split (n=200): the FROZEN policy scored by replay of matrix-shifted-full-1.
+Nothing below was tuned on shifted. Floors/budgets: config/policy.yaml (frozen).
+Static configs (picked on matrix-dev-full-1): faq haiku-low, intent haiku-high, extract haiku-low, adjudicate opus-low
+O1 adjudicate: haiku-low || haiku-medium, D = 6.0s, early escalation to opus-low. Composition: adversarial 20, normal 140, policy_change 40, rules v2 items 40.
+
+Policies on shifted (n=200), configs and floors frozen on dev. CPST = cost / successes.
+    policy                                                            acc  success  p95 s  CPST headline  CPST cached  floors
+    B1: always-best (opus-low)                                      0.980    0.970   4.41        0.03505      0.00472  BREACH
+    B2: always-cheapest (haiku-low)                                 0.890    0.890   6.10        0.00113      0.00035  BREACH
+    B3: best static config per task (chosen on dev)                 0.940    0.940   4.41        0.01898      0.00350  BREACH
+    B4: cheapest single config meeting every floor on dev (opus-low)  0.980    0.970   4.41        0.03505      0.00472  BREACH
+    B5: naive cascade (haiku-low -> B1 on V0 failure)               0.890    0.890   6.10        0.00113      0.00035  BREACH
+    O1 (frozen)                                                     0.910    0.880   6.69        0.00373      0.00112  BREACH
+    Oracle: cheapest correct config within budget                   0.995    0.995   5.45        0.00280      0.00059  all met
+
+O1 (frozen) on shifted
+    correct 182/200  accuracy 0.910  success 0.880  p50 1.32s  p95 6.69s  meets every floor: NO
+    CPST, Cost without caching (headline):  $0.00373 [0.00242, 0.00529]
+        vs B1: $0.03505 -> $0.00373  saving +89.4% [+85.2%, +93.0%]
+        vs B3: $0.01898 -> $0.00373  saving +80.4% [+72.9%, +86.7%]
+    CPST, Cost with caching (actual):       $0.00112 [0.00076, 0.00154]
+        vs B1: $0.00472 -> $0.00112  saving +76.3% [+68.9%, +83.1%]
+        vs B3: $0.00350 -> $0.00112  saving +68.1% [+58.3%, +76.3%]
+
+Oracle gap captured (SPEC 7.5; oracle = cheapest correct config within budget, per ticket)
+    Cost without caching (headline): B1 $0.03505, O1 $0.00373, oracle $0.00280 -> captured 97.1%
+    Cost with caching (actual): B1 $0.00472, O1 $0.00112, oracle $0.00059 -> captured 87.1%
+
+O1: CPST by subset (CI = 95% bootstrap over the subset's tickets; saving vs B1 paired)
+    overall                n=200  acc 0.910  success 0.880
+        CPST headline      $0.00373 [0.00242, 0.00529]  saving vs B1 +89.4% [+85.2%, +93.0%]
+        CPST with caching  $0.00112 [0.00076, 0.00154]  saving vs B1 +76.3% [+68.9%, +83.1%]
+    task faq               n= 50  acc 0.840  success 0.840
+        CPST headline      $0.00089 [0.00080, 0.00103]  saving vs B1 +97.1% [+96.6%, +97.5%]
+        CPST with caching  $0.00012 [0.00011, 0.00014]  saving vs B1 +94.5% [+93.6%, +95.1%]
+    task intent            n= 30  acc 1.000  success 1.000
+        CPST headline      $0.00075 [0.00074, 0.00075]  saving vs B1 +97.5% [+97.5%, +97.5%]
+        CPST with caching  $0.00010 [0.00009, 0.00010]  saving vs B1 +95.4% [+95.2%, +95.6%]
+    task extract           n= 30  acc 1.000  success 1.000
+        CPST headline      $0.00081 [0.00080, 0.00082]  saving vs B1 +97.5% [+97.4%, +97.5%]
+        CPST with caching  $0.00014 [0.00013, 0.00015]  saving vs B1 +96.0% [+95.7%, +96.3%]
+    task adjudicate        n= 90  acc 0.889  success 0.822
+        CPST headline      $0.00772 [0.00466, 0.01188]  saving vs B1 +80.9% [+71.0%, +88.3%]
+        CPST with caching  $0.00250 [0.00169, 0.00361]  saving vs B1 +66.8% [+53.5%, +76.4%]
+    language en            n=140  acc 0.929  success 0.893
+        CPST headline      $0.00374 [0.00226, 0.00561]  saving vs B1 +89.1% [+83.8%, +93.3%]
+        CPST with caching  $0.00107 [0.00068, 0.00158]  saving vs B1 +76.9% [+67.4%, +84.4%]
+    language ar            n= 60  acc 0.867  success 0.850
+        CPST headline      $0.00369 [0.00170, 0.00675]  saving vs B1 +89.9% [+82.1%, +95.2%]
+        CPST with caching  $0.00123 [0.00063, 0.00216]  saving vs B1 +75.0% [+60.0%, +85.9%]
+
+Per task (O1)
+    task          n  correct    acc  floor  success   p95 s  budget s
+    faq          50       42  0.840  0.980    0.840    1.86       2.5  FLOOR BREACH
+    intent       30       30  1.000  0.980    1.000    1.26       4.5
+    extract      30       30  1.000  0.980    1.000    1.92       3.5
+    adjudicate   90       80  0.889  0.984    0.822   10.13       8.5  FLOOR BREACH
+    language en: n=140  accuracy 0.929  success 0.893
+    language ar: n=60  accuracy 0.867  success 0.850
+
+Floor check (O1 vs the frozen per-task floors)
+    faq         accuracy 0.840 vs floor 0.980: BREACHED
+      shifted-0003 normal/v1/en/L1  path haiku-low  final answer checks: passed every check  configs correct: 6/9 (opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0026 normal/v1/en/L1  path haiku-low  final answer checks: passed every check  configs correct: 6/9 (opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0032 normal/v1/ar/L1  path haiku-low  final answer checks: passed every check  configs correct: 8/9 (haiku-high, haiku-medium, opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0066 normal/v1/ar/L1  path haiku-low  final answer checks: passed every check  configs correct: 3/9 (opus-high, opus-low, opus-medium)
+      shifted-0073 policy_change/v2/en/L1  path haiku-low  final answer checks: passed every check  configs correct: 6/9 (opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0145 normal/v1/ar/L1  path haiku-low  final answer checks: passed every check  configs correct: 6/9 (opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0183 policy_change/v2/en/L1  path haiku-low  final answer checks: passed every check  configs correct: 7/9 (haiku-high, opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0194 normal/v1/en/L1  path haiku-low  final answer checks: passed every check  configs correct: 6/9 (opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+    intent      accuracy 1.000 vs floor 0.980: met
+    extract     accuracy 1.000 vs floor 0.980: met
+    adjudicate  accuracy 0.889 vs floor 0.984: BREACHED
+      shifted-0008 policy_change/v2/ar/L5  path haiku-low > haiku-medium  final answer checks: passed every check  configs correct: 6/9 (opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0013 policy_change/v2/ar/L4  path haiku-low > haiku-medium  final answer checks: passed every check  configs correct: 6/9 (opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0029 normal/v1/en/L4  path haiku-low > haiku-medium  final answer checks: passed every check  configs correct: 3/9 (opus-high, opus-low, opus-medium)
+      shifted-0067 normal/v1/en/L3  path haiku-low > haiku-medium  final answer checks: passed every check  configs correct: 4/9 (opus-high, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0071 normal/v1/ar/L4  path haiku-low > haiku-medium  final answer checks: V2: payout 12450 but the formula on the stated inputs gives 13200  configs correct: 8/9 (haiku-high, haiku-medium, opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0080 normal/v1/en/L5  path haiku-low > haiku-medium  final answer checks: passed every check  configs correct: 6/9 (opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0090 policy_change/v2/ar/L4  path haiku-low > haiku-medium  final answer checks: passed every check  configs correct: 0/9 (none)
+      shifted-0097 adversarial/v1/en/L4  path haiku-low > haiku-medium  final answer checks: passed every check  configs correct: 6/9 (opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+      shifted-0138 normal/v1/ar/L4  path haiku-low > haiku-medium > opus-low  final answer checks: passed every check  configs correct: 1/9 (haiku-low)
+      shifted-0198 policy_change/v2/en/L4  path haiku-low > haiku-medium  final answer checks: passed every check  configs correct: 6/9 (opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium)
+    Reachability (diagnosis only; nothing is selected from these numbers)
+      faq         best single config 1.000 (opus-high, opus-low, opus-medium) vs floor 0.980: reachable; tickets no config solves: 0
+      intent      best single config 1.000 (haiku-high, haiku-low, haiku-medium, opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium) vs floor 0.980: reachable; tickets no config solves: 0
+      extract     best single config 1.000 (haiku-low, opus-high, opus-low, opus-medium, sonnet-high, sonnet-low, sonnet-medium) vs floor 0.980: reachable; tickets no config solves: 0
+      adjudicate  best single config 0.956 (opus-high, opus-low, opus-medium) vs floor 0.984: NOT reachable by any single config; tickets no config solves: 1
+      adjudicate  O1 on the 86 tickets opus-high solves (excluding 4): accuracy 0.907 vs floor 0.984
+
+By scenario (O1; per-task accuracy against the frozen floors; small n, so read the counts)
+  normal: n=140  correct 129  accuracy 0.921  success 0.907  CPST headline $0.00295  with caching $0.00089
+      faq         n= 35  correct  29  accuracy 0.829  floor 0.980  BELOW FLOOR
+      intent      n= 24  correct  24  accuracy 1.000  floor 0.980
+      extract     n= 29  correct  29  accuracy 1.000  floor 0.980
+      adjudicate  n= 52  correct  47  accuracy 0.904  floor 0.984  BELOW FLOOR
+  adversarial: n=20  correct 19  accuracy 0.950  success 0.950  CPST headline $0.00151  with caching $0.00047
+      faq         n=  5  correct   5  accuracy 1.000  floor 0.980
+      intent      n=  6  correct   6  accuracy 1.000  floor 0.980
+      extract     n=  1  correct   1  accuracy 1.000  floor 0.980
+      adjudicate  n=  8  correct   7  accuracy 0.875  floor 0.984  BELOW FLOOR
+      item-level (adversarial kind as generated):
+        shifted-0009  faq        ar  non_insurance               correct ok    path haiku-low
+        shifted-0010  intent     ar  non_insurance               correct ok    path haiku-high
+        shifted-0022  adjudicate en  prompt_injection            correct ok    path haiku-low > haiku-medium
+        shifted-0025  adjudicate en  prompt_injection            correct ok    path haiku-low > haiku-medium
+        shifted-0051  faq        en  non_insurance               correct ok    path haiku-low
+        shifted-0054  intent     en  garbled_or_empty            correct ok    path haiku-high
+        shifted-0097  adjudicate en  prompt_injection            WRONG   fail  path haiku-low > haiku-medium
+        shifted-0105  faq        ar  long_rambling               correct ok    path haiku-low
+        shifted-0115  intent     ar  non_insurance               correct ok    path haiku-high
+        shifted-0117  extract    en  long_rambling               correct ok    path haiku-low
+        shifted-0122  adjudicate ar  prompt_injection            correct ok    path haiku-low > haiku-medium
+        shifted-0142  intent     ar  non_insurance               correct ok    path haiku-high
+        shifted-0144  adjudicate ar  long_rambling               correct ok    path haiku-low > haiku-medium
+        shifted-0146  adjudicate en  prompt_injection            correct ok    path haiku-low > haiku-medium
+        shifted-0153  adjudicate en  garbled_or_empty            correct ok    path haiku-low > haiku-medium
+        shifted-0170  adjudicate en  garbled_or_empty            correct ok    path haiku-low > haiku-medium
+        shifted-0181  faq        en  non_insurance               correct ok    path haiku-low
+        shifted-0184  faq        en  non_insurance               correct ok    path haiku-low
+        shifted-0188  intent     en  garbled_or_empty            correct ok    path haiku-high
+        shifted-0189  intent     en  garbled_or_empty            correct ok    path haiku-high
+  policy_change: n=40  correct 34  accuracy 0.850  success 0.750  CPST headline $0.00839  with caching $0.00248
+      faq         n= 10  correct   8  accuracy 0.800  floor 0.980  BELOW FLOOR
+      adjudicate  n= 30  correct  26  accuracy 0.867  floor 0.984  BELOW FLOOR
+
+Adjudicate (O1): correct 80/90  success 74/90  escalated 8/90
+    escalation reasons: first failed checks 4, disagree 3, second failed checks 1
+    V3 coverage (second opinion in time, by max(haiku-low latency, D)): 70/90 (77.8%); late 20/90
+
+Verifier quality on the haiku-low adjudicate answer (n=90; wrong 14, correct 76)
+    false-accept rate, V0-V2 only:        11/14 (78.6%)
+    false-accept rate, V0-V2 + V3 (O1):   9/14 (64.3%)   still accepted: shifted-0008, shifted-0013, shifted-0029, shifted-0067, shifted-0071, shifted-0080, shifted-0090, shifted-0097, shifted-0198
+    false-reject rate, V0-V2 only:        1/76 (1.3%)
+    false-reject rate, V0-V2 + V3 (O1):   3/76 (3.9%)  (correct answers escalated)
+
+Tier 0 on shifted (n=200): pass 200
+    answered without a model: 0; answered correctly: 0
+    language detection agrees with the ticket label on 199/200
+    D3.6 rule (pre-registered): remove Tier 0 before freeze-v1 if it answers no shifted item correctly -> REMOVE (it answered none correctly)
+
+Perfect-router ceiling on shifted (context only: routers dropped on dev, D3.4; no Jev run here)
+    a router sending exactly the 8 tickets O1 escalates straight to opus-low:
+    CPST headline $0.00346 vs O1 $0.00373 (+7.1%), p95 6.00s vs 6.69s (+10.3%); SPEC 7.7 bars: 5% CPST, 20% p95
+
+Remaining failures (wrong, or correct but over the task's latency budget)
+    shifted-0003  faq        wrong         0.71s / 2.5s  path haiku-low
+    shifted-0008  adjudicate wrong         4.36s / 8.5s  path haiku-low > haiku-medium
+    shifted-0013  adjudicate wrong         8.78s / 8.5s  path haiku-low > haiku-medium
+    shifted-0016  adjudicate over budget  12.34s / 8.5s  path haiku-low > haiku-medium > opus-low
+    shifted-0026  faq        wrong         0.66s / 2.5s  path haiku-low
+    shifted-0029  adjudicate wrong         5.09s / 8.5s  path haiku-low > haiku-medium
+    shifted-0032  faq        wrong         1.05s / 2.5s  path haiku-low
+    shifted-0037  adjudicate over budget  13.52s / 8.5s  path haiku-low > haiku-medium > opus-low
+    shifted-0048  adjudicate over budget  10.08s / 8.5s  path haiku-low > haiku-medium > opus-low
+    shifted-0066  faq        wrong         0.83s / 2.5s  path haiku-low
+    shifted-0067  adjudicate wrong         5.74s / 8.5s  path haiku-low > haiku-medium
+    shifted-0071  adjudicate wrong         6.34s / 8.5s  path haiku-low > haiku-medium
+    shifted-0073  faq        wrong         0.79s / 2.5s  path haiku-low
+    shifted-0080  adjudicate wrong         5.98s / 8.5s  path haiku-low > haiku-medium
+    shifted-0090  adjudicate wrong         6.00s / 8.5s  path haiku-low > haiku-medium
+    shifted-0097  adjudicate wrong         6.00s / 8.5s  path haiku-low > haiku-medium
+    shifted-0138  adjudicate wrong        10.13s / 8.5s  path haiku-low > haiku-medium > opus-low
+    shifted-0140  adjudicate over budget   8.59s / 8.5s  path haiku-low > haiku-medium > opus-low
+    shifted-0145  faq        wrong         0.74s / 2.5s  path haiku-low
+    shifted-0169  adjudicate over budget  12.41s / 8.5s  path haiku-low > haiku-medium > opus-low
+    shifted-0183  faq        wrong         0.69s / 2.5s  path haiku-low
+    shifted-0190  adjudicate over budget  11.15s / 8.5s  path haiku-low > haiku-medium > opus-low
+    shifted-0194  faq        wrong         0.88s / 2.5s  path haiku-low
+    shifted-0198  adjudicate wrong         6.00s / 8.5s  path haiku-low > haiku-medium
+
+Caveats (read with every number above)
+- Parallel timing is MODELLED: haiku-low and haiku-medium were recorded as separate matrix calls, not sent
+  together; O1's adjudicate latency is computed from those recorded latencies (max / deadline arithmetic).
+  Contention from truly concurrent calls is not in the replay; `engine final` measures O1 live on held-out.
+- Oracle rule for unsolvable tickets: a ticket that no config answers correctly within its budget is charged
+  the cheapest config's cost (lowest mean headline cost) and counts as a failure for the oracle too.
+- Router thresholds were chosen IN-SAMPLE on dev (the local router's probabilities are out-of-fold, but the
+  threshold was picked on the same dev tickets that score it; Jev is zero-shot). This favours the routers,
+  so their negative result (D3.4) is conservative.
+- Replayed results are simulated from recorded calls (SPEC 6.5); costs and latencies are the recorded ones.

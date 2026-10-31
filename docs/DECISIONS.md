@@ -659,3 +659,36 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   - Chosen policy O1 meets every floor on dev; oracle gap captured 95.2% (headline) / 88.6% (with caching).
 - **Effort finding:** `reports/phase3/effort.txt`.
 - **Spend in Phase 3:** OpenRouter $0.005373; no Anthropic spend (all O1 / ablation results are replay).
+
+## Phase 4 — Robustness & freeze (2026-10-31)
+
+### D4.1 · Shifted matrix recorded (run `matrix-shifted-full-1`, epoch `--repeat 1`): 200 tickets x 9 configs
+- **Harness wiring (commit `137b124`):** the matrix runner had hardcoded the v1 prompt. It now builds each request
+  with the ticket's `rules_version`, so the 40 rules-v2 items read `system_prompt("v2")` (the rendered
+  `data/rules/policy_v2.en.md`; same prompt code, separate cached prefix); warm-up is one call per (model, task,
+  version); V0 uses the ticket's own rules. Dev cassette keys unchanged (0 pending cells on `matrix-dev-full-1`).
+  SPEC §8 says "via config only (no code change)": the policy *logic* and prompt text are unchanged, but this
+  one-time runner fix was needed before any v2 item could be recorded.
+- **Run:** approved cap $8.00 (estimate $5.46 with caching); spend **$6.047163** incl. 18 warm-up calls; 1800/1800
+  cells, 0 errors, 0 rate-limit hits, parse rate 0.99944 (1 cell), wall clock 488.8 s. `engine replay-check
+  --split shifted --run-id matrix-shifted-full-1 --repeat 1` reproduces the live run exactly.
+
+### D4.2 · Frozen O1 BREACHES two floors on shifted: diagnosed, no fix (no code bug found)
+- **Evidence:** `reports/phase4/shifted.txt` (frozen choices from `matrix-dev-full-1`; nothing tuned on shifted).
+  O1 per task vs frozen floors: faq 0.840 vs 0.980 (breach), intent 1.000, extract 1.000, adjudicate 0.889 vs
+  0.984 (breach). Every baseline also breaches at least one floor; only the oracle meets all.
+- **faq (8 misses, all `haiku-low`):** two FAQ keys (`deductible_when_not_liable`, gold 0; `deductible_at_25`,
+  gold 250 / 375 under v2) asked in the held-back phrasing ("not my fault at all, how much deductible") are answered
+  with the full fixed deductible (1000 / 1500). opus-low answers every faq item correctly. A genuine model
+  weakness under template shift: the dev choice `haiku-low` does not transfer for these two keys.
+- **adjudicate:** the `haiku-low || haiku-medium` agreement check false-accepts 9 of the 14 wrong `haiku-low`
+  answers (dev: 2 of 6), so O1 trails opus-low (0.956) by 6.7 pts. Policy-change items: 26/30 adjudicate, 8/10 faq.
+- **Floor unreachable for adjudicate on shifted by any single config:** best 0.956 (all three Opus efforts). The 4
+  `opus-high` failures (shifted-0002, -0090, -0101, -0138) read as generator text defects in held-back template
+  families, judged by reading them (not automated): a typo on the gold-relevant violation word ("drifitng",
+  "الإشراة"), a pronoun that attributes the insured's violation to the other driver, and "no licence / suspended
+  licence" next to "licence copy sent". That is 4/200 = 2.0% (SPEC §4.4's dev bar: < 2%). Excluding them, O1
+  adjudicate is still 0.907 (report "Reachability"), so the breach does not come from these items.
+- **Decision:** reported as a robustness finding. No code bug was found in the cascade, verifiers or graders, so
+  nothing is fixed and nothing is retuned on shifted. Fixing the generator defects would change the shifted data
+  (and possibly held-out, which shares the generator) and need a paid re-record: **Hamzah's decision**, not taken.

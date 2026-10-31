@@ -1,4 +1,4 @@
-run: matrix-dev-full-1 | split: dev | git: 72972b69eee161b16caab67531a63c2d5a1e2777 | config_hash: 1201126a080c897a
+run: matrix-dev-full-1 | split: dev | git: 0b6606cda808f1c691a26c272da5c2f1aaa815a2 | config_hash: 1201126a080c897a
 
 Ablations: one O1 layer off at a time, paired against O1 on the same 400 dev tickets
 'saving' > 0 = the ablation is cheaper per successful task than O1 (the layer costs money and is kept only
@@ -63,3 +63,20 @@ drop V2 (V0-V1 + V3 only)
     adjudicate  180      177  0.983  0.984    0.961    7.28       8.5  FLOOR BREACH
     language en: n=280  accuracy 0.989  success 0.975
     language ar: n=120  accuracy 0.983  success 0.967
+
+drop Tier 0
+    correct 396/400  accuracy 0.990  success 0.965  p50 1.56s  p95 6.55s  meets every floor: yes
+    CPST, Cost without caching (headline):  $0.00277 [0.00210, 0.00353]
+        vs O1: $0.00277 -> $0.00277  saving +0.0% [+0.0%, +0.0%]
+    CPST, Cost with caching (actual):       $0.00080 [0.00064, 0.00097]
+        vs O1: $0.00080 -> $0.00080  saving +0.0% [+0.0%, +0.0%]
+    adjudicate: accuracy delta +0.000 [+0.000, +0.000]  success delta +0.000 [+0.000, +0.000]  correct 178 vs 178
+    overall: accuracy delta +0.000 [+0.000, +0.000]  success delta +0.000 [+0.000, +0.000]  correct 396 vs 396
+    per task (drop Tier 0)
+    task          n  correct    acc  floor  success   p95 s  budget s
+    faq         100       99  0.990  0.980    0.980    1.79       2.5
+    intent       60       60  1.000  0.980    1.000    1.41       4.5
+    extract      60       59  0.983  0.980    0.967    2.10       3.5
+    adjudicate  180      178  0.989  0.984    0.944    8.33       8.5
+    language en: n=280  accuracy 0.993  success 0.971
+    language ar: n=120  accuracy 0.983  success 0.950

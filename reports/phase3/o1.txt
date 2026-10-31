@@ -1,10 +1,10 @@
-run: matrix-dev-full-1 | split: dev | git: 72972b69eee161b16caab67531a63c2d5a1e2777 | config_hash: 1201126a080c897a
+run: matrix-dev-full-1 | split: dev | git: 0b6606cda808f1c691a26c272da5c2f1aaa815a2 | config_hash: 1201126a080c897a
 
 O1 = per-task cheapest config meeting the floor + risk-tiered verification on adjudicate (SPEC 7.3)
     faq/intent/extract: faq haiku-low, intent haiku-high, extract haiku-low (no verification)
     adjudicate: haiku-low || haiku-medium in parallel; wait for haiku-medium at most 6.0s; accept haiku-low iff V0-V2 pass and the two agree (decision, payout +-1 SAR); if haiku-medium is late, iff haiku-low passes V0-V2; else escalate to opus-low
     floors and budgets: config/policy.yaml (frozen, budget rule premium)
-    Tier 0: not yet included (Phase 3 step c)
+    Tier 0 in front of every task: empty reject, exact-duplicate reuse, FAQ table (empty by default)
 
 Adjudicate: correct 178/180  success 170/180  escalated 11/180 (6.1%)  second opinion late 37
     escalation reasons: disagree 3, first failed (second late) 3, first failed checks 3, second failed checks 2
@@ -38,6 +38,11 @@ Deadline for the second opinion (D3.2; tuned on dev only; late calls charged in 
       none      178      161         13            0  $0.00607
       6.0s      178      170         11           37  $0.00529
       5.0s      178      170         10           69  $0.00508
+
+Tier 0 on dev (n=400): answered without a model 0/400 (0.0%); pass 400
+    language detection agrees with the ticket label on 400/400
+    dev has no empty tickets and no exact duplicates by construction (Phase 1 QA), and no FAQ table exists;
+    Tier 0 is kept for robustness (shifted adversarial / near-empty items, Phase 4), not for dev savings.
 
 Remaining failures (wrong, or correct but over the task's latency budget)
     dev-0018  adjudicate over budget   9.60s / 8.5s  path haiku-low > haiku-medium > opus-low

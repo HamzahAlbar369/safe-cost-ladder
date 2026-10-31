@@ -242,7 +242,7 @@ def o1_report(ctx: Context) -> str:
         f"if {o.second} is late, iff {o.first} passes V0-V2; else escalate to {o.top}. If {o.first} fails V0-V2, "
         f"{o.top} starts the moment {o.first} returns (D3.5; {o.second} still charged in full)",
         f"    floors and budgets: config/policy.yaml (frozen, budget rule {ctx.policy.budget_rule})",
-        "    Tier 0 in front of every task: empty reject, exact-duplicate reuse, FAQ table (empty by default)",
+        "    Tier 0: removed (D3.6 rule applied in Phase 4, D4.3: it answered no dev and no shifted item)",
         "",
         f"Adjudicate: correct {sum(x.correct for x in adj)}/{len(adj)}  success {sum(x.success for x in adj)}/"
         f"{len(adj)}  escalated {sum(t.escalated for t in traces)}/{len(traces)} "
@@ -282,8 +282,8 @@ def tier0_lines(ctx: Context) -> list[str]:
         + ", ".join(f"{a} {k}" for a, k in sorted(actions.items())),
         f"    language detection agrees with the ticket label on {lang_ok}/{n}",
         "    dev has no empty tickets and no exact duplicates by construction (Phase 1 QA), and no FAQ table exists;",
-        "    Tier 0 is kept for robustness (shifted adversarial / near-empty items), not for dev savings. Pre-registered",
-        "    rule (D3.6): if Tier 0 answers no shifted item correctly in Phase 4, it is removed before freeze-v1.",
+        "    Pre-registered rule (D3.6): if Tier 0 answers no shifted item correctly in Phase 4, it is removed before",
+        "    freeze-v1. It answered none (reports/phase4/shifted.txt), so it is removed from O1 (D4.3).",
     ]
 
 
@@ -291,7 +291,7 @@ ABLATIONS: dict[str, O1Options] = {
     "O1 as specified (no deadline)": O1_DEFAULT.model_copy(update={"deadline_s": None}),
     "drop V3 (haiku-low -> opus-low on a V0-V2 failure)": O1_DEFAULT.model_copy(update={"second": None}),
     "drop V2 (V0-V1 + V3 only)": O1_DEFAULT.model_copy(update={"checks": ("V0", "V1")}),
-    "drop Tier 0": O1_DEFAULT.model_copy(update={"tier0": False}),
+    "add Tier 0 (removed from O1 by D3.6, D4.3)": O1_DEFAULT.model_copy(update={"tier0": True}),
 }
 
 

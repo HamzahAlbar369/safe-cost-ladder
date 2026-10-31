@@ -34,7 +34,9 @@ class O1Options(Frozen):
     top: str = "opus-low"
     deadline_s: float | None = 6.0  # None = wait for the second opinion however long it takes
     checks: tuple[str, ...] = ALL_CHECKS  # verifier levels that can reject (drop V2 = ("V0", "V1"))
-    tier0: bool = True  # Tier 0 (empty reject, duplicate reuse, FAQ table) in front of every task
+    # Tier 0 (empty reject, duplicate reuse, FAQ table) in front of every task. Off in the final policy: it
+    # answered no dev and no shifted item, so the pre-registered rule D3.6 removed it before freeze-v1 (D4.3).
+    tier0: bool = False
     direct_top: frozenset[str] = frozenset()  # adjudicate ticket ids a router sends straight to `top` (O2/O3)
     # router cost (USD) and latency (ms) per adjudicate ticket, added before the cascade (SPEC §7.4)
     router_overhead: dict[str, tuple[float, float]] = {}

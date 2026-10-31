@@ -244,7 +244,8 @@ def tier0_rule(ctx: SplitContext, o1: list[Outcome]) -> list[str]:
     hits = [(t, t0.check(t.id, t.task_type, t.text)) for t in ctx.tickets]
     actions = Counter(h.action for _, h in hits)
     lang_ok = sum(h.language == t.language for t, h in hits)
-    by_id = {o.ticket_id: o for o in o1}
+    with_t0, _ = ctx.o1(O1_DEFAULT.model_copy(update={"tier0": True}))  # judged with Tier 0 switched on
+    by_id = {o.ticket_id: o for o in with_t0}
     answered = [(t, h) for t, h in hits if h.action != "pass"]
     correct = [t for t, _ in answered if by_id[t.id].correct]
     keep = bool(correct)

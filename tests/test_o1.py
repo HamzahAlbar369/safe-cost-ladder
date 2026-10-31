@@ -185,5 +185,5 @@ def test_o1_on_the_committed_dev_matrix():
             y.ticket_id, y.path, y.correct, y.cost_nocache, y.cost_cached
         )  # fmt: skip
         assert x.latency_ms <= y.latency_ms
-    no_tier0, _ = ctx.o1(O1Options(tier0=False))
-    assert no_tier0 == outs_default  # Tier 0 answers no dev ticket (reports/phase3/o1.txt)
+    with_tier0, _ = ctx.o1(O1Options(tier0=True))
+    assert with_tier0 == outs_default  # Tier 0 answers no dev ticket (reports/phase3/o1.txt), removed by D4.3

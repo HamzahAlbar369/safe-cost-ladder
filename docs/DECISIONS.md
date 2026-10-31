@@ -692,3 +692,11 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
 - **Decision:** reported as a robustness finding. No code bug was found in the cascade, verifiers or graders, so
   nothing is fixed and nothing is retuned on shifted. Fixing the generator defects would change the shifted data
   (and possibly held-out, which shares the generator) and need a paid re-record: **Hamzah's decision**, not taken.
+
+### D4.3 · Tier 0 removed from O1 by the pre-registered rule D3.6
+- **Evidence:** `reports/phase4/shifted.txt` (at `83dc593`): Tier 0 actions on shifted = pass 200; answered without a
+  model 0, answered correctly 0 (dev: 0/400, `reports/phase3/o1.txt`). The shifted split's garbled / near-empty
+  adversarial items are not empty after normalisation, so no Tier 0 shortcut fires.
+- **Decision (rule D3.6, applied as written):** removed before freeze-v1. `O1Options.tier0` now defaults to False;
+  the ablation row becomes "add Tier 0". Results are identical (it answered nothing), asserted ticket by ticket on dev
+  in `tests/test_o1.py`. Language detection stays a utility (agrees with the label on 199/200 shifted tickets).

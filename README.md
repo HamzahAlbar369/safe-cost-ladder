@@ -1,8 +1,11 @@
-# engine: deliver AI with less compute
+# safe-cost-ladder: deliver AI with less compute
 
-HUMAIN × Misk Hackathon, Challenge 2. An **efficiency layer** that answers each request with the cheapest
-(model, effort) configuration that still meets that task's accuracy floor and latency budget, and proves the
-saving on sealed held-out data.
+HUMAIN × Misk Hackathon, Challenge 2. **safe-cost-ladder** is an efficiency layer that answers each request with the
+cheapest (model, effort) configuration that still meets that task's accuracy floor and latency budget, climbing a
+cost ladder only when checks fail, and proves the saving on sealed held-out data. (The Python package and CLI are
+named `engine`.)
+
+Safe = every task stays above a frozen accuracy floor, with an alarm when it does not.
 
 > **Fiction disclaimer.** The showcase workload is a motor-insurance claims desk for a *fictional* insurer ("Oasis
 > Motor Insurance (fictional demo insurer)"), bilingual English / Arabic. The rules are **modelled on SAMA-issued
@@ -86,6 +89,8 @@ Figures with their claims and sources: `reports/figures/INDEX.md`. Decisions wit
 ## Quickstart (no API key)
 
 ```
+git clone https://github.com/HamzahAlbar369/safe-cost-ladder.git
+cd safe-cost-ladder
 uv sync && uv run engine demo --replay
 ```
 

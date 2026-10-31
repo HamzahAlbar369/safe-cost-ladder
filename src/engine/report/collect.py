@@ -497,7 +497,13 @@ def scenarios(fc, ctxs: dict) -> dict:
             out[split].append(
                 {
                     "name": sc.name,
-                    "picks": {**r.adapted.static, "adjudicate_cascade": r.adapted.o1 is not None},
+                    "picks": {
+                        **r.adapted.static,
+                        "adjudicate_cascade": r.adapted.o1 is not None,
+                        "adjudicate_top": r.adapted.o1.top
+                        if r.adapted.o1
+                        else r.adapted.static["adjudicate"],
+                    },
                     "cpst_nocache": e["cpst_nocache"],
                     "cpst_cached": e["cpst_cached"],
                     "b1_cpst_nocache": _finite(summarize(r.b1)["cpst_nocache"]),

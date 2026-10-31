@@ -287,7 +287,7 @@
     <tr><th>split</th><th>scenario</th><th>controller's picks</th><th class="r">O1 CPST, {{ T.HEADLINE }}</th><th class="r">B1 CPST</th><th class="r">saving vs B1</th><th class="r">accuracy</th><th>floors</th></tr>
     {%- for sp in ("dev", "shifted") %}{% for i in range(v("scenarios." ~ sp) | length) %}{% set p = "scenarios." ~ sp ~ "." ~ i %}
     <tr><td>{{ sp }}</td><td>{{ m(p ~ ".name", "raw") }}</td>
-      <td style="font-size:12.5px">faq {{ m(p ~ ".picks.faq", "raw") }}, intent {{ m(p ~ ".picks.intent", "raw") }}, extract {{ m(p ~ ".picks.extract", "raw") }}, adjudicate {{ 'ladder → ' if v(p ~ '.picks.adjudicate_cascade') else '' }}{{ m(p ~ ".picks.adjudicate", "raw") }}</td>
+      <td style="font-size:12.5px">faq {{ m(p ~ ".picks.faq", "raw") }}, intent {{ m(p ~ ".picks.intent", "raw") }}, extract {{ m(p ~ ".picks.extract", "raw") }}, adjudicate {{ 'Haiku pair → ' if v(p ~ '.picks.adjudicate_cascade') else '' }}{{ m(p ~ ".picks.adjudicate_top", "raw") }}</td>
       <td class="r">{{ m(p ~ ".cpst_nocache", "usd5") }}</td><td class="r">{{ m(p ~ ".b1_cpst_nocache", "usd5") }}</td>
       <td class="r">{{ m(p ~ ".saving_nocache", "pct1") }} {{ ci(p ~ ".saving_nocache", "pct1") }}</td>
       <td class="r">{{ m(p ~ ".acc", "f3") }}</td><td>{{ okbad(v(p ~ ".meets_floors"), "met", "breach") }}</td></tr>

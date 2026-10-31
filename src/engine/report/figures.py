@@ -290,7 +290,7 @@ def simlive(m: dict, s: T.Size) -> go.Figure:
                                  hovertemplate=T.LIVE + " %{y}: %{x}<extra></extra>"), row=1, col=col)  # fmt: skip
         if field == "p95_s":
             budgets = [lookup(m, f"floors.{t}.budget_s") for t in tasks]
-            fig.add_trace(go.Scatter(x=budgets, y=tasks, mode="markers+text", text=["budget"] * 4,
+            fig.add_trace(go.Scatter(x=budgets, y=tasks, mode="markers+text", text=["budget"] + [""] * 3,
                                      textposition="top center", textfont={"size": s.small, "color": T.BAD},
                                      marker={"symbol": "line-ns", "size": s.marker * 1.8, "line": {"color": T.BAD, "width": s.line}},
                                      hovertemplate="budget %{y}: %{x} s<extra></extra>"), row=1, col=col)  # fmt: skip

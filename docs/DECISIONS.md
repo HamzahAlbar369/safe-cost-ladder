@@ -772,3 +772,28 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
 - **Reading:** the alarm + fail-safe recovers B1's adjudicate accuracy on drifted traffic at B1's cost for that task
   while keeping the cheap configs where no alarm fires; with a 25-ticket faq audit the alarm can miss (power: D4.6
   table). Not part of the final policy.
+
+## Phase 5 — Held-out & handoff (2026-10-31)
+
+### D5.1 · `engine final` run once on held-out at `freeze-v1` (`d1a764a`)
+- **Run:** estimate $11.0679 (Cost with caching (actual)), approved because it was at most $13 (Hamzah's Phase 5
+  instruction), cap $13. O1 live `o1-live-heldout-freeze-v1`: 400/400 tickets, $0.2354. Matrix
+  `matrix-heldout-freeze-v1`: 3600/3600 cells, 0 errors, 0 rate-limit hits, parse rate 1.0, $11.0763, wall clock
+  812.9 s. Ledger total for both runs incl. warm-ups $11.4726. Results: `reports/final/heldout.txt`; commit `a2bc661`.
+- **Findings (copied from `reports/final/heldout.txt`):** every policy meets every per-task accuracy floor on held-out.
+  O1 simulated CPST (headline) $0.00182 vs B1 $0.03441, saving +94.7% [+93.6%, +95.4%]. **B2 (always `haiku-low`)
+  also meets every floor on held-out and is cheaper than O1** (CPST headline $0.00100): O1's adjudicate verification
+  did not pay for itself on this sample (on dev B2 breaches the adjudicate floor). **Simulated vs live:** accuracy
+  0.990 vs 0.993, success 0.980 vs 0.917, p95 6.00 s vs 7.19 s; the gap is latency (live faq p95 3.44 s vs its
+  2.5 s budget, faq live success 0.780). Reported as found; nothing changed.
+
+### D5.2 · Held-out per-ticket outcomes exported once with the frozen code (approved by Hamzah)
+- **Why:** `reports/final/heldout.txt` has CIs for O1 only; the report needs per-ticket outcomes for B1-B5, the
+  oracle and the per-cell grades. Computing them needs held-out gold, which only the `final.guard()` token unlocks.
+- **How:** a clean worktree at `freeze-v1` (only the held-out run outputs copied in, which the guard ignores), and
+  the script `runs/heldout-outcomes-freeze-v1/export.py`: `final.guard()` -> `load_heldout(token)` (sealed sha256
+  checked) -> `SplitContext` (the code that wrote heldout.txt). Output: `outcomes.jsonl` (per policy, per ticket),
+  `o1_traces.jsonl`, `cells.jsonl` (grades, costs, latencies), `manifest.json`. No ticket text, gold value or
+  verifier reason is written. `engine report` reads these files and never `heldout.jsonl`.
+- **Evidence:** the manifest's summary reproduces every row of the heldout.txt policy table exactly (accuracy,
+  success, p95, both CPSTs); asserted by a test in the report step.

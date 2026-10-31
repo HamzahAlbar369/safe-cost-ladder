@@ -1,0 +1,306 @@
+{
+ "what": "held-out per-ticket outcomes, exported once with the frozen code (Phase 5, approved by Hamzah)",
+ "tag": "freeze-v1",
+ "git_sha": "d1a764ab03f3d33d9dac8f2fef4b5233c583977a",
+ "matrix_run": "matrix-heldout-freeze-v1",
+ "live_run": "o1-live-heldout-freeze-v1",
+ "n_tickets": 400,
+ "n_cells": 3600,
+ "floors": {
+  "per_task": {
+   "faq": {
+    "task": "faq",
+    "n": 100,
+    "best_config": "haiku-medium",
+    "best_accuracy": 1.0,
+    "tolerance": 0.02,
+    "floor": 0.98,
+    "budget_config": "opus-high",
+    "p95_s": 2.3110999999999997,
+    "budget_s": 2.5,
+    "tied_best": [
+     {
+      "config": "haiku-medium",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.000758326,
+      "p95_s": 1.8328
+     },
+     {
+      "config": "haiku-high",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.000765811,
+      "p95_s": 1.7744000000000002
+     },
+     {
+      "config": "sonnet-low",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.01473602,
+      "p95_s": 2.194
+     },
+     {
+      "config": "sonnet-medium",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.014766220000000002,
+      "p95_s": 2.0334
+     },
+     {
+      "config": "sonnet-high",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.014836519999999999,
+      "p95_s": 2.9418
+     },
+     {
+      "config": "opus-low",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.02945584,
+      "p95_s": 2.6367
+     },
+     {
+      "config": "opus-medium",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.02953424,
+      "p95_s": 2.1598
+     },
+     {
+      "config": "opus-high",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.029595839999999998,
+      "p95_s": 2.3110999999999997
+     }
+    ]
+   },
+   "intent": {
+    "task": "intent",
+    "n": 60,
+    "best_config": "haiku-high",
+    "best_accuracy": 1.0,
+    "tolerance": 0.02,
+    "floor": 0.98,
+    "budget_config": "opus-high",
+    "p95_s": 4.4923,
+    "budget_s": 4.5,
+    "tied_best": [
+     {
+      "config": "haiku-high",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.0007505666666666668,
+      "p95_s": 1.4069
+     },
+     {
+      "config": "sonnet-low",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.014800666666666667,
+      "p95_s": 1.8072000000000001
+     },
+     {
+      "config": "sonnet-medium",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.014800666666666667,
+      "p95_s": 2.0627
+     },
+     {
+      "config": "sonnet-high",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.014814500000000001,
+      "p95_s": 2.2201
+     },
+     {
+      "config": "opus-low",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.029601333333333334,
+      "p95_s": 4.7128000000000005
+     },
+     {
+      "config": "opus-medium",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.029644999999999998,
+      "p95_s": 4.4113
+     },
+     {
+      "config": "opus-high",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.029649,
+      "p95_s": 4.4923
+     }
+    ]
+   },
+   "extract": {
+    "task": "extract",
+    "n": 60,
+    "best_config": "haiku-medium",
+    "best_accuracy": 1.0,
+    "tolerance": 0.02,
+    "floor": 0.98,
+    "budget_config": "opus-high",
+    "p95_s": 3.3,
+    "budget_s": 3.5,
+    "tied_best": [
+     {
+      "config": "haiku-medium",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.000832935,
+      "p95_s": 2.9564
+     },
+     {
+      "config": "haiku-high",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.0008510350000000001,
+      "p95_s": 2.6819
+     },
+     {
+      "config": "sonnet-medium",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.0158957,
+      "p95_s": 2.6191
+     },
+     {
+      "config": "sonnet-low",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.0158957,
+      "p95_s": 3.089
+     },
+     {
+      "config": "sonnet-high",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.0158957,
+      "p95_s": 6.4301
+     },
+     {
+      "config": "opus-low",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.031798733333333336,
+      "p95_s": 5.985399999999999
+     },
+     {
+      "config": "opus-medium",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.031824733333333334,
+      "p95_s": 5.9553
+     },
+     {
+      "config": "opus-high",
+      "accuracy": 1.0,
+      "mean_cost_nocache": 0.03198806666666667,
+      "p95_s": 3.3
+     }
+    ]
+   },
+   "adjudicate": {
+    "task": "adjudicate",
+    "n": 180,
+    "best_config": "opus-low",
+    "best_accuracy": 0.9944444444444445,
+    "tolerance": 0.01,
+    "floor": 0.984444,
+    "budget_config": "opus-high",
+    "p95_s": 8.0307,
+    "budget_s": 8.5,
+    "tied_best": [
+     {
+      "config": "opus-low",
+      "accuracy": 0.9944444444444445,
+      "mean_cost_nocache": 0.038146177777777776,
+      "p95_s": 5.1543
+     },
+     {
+      "config": "opus-medium",
+      "accuracy": 0.9944444444444445,
+      "mean_cost_nocache": 0.040850177777777774,
+      "p95_s": 6.2055
+     },
+     {
+      "config": "opus-high",
+      "accuracy": 0.9944444444444445,
+      "mean_cost_nocache": 0.04173662222222222,
+      "p95_s": 8.0307
+     }
+    ]
+   }
+  }
+ },
+ "static": {
+  "faq": "haiku-low",
+  "intent": "haiku-high",
+  "extract": "haiku-low",
+  "adjudicate": "opus-low"
+ },
+ "summary": {
+  "B1: always-best (opus-low)": {
+   "n": 400,
+   "accuracy": 0.9975,
+   "success_rate": 0.9825,
+   "cpst_nocache": 0.034412,
+   "cpst_cached": 0.004465872773536895,
+   "usd_nocache": 13.523916,
+   "usd_cached": 1.755088,
+   "p50_s": 1.9922,
+   "p95_s": 4.1158
+  },
+  "B2: always-cheapest (haiku-low)": {
+   "n": 400,
+   "accuracy": 0.99,
+   "success_rate": 0.9825,
+   "cpst_nocache": 0.0010023776081424937,
+   "cpst_cached": 0.0002931272264631043,
+   "usd_nocache": 0.3939344,
+   "usd_cached": 0.115199,
+   "p50_s": 1.3217,
+   "p95_s": 5.7053
+  },
+  "B3: best static config per task (chosen on dev)": {
+   "n": 400,
+   "accuracy": 0.9925,
+   "success_rate": 0.9875,
+   "cpst_nocache": 0.017877904556962025,
+   "cpst_cached": 0.003139992151898734,
+   "usd_nocache": 7.0617723,
+   "usd_cached": 1.2402969,
+   "p50_s": 1.3217,
+   "p95_s": 4.1137
+  },
+  "B4: cheapest single config meeting every floor on dev (opus-low)": {
+   "n": 400,
+   "accuracy": 0.9975,
+   "success_rate": 0.9825,
+   "cpst_nocache": 0.034412,
+   "cpst_cached": 0.004465872773536895,
+   "usd_nocache": 13.523916,
+   "usd_cached": 1.755088,
+   "p50_s": 1.9922,
+   "p95_s": 4.1158
+  },
+  "B5: naive cascade (haiku-low -> B1 on V0 failure)": {
+   "n": 400,
+   "accuracy": 0.99,
+   "success_rate": 0.9825,
+   "cpst_nocache": 0.0010023776081424937,
+   "cpst_cached": 0.0002931272264631043,
+   "usd_nocache": 0.3939344,
+   "usd_cached": 0.115199,
+   "p50_s": 1.3217,
+   "p95_s": 5.7053
+  },
+  "O1 (frozen, simulated)": {
+   "n": 400,
+   "accuracy": 0.99,
+   "success_rate": 0.98,
+   "cpst_nocache": 0.0018242372448979592,
+   "cpst_cached": 0.0006092489795918367,
+   "usd_nocache": 0.715101,
+   "usd_cached": 0.2388256,
+   "p50_s": 1.3217,
+   "p95_s": 6.0
+  },
+  "Oracle": {
+   "n": 400,
+   "accuracy": 1.0,
+   "success_rate": 1.0,
+   "cpst_nocache": 0.00119935075,
+   "cpst_cached": 0.00032443087500000004,
+   "usd_nocache": 0.4797403,
+   "usd_cached": 0.12977235,
+   "p50_s": 1.3387,
+   "p95_s": 5.411
+  }
+ }
+}

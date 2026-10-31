@@ -250,6 +250,109 @@ def ablations_report(ctx: Context) -> str:
     return "\n".join(lines)
 
 
+def _p95_gain_ci(base: list[Outcome], other: list[Outcome], samples: list[list[int]]) -> tuple[float, float]:
+    from engine.eval.metrics import percentile
+
+    diffs = []
+    for idx in samples:
+        a = percentile([base[i].latency_ms for i in idx], 95)
+        b = percentile([other[i].latency_ms for i in idx], 95)
+        diffs.append((a - b) / a)
+    return B.percentile_ci(diffs)
+
+
+def evaluate_router(ctx: Context, name: str, probs: dict[str, float]) -> list[str]:
+    """Tune the threshold on dev out-of-fold probabilities (lowest headline CPST meeting every floor), then
+    apply SPEC §7.7 on dev. Provisional: §7.7 also needs the shifted split (Phase 4)."""
+    from sklearn.metrics import roc_auc_score
+
+    from engine.eval.baselines import oracle
+    from engine.eval.metrics import percentile
+
+    base, traces = ctx.o1()
+    escalates = {tr.ticket_id: tr.escalated for tr in traces}
+    adj = [t for t in ctx.tickets if t.task_type == "adjudicate"]
+    y = [escalates[t.id] for t in adj]
+    p = [probs[t.id] for t in adj]
+    best = None
+    for tau in sorted({*p, 1.01}):
+        routed = frozenset(t.id for t in adj if probs[t.id] >= tau)
+        outs, _ = ctx.o1(O1_DEFAULT.model_copy(update={"direct_top": routed}))
+        if not _meets(outs, ctx.floors):
+            continue
+        cpst = summarize(outs)["cpst_nocache"]
+        if best is None or cpst < best[0] - 1e-12:
+            best = (cpst, tau, routed, outs)
+    _, tau, routed, outs = best
+    choose = oracle(ctx.index, ctx.floors)
+    above_oracle = sum(choose(t)[0] != O1_DEFAULT.top for t in adj if t.id in routed)
+    tp = sum(escalates[i] for i in routed)
+    s_base, s = summarize(base), summarize(outs)
+    gain = (s_base["cpst_nocache"] - s["cpst_nocache"]) / s_base["cpst_nocache"]
+    glo, ghi = B.paired_diff_ci(
+        _arr(base, "cost_nocache"), _arr(outs, "cost_nocache"), ctx.samples, relative=True
+    )
+    p95_gain = (
+        percentile([o.latency_ms for o in base], 95) - percentile([o.latency_ms for o in outs], 95)
+    ) / (percentile([o.latency_ms for o in base], 95))
+    plo, phi = _p95_gain_ci(base, outs, ctx.samples)
+    cpst_ok = gain >= 0.05 and glo > 0
+    p95_ok = p95_gain >= 0.20 and plo > 0
+    floors_ok = _meets(outs, ctx.floors)
+    keep = (cpst_ok or p95_ok) and floors_ok
+    perfect, _ = ctx.o1(
+        O1_DEFAULT.model_copy(update={"direct_top": frozenset(i for i, e in escalates.items() if e)})
+    )
+    sp = summarize(perfect)
+    return [
+        f"Ceiling: a PERFECT router (routes exactly the {sum(y)} tickets O1 escalates) gives CPST (headline) "
+        f"${sp['cpst_nocache']:.5f} vs O1 ${s_base['cpst_nocache']:.5f} "
+        f"({(s_base['cpst_nocache'] - sp['cpst_nocache']) / s_base['cpst_nocache']:+.1%}), p95 {sp['p95_s']:.2f}s vs "
+        f"{s_base['p95_s']:.2f}s, success {sp['success_rate']:.3f} vs {s_base['success_rate']:.3f}",
+        "",
+        f"{name}: label = 'O1 escalates this adjudicate ticket' ({sum(y)}/{len(y)} positive on dev)",
+        f"    out-of-fold ROC AUC {roc_auc_score(y, p):.3f}" if 0 < sum(y) < len(y) else "    AUC undefined",
+        f"    threshold (tuned on dev out-of-fold; lowest headline CPST meeting every floor): "
+        f"{'never route' if tau > 1 else f'{tau:.3f}'}",
+        f"    routed straight to opus-low: {len(routed)}/{len(adj)}  (would have escalated: {tp}; "
+        f"misroute up = routed but O1 would not escalate: {len(routed) - tp}; "
+        f"misroute down = escalated but not routed: {sum(y) - tp})",
+        f"    collapse check: routed tickets whose oracle rung is below opus-low: {above_oracle}/{len(routed)}"
+        if routed
+        else "    collapse check: nothing routed",
+        "",
+        *policy_block(f"O1 + {name}", outs, {"O1": base}, ctx),
+        f"    p95 latency: O1 {s_base['p95_s']:.2f}s -> {s['p95_s']:.2f}s  improvement {p95_gain:+.1%} [{plo:+.1%}, {phi:+.1%}]",
+        "",
+        "SPEC 7.7 on dev only (PROVISIONAL: final only with the Phase 4 shifted matrix)",
+        f"    (a) CPST improves >= 5% with CI excluding 0: {'yes' if cpst_ok else 'no'} ({gain:+.1%} [{glo:+.1%}, {ghi:+.1%}])",
+        f"        or p95 improves >= 20% with CI excluding 0: {'yes' if p95_ok else 'no'} ({p95_gain:+.1%} [{plo:+.1%}, {phi:+.1%}])",
+        f"    (b) no per-task floor breached: {'yes' if floors_ok else 'no'}",
+        f"    dev verdict: {'passes on dev' if keep else 'fails on dev -> drop (7.7 needs BOTH dev and shifted; shifted cannot reverse this)'}",
+        "",
+        "Per task (with router)",
+        *per_task_lines(outs, ctx),
+    ]
+
+
+def local_router_report(ctx: Context) -> str:
+    from engine.router.local import FOLDS, out_of_fold
+
+    _, traces = ctx.o1()
+    escalates = {tr.ticket_id: tr.escalated for tr in traces}
+    adj = [t for t in ctx.tickets if t.task_type == "adjudicate"]
+    probs = out_of_fold(adj, [escalates[t.id] for t in adj])
+    return "\n".join(
+        [
+            "Local router (SPEC 6.4): TF-IDF char 2-5-grams (char_wb) + length, language, digits, amounts, dates",
+            f"-> logistic regression (class_weight balanced), {FOLDS}-fold stratified out-of-fold on dev adjudicate.",
+            "faq / intent / extract: no router action (O1 already starts at the cheapest config meeting the floor).",
+            "",
+            *evaluate_router(ctx, "local router", probs),
+        ]
+    )
+
+
 def write(run_id: str, reports: dict[str, callable], out: Path = OUT) -> list[Path]:
     out.mkdir(parents=True, exist_ok=True)
     header = f"run: {run_id} | split: dev | git: {runinfo.git_sha()} | config_hash: {config_hash()}\n\n"
@@ -262,4 +365,4 @@ def write(run_id: str, reports: dict[str, callable], out: Path = OUT) -> list[Pa
     return paths
 
 
-REPORTS = {"o1.txt": o1_report, "ablations.txt": ablations_report}
+REPORTS = {"o1.txt": o1_report, "ablations.txt": ablations_report, "router_local.txt": local_router_report}

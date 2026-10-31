@@ -7,9 +7,11 @@ requires-python = ">=3.11"
 dependencies = [
     "anthropic>=0.70",
     "httpx>=0.27",
+    "numpy>=2.4.6",
     "pydantic>=2.7",
     "python-dotenv>=1.0",
     "pyyaml>=6.0",
+    "scikit-learn>=1.9.1",
     "typer>=0.12",
 ]
 
@@ -48,3 +50,4 @@ markers = ["slow: over ~10 s (committed-matrix replay, data regeneration, gold s
 "src/engine/datagen/templates/bank_*.py" = ["E501"]  # bilingual phrase banks, kept verbatim
 "src/engine/eval/analysis_text.py" = ["E501"]  # report layout strings
 "src/engine/eval/phase3_report.py" = ["E501"]  # report layout strings
+"src/engine/router/*.py" = ["E501"]  # docstrings and Jev question text

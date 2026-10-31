@@ -34,6 +34,9 @@ class O1Options(Frozen):
     deadline_s: float | None = 6.0  # None = wait for the second opinion however long it takes
     checks: tuple[str, ...] = ALL_CHECKS  # verifier levels that can reject (drop V2 = ("V0", "V1"))
     tier0: bool = True  # Tier 0 (empty reject, duplicate reuse, FAQ table) in front of every task
+    direct_top: frozenset[str] = frozenset()  # adjudicate ticket ids a router sends straight to `top` (O2/O3)
+    # router cost (USD) and latency (ms) per adjudicate ticket, added before the cascade (SPEC §7.4)
+    router_overhead: dict[str, tuple[float, float]] = {}
 
 
 class Trace(Frozen):
@@ -75,6 +78,10 @@ def _outcome(t: Ticket, path: list[Cell], final: Cell, latency_ms: float, floors
 
 def adjudicate(t: Ticket, index: CellIndex, floors: Floors, o: O1Options) -> tuple[Outcome, Trace]:
     a, top = index[(t.id, o.first)], index[(t.id, o.top)]
+    if t.id in o.direct_top:  # router: confident this ticket needs the top rung
+        return _outcome(t, [top], top, top.latency_ms, floors), Trace(
+            ticket_id=t.id, escalated=False, reason="routed to top", second_late=False
+        )
     if o.second is None:
         ok, reason, late, path, decided = passes(a, o.checks), "first failed checks", False, [a], a.latency_ms
     else:
@@ -118,6 +125,18 @@ def run_o1(
             out = _tier0_outcome(t, hit, by_id)
         elif t.task_type == "adjudicate":
             out, tr = adjudicate(t, index, floors, o)
+            if t.id in o.router_overhead:
+                cost, ms = o.router_overhead[t.id]
+                lat = out.latency_ms + ms
+                budget_ms = floors.per_task[t.task_type].budget_s * 1000
+                out = out.model_copy(
+                    update={
+                        "cost_nocache": out.cost_nocache + cost,
+                        "cost_cached": out.cost_cached + cost,
+                        "latency_ms": lat,
+                        "success": out.correct and lat <= budget_ms,
+                    }
+                )
             traces.append(tr)
         else:
             cell = index[(t.id, static[t.task_type])]

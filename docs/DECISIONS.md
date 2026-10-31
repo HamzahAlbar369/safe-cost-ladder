@@ -589,3 +589,18 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   running, throwing away a second opinion that had already arrived; it showed D = 5.0 losing 2 correct answers
   (176). With the rule as implemented above, D = 5.0 keeps 178 correct. **D = 6.0 stays as approved**; the stated
   reason for rejecting 5.0 no longer holds and is for Hamzah to revisit.
+
+### D3.3 · Jev router: questions and answer → rung mapping, declared BEFORE the run (approved spend ≤ $0.10)
+- **Where a router can act:** on faq / intent / extract, O1 already starts at the cheapest config meeting the
+  floor, so there is nothing cheaper to route to. On adjudicate, a router can send a ticket straight to
+  `opus-low`, skipping the `haiku-low` || `haiku-medium` pair and its wait. Both routers use this one action.
+- **Questions** (`src/engine/router/jev_router.py`, model `typesafe/jev-1.14`, state = ticket text only, no
+  policy document): `complexity` choice {simple, moderate, complex}; `needs_calculation` and
+  `missing_information` noul (recorded for the report only).
+- **Mapping:** route an adjudicate ticket straight to `opus-low` iff P(complexity = complex) ≥ τ; otherwise the
+  O1 path. τ is chosen on dev by the same rule as the local router (lowest Cost without caching (headline) CPST
+  that meets every floor; "never route" is a candidate). Jev's cost and latency are added to every adjudicate
+  ticket it is asked about.
+- **Run:** `engine jev-router --yes` → run `jev-router-dev-1`, 180 dev adjudicate tickets + 1 untimed warm-up
+  call (Phase 0 cold start 42.8 s). Estimate $0.00630, cap $0.10. Held-out untouched. Results are provisional:
+  §7.7 keep/drop is final only after the Phase 4 shifted matrix.

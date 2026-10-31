@@ -342,6 +342,28 @@ def phase3_report(run_id: str = typer.Option("matrix-dev-full-1")) -> None:
         typer.echo(f"wrote {path.relative_to(path.parents[2]).as_posix()}")
 
 
+@app.command("jev-router")
+def jev_router(
+    yes: bool = typer.Option(False, "--yes", help="make the paid calls (otherwise print the estimate only)"),
+    cap: float = typer.Option(0.10, help="OpenRouter cap for this run, USD (approved: $0.10, D3.3)"),
+) -> None:
+    """Ask Jev the D3.3 router questions about every dev adjudicate ticket (paid; estimate first)."""
+    from engine.eval.data import load_split
+    from engine.router import jev_router as J
+
+    tickets = [t for t in load_split("dev") if t.task_type == "adjudicate"]
+    est = J.estimate(tickets)
+    typer.echo(f"Jev router on dev: {len(tickets)} calls + 1 warm-up, estimate ${est:.5f} (cap ${cap:.2f})")
+    if est > cap:
+        typer.echo("estimate exceeds the cap; aborting")
+        raise typer.Exit(1)
+    if not yes:
+        typer.echo("dry run: pass --yes to spend")
+        return
+    answers = J.run(tickets, "auto", cap)
+    typer.echo(f"{len(answers)}/{len(tickets)} answered; log runs/{J.RUN_ID}/jev.jsonl")
+
+
 @app.command("audit-names")
 def audit_names() -> None:
     """Count tickets where two people share a first name (caller vs driver or claimant); no data change."""

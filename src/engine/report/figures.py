@@ -453,7 +453,8 @@ def costacc(m: dict, s: T.Size) -> go.Figure:
     for cid, (x, y) in pts.items():
         on = cid in m["pareto_dev"]
         fig.add_trace(go.Scatter(
-            x=[x], y=[y], mode="markers+text", text=[cid], textposition="bottom center",
+            x=[x], y=[y], mode="markers+text", textposition="bottom center",
+            text=["opus · low / medium / high" if cid == "opus-low" else "" if cid.startswith("opus") else cid],
             textfont={"size": s.small, "color": T.INK_2 if on else T.MUTED},
             marker={"size": s.marker * 0.8, "color": T.INK_2 if on else T.SURFACE,
                     "line": {"color": T.INK_2, "width": s.line / 2}},
@@ -465,7 +466,7 @@ def costacc(m: dict, s: T.Size) -> go.Figure:
         fig.add_trace(go.Scatter(
             x=[d["per_ticket_nocache"]], y=[d["acc"]], mode="markers+text", text=[f"<b>{names[k]}</b>"],
             textposition="top left" if k == "B1" else "top center", textfont={"size": s.label, "color": st.color},
-            marker={"size": s.marker * 1.5, "symbol": st.symbol, "color": st.color if st.fill else T.SURFACE,
+            marker={"size": s.marker * 1.5, "symbol": st.symbol, "color": st.color,
                     "line": {"color": st.color, "width": s.line}},
             hovertemplate=f"{names[k]}: %{{x:$.5f}} per ticket, accuracy %{{y:.3f}}<extra></extra>",
         ))  # fmt: skip
@@ -477,7 +478,7 @@ def costacc(m: dict, s: T.Size) -> go.Figure:
                      ticktext=[f"${t:g}" for t in ticks],
                      title_text="mean USD per ticket, " + T.HEADLINE + ", log scale",
                      title_font={"size": s.small, "color": T.MUTED})  # fmt: skip
-    fig.update_yaxes(range=[lo, 1.004], tickformat=".2f", title_text=f"accuracy (axis starts at {lo:.3f})",
+    fig.update_yaxes(range=[lo, 1.004], tickformat=".3f", dtick=0.005, title_text=f"accuracy (axis starts at {lo:.3f})",
                      title_font={"size": s.small, "color": T.MUTED})  # fmt: skip
     T.layout(fig, s, title=title_text(m, costacc_title(m)),
              caption=caption(m, "cost_vs_accuracy") + " · step line = Pareto frontier (no cheaper config is as accurate)")  # fmt: skip

@@ -633,6 +633,29 @@ def provenance() -> dict:
     }
 
 
+def data_summary() -> dict:
+    """Split sizes and Arabic share from data/generated/MANIFEST.json; the blind-audit result parsed strictly
+    from data/review/AUDIT.md."""
+    man = json.loads((ROOT / "data/generated/MANIFEST.json").read_text("utf-8"))
+    audit = ROOT / "data/review/AUDIT.md"
+    agree, total = (
+        _grab(audit, r"\*\*Result: (\d+) / \d+ blind agreement").strip(),
+        _grab(audit, r"\*\*Result: \d+ / (\d+) blind"),
+    )
+    errors = _grab(audit, r"blind agreement with the generated gold labels\. (\d+) label errors")
+    return {
+        "splits": {
+            k: {"n": v["n"], "arabic_share": v["arabic_share"]} for k, v in man["composition"].items()
+        },
+        "audit": {
+            "agree": int(agree),
+            "n": int(total),
+            "label_errors": int(errors),
+            "source": "data/review/AUDIT.md",
+        },
+    }
+
+
 def collect(progress=print) -> dict:
     from engine.policy.frozen import frozen_choices
 
@@ -669,6 +692,7 @@ def collect(progress=print) -> dict:
         "scenarios": scenarios(fc, {"dev": dctx, "shifted": sctx}),
         "routers": routers(),
         "names": name_collisions(),
+        "data": data_summary(),
     }
     return m
 

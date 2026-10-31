@@ -58,3 +58,4 @@ markers = ["slow: over ~10 s (committed-matrix replay, data regeneration, gold s
 "src/engine/router/*.py" = ["E501"]  # docstrings and Jev question text
 "src/engine/report/*.py" = ["E501"]  # chart layout specs and report strings
 "src/engine/demo.py" = ["E501"]  # terminal layout strings
+"src/engine/ask.py" = ["E501"]  # terminal layout strings

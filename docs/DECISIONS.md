@@ -827,3 +827,21 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   committed in `45eaf1e`. Full `engine check` GREEN at `45eaf1e`; full-history gitleaks (85 commits, all refs) clean;
   `engine demo --replay --verify` recomputes every metric and matches `reports/metrics.json`.
 - **Licence:** MIT added as a placeholder (copyright Hamzah) because the README needs one; Hamzah to confirm.
+
+### D5.5 · Final README fixes and `engine ask` (Hamzah's Phase 5 instructions)
+- **README:** fiction disclaimer now says the rules are modelled on SAMA-issued instruments (UP, CMIR, CSI),
+  simplified, with per-clause source tags (`data/rules/SOURCES.md`), insurer-specific values illustrative, not official
+  rules, not legal advice. Added: a prompt-caching bullet; a "Live vs replayed" section; generated blocks for the
+  workload (split sizes and Arabic share from MANIFEST, blind audit parsed from `data/review/AUDIT.md`), live vs
+  simulated agreement and latency gap, and spend per 100,000 tickets; limitations for dev near ceiling, one recording
+  per config, and the drift monitor needing a labelled audit sample. LICENSE: MIT confirmed by Hamzah.
+- **`engine ask` (live single-ticket demo):** the earlier spec is not in the repo, so this build follows the
+  requirements in the Phase 5 message and is for Hamzah to review: O1 through `policy.live.run_ticket` (the held-out
+  live code path); `--compare` adds B1; `--rules v1|v2` (an override of the ticket's own version is shown ungraded);
+  estimate printed first, `--yes` required to spend; all `demo-*` runs capped at $1 total from the ledger plus a
+  per-run RunBudget; recording epoch `repeat=3`; `--replay` (or no key) serves earlier recordings and scores them
+  with recorded latencies (labelled simulated); the key is never printed. No live `ask` call has been made.
+- **Demo tickets:** `data/demo/tickets.jsonl`, built by `datagen/demo_tickets.py` (seed 20261031, same generator and
+  rules engine; gold labels from the rules engine): faq EN, intent AR, extract EN, adjudicate AR (v1), adjudicate EN
+  (v2, policy change). Max 5-gram Jaccard vs same-task tickets in dev / shifted / held-out (automated scan only):
+  0.569 / 0.371 / 0.388 / 0.323 / 0.494, all below the split QA near-duplicate threshold (0.8).

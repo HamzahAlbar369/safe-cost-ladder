@@ -515,6 +515,28 @@ def demo(
     raise typer.Exit(run(pause=pause, verify=verify))
 
 
+@app.command()
+def ask(
+    ticket: str = typer.Argument(..., help="Demo ticket id: demo-01 .. demo-05 (data/demo/tickets.jsonl)."),
+    compare: bool = typer.Option(False, "--compare", help="Also send the ticket to B1 (always-best)."),
+    rules: str = typer.Option(None, "--rules", help="v1 | v2 policy document (default: the ticket's)."),
+    replay: bool = typer.Option(False, "--replay", help="Return recorded responses (no key, no cost)."),
+    yes: bool = typer.Option(False, "--yes", help="Make the live calls (otherwise estimate only)."),
+    cap: float = typer.Option(1.0, help="USD cap for this run (all `ask` runs together are capped at $1)."),
+) -> None:
+    """LIVE single-ticket demo: a fresh ticket through the frozen O1 (estimate first; replay fallback)."""
+    import logging
+    import warnings
+
+    from engine.ask import run
+
+    if rules not in (None, "v1", "v2"):
+        raise typer.BadParameter("--rules must be v1 or v2")
+    warnings.filterwarnings("ignore")
+    logging.disable(logging.WARNING)
+    raise typer.Exit(run(ticket, compare=compare, rules=rules, replay=replay, yes=yes, cap=cap))
+
+
 @app.command("jev-router")
 def jev_router(
     yes: bool = typer.Option(False, "--yes", help="make the paid calls (otherwise print the estimate only)"),

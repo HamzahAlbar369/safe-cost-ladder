@@ -385,6 +385,41 @@ def scenario(
 
 
 @app.command()
+def recalibrate(
+    audit_ids: str = typer.Option("", help="file of ticket ids (one per line) = the labelled audit sample"),
+    split: str = typer.Option("shifted", help="split the audit ids come from (dev | shifted)"),
+) -> None:
+    """Audit-and-recalibrate (D4.6, replay only). No --audit-ids: the 2-fold shifted analysis ->
+    reports/phase4/recalibration.txt. With --audit-ids: drift check + re-picked configs for that sample."""
+    from pathlib import Path
+
+    from engine import runinfo
+    from engine.eval import recalibrate as R
+    from engine.llm.pricing import ROOT
+
+    if not audit_ids:
+        path = ROOT / "reports" / "phase4" / "recalibration.txt"
+        header = f"runs: matrix-dev-full-1, matrix-shifted-full-1 | git: {runinfo.git_sha()}\n\n"
+        path.write_text(header + R.report() + "\n", encoding="utf-8")
+        typer.echo(f"wrote {path.relative_to(ROOT).as_posix()}")
+        return
+    from engine.eval.baselines import index_cells
+    from engine.eval.cells import build_cells
+    from engine.eval.data import load_split
+    from engine.eval.scenarios import RUNS
+    from engine.policy.frozen import frozen_choices
+
+    if split not in RUNS:
+        raise typer.BadParameter("split must be dev or shifted (held-out is only run by `engine final`)")
+    ids = {x.strip() for x in Path(audit_ids).read_text(encoding="utf-8").splitlines() if x.strip()}
+    tickets = [t for t in load_split(split) if t.id in ids]
+    cells, _ = build_cells([RUNS[split]], tickets)
+    r = R.recalibrate(frozen_choices(), tickets, index_cells(cells))
+    typer.echo(R.LABEL)
+    typer.echo(r.model_dump_json(indent=1, exclude={"adapted"}))
+
+
+@app.command()
 def final(
     estimate_only: bool = typer.Option(False, "--estimate", help="Print the estimate and exit (no spend)."),
     cap_anthropic: float = typer.Option(0.0, help="Approved Anthropic cap for the whole held-out run (USD)."),

@@ -1,0 +1,19 @@
+run: matrix-dev-full-1 | split: dev | git: 6cc190843b405889b210b42c5c05de9157aeaf48 | config_hash: 1201126a080c897a
+
+Effort finding (dev, 400 tickets, every config answers every ticket; all matrix calls read a warm cache)
+Cost per call is the mean over all 400 tickets. Accuracy delta vs low: paired bootstrap 95% CI.
+
+model   effort      acc  adjud.            vs low (acc)  with caching $/call  x low  headline $/call  out tok think tok  p50 s  p95 s
+haiku   low       0.973   0.967                                     0.000293   1.00         0.000989      388       314   1.56   6.17
+haiku   medium    0.983   0.972 +0.010 [-0.003, +0.025]             0.000336   1.15         0.001032      474       400   1.73   7.21
+haiku   high      0.985   0.967 +0.012 [-0.005, +0.030]             0.000415   1.42         0.001112      634       560   1.71   9.42
+
+sonnet  low       0.985   0.967                                     0.002407   1.00         0.017118      121        47   1.55   4.68
+sonnet  medium    0.988   0.972 +0.003 [-0.007, +0.013]             0.002898   1.20         0.017609      170        96   1.56   5.71
+sonnet  high      0.993   0.983 +0.008 [-0.003, +0.020]             0.003484   1.45         0.018195      228       155   1.70   6.89
+
+opus    low       0.998   0.994                                     0.004318   1.00         0.033740       96        23   2.05   4.93
+opus    medium    0.998   0.994 +0.000 [-0.007, +0.007]             0.005565   1.29         0.034987      158        85   2.27   5.72
+opus    high      0.998   0.994 +0.000 [+0.000, +0.000]             0.006004   1.39         0.035426      180       107   2.35   6.81
+
+Reading: compare rows within a model. 'x low' = Cost with caching (actual) per call relative to the same model at low effort.

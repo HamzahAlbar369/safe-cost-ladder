@@ -1,0 +1,56 @@
+{
+ "request_hash": "1e30ee5b35347c0cd1db2a9cbaf6b848c593e250b278970b61327e9f25745c21",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "hi\nI'm insured with you under policy OMI-8406667 (comprehensive), which runs until 18/10/2026.\nOn 19/08/2026 I was involved in an accident in Madinah and the other party, Hessa, has filed a claim against me.\nNajm attended and issued report NJ-96316628, which puts me at 25% fault.\nThe damage assessment report for the other car comes to 19700 riyals.\nI'm filing the claim today, 28/08/2026.\nAttached are the Najm report, the claimant's vehicle registration, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car.\nthx",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.03,
+     "moderate": 0.79,
+     "complex": 0.18
+    },
+    "confidence": 0.68
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.95
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.75
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 642,
+  "output_tokens": 79,
+  "cost_usd": 0.000026964,
+  "latency_ms": 343.1
+ },
+ "recorded_at": "2026-10-31T00:19:20.524419Z"
+}

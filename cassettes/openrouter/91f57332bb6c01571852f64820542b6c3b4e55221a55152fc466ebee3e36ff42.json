@@ -1,0 +1,56 @@
+{
+ "request_hash": "91f57332bb6c01571852f64820542b6c3b4e55221a55152fc466ebee3e36ff42",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Hi -\nlike, my policy number is OMI-7459876 and I have comprehensive (COMP) cover, valid until 2026-09-28. On 8 Jul 2026 another car hit mine in Taif. Najm attended and issued report NJ-04568676, which puts me at 75% fault. So far I only have a workshop quote of SR 22,500, no damage assessment report. My car is insured for SR 139,000. I am reporting this claim to you on 2026-07-13. I have attached the Najm report, the vehicle registration, a copy of the driving licence and photos of the damage.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "complex",
+    "probabilities": {
+     "simple": 0.01,
+     "moderate": 0.3,
+     "complex": 0.69
+    },
+    "confidence": 0.53
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.9
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.89
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 617,
+  "output_tokens": 78,
+  "cost_usd": 0.000025914,
+  "latency_ms": 266.2
+ },
+ "recorded_at": "2026-10-31T00:19:46.124726Z"
+}

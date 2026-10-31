@@ -1,0 +1,56 @@
+{
+ "request_hash": "c15ffdb07f9f44a9a38c2bb566037371a7ad0bc2ce378fbe2f97ed00d060814e",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Hi -\nMy policy number is OMI-4906329 and I have comprehensive (COMP) cover, valid until 2027-06-23. On 2026-08-29 I hit another car in Tabuk. The other driver, Abdullah, is claiming against my policy. The Najm report number is NJ-60423990 and it gives me 50% of the liability. The other car's damage has been assessed at SR 38,200 in the assessment report. The report notes the driver was under the influence of alcohol. I am reporting this claim to you on 6 Sep 2026. I have attached the Najm accident report, the other car's registration (istimara), the at-fault driver's licence copy, photos of the damage to the other car and the Taqdeer assessment of the other car. My previous claim in 2023 was settled without any problem. The other driver was polite about the whole thing.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.03,
+     "moderate": 0.55,
+     "complex": 0.42
+    },
+    "confidence": 0.33
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.92
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.7
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 673,
+  "output_tokens": 79,
+  "cost_usd": 0.000028266,
+  "latency_ms": 294.7
+ },
+ "recorded_at": "2026-10-31T00:19:36.105531Z"
+}

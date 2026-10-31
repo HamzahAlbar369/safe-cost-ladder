@@ -1,0 +1,56 @@
+{
+ "request_hash": "66dd9ea3bba2e2f8bd55955c594ef9a69c8fa581da20b93cb474efe8ce133ef5",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Here is my situation.\nI'm insured with you under policy OMI-9730002 (comprehensive (COMP)), which runs until 15 October 2026. On 30 April 2026 I lost cnotrol and hit a barrier in Riyadh. No other vehicle was involved. The accident was reported to the traffic police; the report number is TP-53321034. The Taqdeer assessment values the repairs to my car at 51,200 SAR. My car is insured for 47,000 SAR. I am reporting this claim to you on 13 May 2026. um, attached are the traffic police report, the vehicle registration, a copy of the driving licence, photos of the damage and the damage assessment report. um, my phone number is 0514447394. My previous claim in 2023 was settled without any problem.\nWhat happens now?",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "complex",
+    "probabilities": {
+     "simple": 0.03,
+     "moderate": 0.19,
+     "complex": 0.78
+    },
+    "confidence": 0.67
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.92
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.51
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 668,
+  "output_tokens": 78,
+  "cost_usd": 0.000028056,
+  "latency_ms": 273.3
+ },
+ "recorded_at": "2026-10-31T00:20:00.925349Z"
+}

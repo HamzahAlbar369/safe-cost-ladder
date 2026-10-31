@@ -1,0 +1,56 @@
+{
+ "request_hash": "50b9ca549f875336cd8a913cb57c9addc2c9c1871a990d37136e4dbdb74d17fd",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "warm-up",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 1
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "simple",
+    "probabilities": {
+     "simple": 0.77,
+     "moderate": 0.05,
+     "complex": 0.18
+    },
+    "confidence": 0.66
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.1
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.71
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 452,
+  "output_tokens": 78,
+  "cost_usd": 0.000018984,
+  "latency_ms": 807.6
+ },
+ "recorded_at": "2026-10-31T00:19:08.196003Z"
+}

@@ -1,0 +1,56 @@
+{
+ "request_hash": "38479f181e08a0a0e44391189ced66fc5fed3d19c2028832c286d414f6db5d9f",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "I need to tell you what happened.\nI'm insured with you under policy OMI-6346602 (comprehensive (COMP)), which runs until 20 August 2026. On 20 March 2026 I was in a collision with another vehicle in Khobar. Najm attended and issued report NJ-19887796, which puts me at 25% fault. The Taqdeer assessment values the repairs to my car at 18,500 SAR. My car is insured for 111,000 SAR. The driver's licence only covers motorcycles, not cars. I'm filing the claim today, 1 April 2026. Attached are the Najm accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment. The other driver was polite about the whole thing. I have been your customer for 8 years.\nWhat happens now?",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "complex",
+    "probabilities": {
+     "simple": 0.01,
+     "moderate": 0.07,
+     "complex": 0.92
+    },
+    "confidence": 0.88
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.84
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.84
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 661,
+  "output_tokens": 78,
+  "cost_usd": 0.000027762,
+  "latency_ms": 261.6
+ },
+ "recorded_at": "2026-10-31T00:19:48.964282Z"
+}

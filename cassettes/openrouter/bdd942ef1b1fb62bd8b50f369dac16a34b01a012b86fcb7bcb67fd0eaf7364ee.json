@@ -1,0 +1,56 @@
+{
+ "request_hash": "bdd942ef1b1fb62bd8b50f369dac16a34b01a012b86fcb7bcb67fd0eaf7364ee",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Claim:\nMy policy number is OMI-3459630 and I have third-party (TPL) cover, valid until 10 Dec 2026. On 2026-06-17 another car hit mine in Buraidah. The traffic police attended and issued report TP-99395840, which puts me at 75% fault. The damage assessment report puts the repair cost for my car at SR 29,000. I am reporting this claim to you on 2026-06-24. I have attached the traffic police report, the vehicle registration, a copy of the driving licence, photos of the damage and the damage assessment report.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.04,
+     "moderate": 0.77,
+     "complex": 0.19
+    },
+    "confidence": 0.66
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.81
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.78
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 608,
+  "output_tokens": 79,
+  "cost_usd": 0.000025536,
+  "latency_ms": 286.2
+ },
+ "recorded_at": "2026-10-31T00:20:00.504416Z"
+}

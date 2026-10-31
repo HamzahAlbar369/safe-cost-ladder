@@ -1,0 +1,56 @@
+{
+ "request_hash": "ac10c96aeb43eef2698cdccda85e6dc643ea79fb843fb6b7f40350d0e0f147c4",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Hello,\nMy policy number is OMI-7161772 and I have comprehensive cover, valid until 10 December 2026. On 12 June 2026 I was involved in an accident in Jeddah and the other party, Lama, has filed a claim against me. The traffic police attended and issued report TP-96770882, which puts me at 100% fault. um, the damage assessment report for the other car comes to SAR 36,700, ya akhi. The report says I was driving against traffic and that this caused the accident. I am reporting this claim to you on 22 June 2026. Attached are the traffic police accident report, the other car's registration (istimara), the at-fault driver's licence copy, photos of the damage to the other car and the Taqdeer assessment of the other car. The other driver was polite about the whole thing. My previous claim in 2023 was settled without any problem.\nKind regards,\nTurki",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.26,
+     "moderate": 0.5,
+     "complex": 0.24
+    },
+    "confidence": 0.25
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.89
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.65
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 682,
+  "output_tokens": 79,
+  "cost_usd": 0.000028644,
+  "latency_ms": 302.8
+ },
+ "recorded_at": "2026-10-31T00:19:56.131139Z"
+}

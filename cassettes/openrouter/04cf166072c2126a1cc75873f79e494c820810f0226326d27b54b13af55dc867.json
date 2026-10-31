@@ -1,0 +1,56 @@
+{
+ "request_hash": "04cf166072c2126a1cc75873f79e494c820810f0226326d27b54b13af55dc867",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Claim:\nMy policy number is OMI-5911659 and I have comprehensive cover, valid until 11 Feb 2027. On 2026-07-16 I hit another car in Buraidah. The other driver, Sara, is claiming against my policy. Najm attended and issued report NJ-37939892, which puts me at 25% fault. The other car's damage has been assessed at SR 25,100 in the assessment report. The driver left the scene before the report was made. I am reporting this claim to you on 2026-07-21. I have attached the Najm report, the claimant's vehicle registration, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car. I have been your customer for 8 years. My phone number is 0507887369.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "complex",
+    "probabilities": {
+     "simple": 0.02,
+     "moderate": 0.44,
+     "complex": 0.54
+    },
+    "confidence": 0.31
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.94
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.74
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 673,
+  "output_tokens": 78,
+  "cost_usd": 0.000028266,
+  "latency_ms": 281.9
+ },
+ "recorded_at": "2026-10-31T00:20:14.184527Z"
+}

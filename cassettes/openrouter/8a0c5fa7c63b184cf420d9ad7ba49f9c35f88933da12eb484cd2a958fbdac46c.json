@@ -1,0 +1,56 @@
+{
+ "request_hash": "8a0c5fa7c63b184cf420d9ad7ba49f9c35f88933da12eb484cd2a958fbdac46c",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Claim:\nhonestly, my policy number is OMI-8734329 and I have comprehensive cover, valid until 2026-05-15. On 2026-03-19 I hit another car in Hail. The other driver, Majed, is claiming against my policy. The traffic police attended and issued report TP-52232638, which puts me at 100% fault. The damage assessment report for the other car comes to SR 28,500. The driver was racing another car when it happened. I am reporting this claim to you on 2026-03-29. Attached are the traffic police report, the claimant's vehicle registration, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car. honestly, my claim reference from the app is CLM-97489.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "complex",
+    "probabilities": {
+     "simple": 0.06,
+     "moderate": 0.39,
+     "complex": 0.55
+    },
+    "confidence": 0.33
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.89
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.67
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 667,
+  "output_tokens": 78,
+  "cost_usd": 0.000028014,
+  "latency_ms": 345.2
+ },
+ "recorded_at": "2026-10-31T00:19:19.173577Z"
+}

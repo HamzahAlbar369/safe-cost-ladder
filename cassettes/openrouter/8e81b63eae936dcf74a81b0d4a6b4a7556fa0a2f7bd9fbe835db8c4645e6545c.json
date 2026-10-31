@@ -1,0 +1,56 @@
+{
+ "request_hash": "8e81b63eae936dcf74a81b0d4a6b4a7556fa0a2f7bd9fbe835db8c4645e6545c",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Good morning,\nMy policy number is OMI-9755176 and I have comprehensive (COMP) cover, valid until 22 August 2026. On 11 May 2026 I hit another car in Buraidah. The other driver, Yousef, is claiming against my policy. The traffic police report number is TP-08647353 and it gives me 50% of the liability. The damage assessment report for the other car comes to SAR 42,700. The traffic police took a long time to issue the report, which delayed my claim. I am reporting this claim to you on 1 July 2026. I have attached the traffic police accident report, the other car's registration (istimara), the at-fault driver's licence copy, photos of the damage to the other car and the Taqdeer assessment of the other car. The other driver was polite about the whole thing. My car is a Hyundai Accent 2019.\nThank you,\nMaha",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.02,
+     "moderate": 0.68,
+     "complex": 0.3
+    },
+    "confidence": 0.52
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.94
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.74
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 677,
+  "output_tokens": 79,
+  "cost_usd": 0.000028434,
+  "latency_ms": 288.2
+ },
+ "recorded_at": "2026-10-31T00:19:30.887547Z"
+}

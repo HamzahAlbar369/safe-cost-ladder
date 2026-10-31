@@ -1,0 +1,56 @@
+{
+ "request_hash": "f0b4225f6c820124e79aa494f4aee31aed312359a3acb5c78ab8993beeb1aa8b",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Dear Oasis claims team,\nMy policy number is OMI-2832108 and I have comprehensive (COMP) cover, valid until 15 December 2026. On 30 July 2026 another car hit mine in Dammam. The traffic police report number is TP-48624452 and it gives me 100% of the liability. The Taqdeer assessment values the repairs to my car at SAR 600. My car is insured for SAR 192,000. I'm filing the claim today, 8 August 2026. I have attached the traffic police report, the vehicle registration, a copy of the driving licence, photos of the damage and the damage assessment report.\nThank you,\nNoura",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.39,
+     "moderate": 0.5,
+     "complex": 0.11
+    },
+    "confidence": 0.25
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.82
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.55
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 622,
+  "output_tokens": 79,
+  "cost_usd": 0.000026124,
+  "latency_ms": 342.9
+ },
+ "recorded_at": "2026-10-31T00:19:36.944973Z"
+}

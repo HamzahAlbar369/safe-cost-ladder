@@ -1,0 +1,56 @@
+{
+ "request_hash": "f097db6fe2ee1f58ae0a00dc0e69fd622247bf7327c294ccde7272924c48d95a",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "[رسالة صوتية مفرغة] السلام عليكم، طيب\nوثيقتي عندكم رقمها OMI-7000041 (تأمين شامل (COMP))، وتنتهي 11 ديسمبر 2026. سيارتي Nissan Patrol 2022. أرفع المطالبة اليوم 16 أبريل 2026. مرفق تقرير نجم، الاستمارة، صورة الرخصة، صور الضرر وتقرير تقدير. يوم 8 أبريل 2026 صار لي حادث مع سيارة ثانية في الدمام. تقدير قيّم تصليح سيارتي بـ 27,000 ريال. المهم مبلغ التأمين في الجدول 93,000 ريال. رقم تقرير نجم NJ-31776245، والنسبة علي 0%.\nيعطيكم العافية",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "simple",
+    "probabilities": {
+     "simple": 0.52,
+     "moderate": 0.26,
+     "complex": 0.22
+    },
+    "confidence": 0.28
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.76
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.44
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 736,
+  "output_tokens": 78,
+  "cost_usd": 0.000030912,
+  "latency_ms": 306.2
+ },
+ "recorded_at": "2026-10-31T00:19:34.124970Z"
+}

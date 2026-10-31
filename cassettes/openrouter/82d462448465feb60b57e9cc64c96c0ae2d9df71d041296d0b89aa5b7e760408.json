@@ -1,0 +1,56 @@
+{
+ "request_hash": "82d462448465feb60b57e9cc64c96c0ae2d9df71d041296d0b89aa5b7e760408",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "salam, hi\nI'm insured with you under policy OMI-2871709 (comprehensive), which runs until 25/01/2027.\nOn 14/09/2026 I was in a clolision with another vehicle in Khobar.\nNajm attended and issued report NJ-89116219, which puts me at 50% fault.\nThe Taqdeer assessment values the repairs to my car at 40000 riyals.\nThe sum insured on my schedule is 42000 riyals.\nI'm filing the claim today, 20/09/2026.\nAttached are the Najm accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment.\nMy claim reference from the app is CLM-70529.\nIt was raining a little that evening.\nthx",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "complex",
+    "probabilities": {
+     "simple": 0.02,
+     "moderate": 0.39,
+     "complex": 0.59
+    },
+    "confidence": 0.38
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.95
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.72
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 659,
+  "output_tokens": 78,
+  "cost_usd": 0.000027678,
+  "latency_ms": 285.8
+ },
+ "recorded_at": "2026-10-31T00:19:40.814624Z"
+}

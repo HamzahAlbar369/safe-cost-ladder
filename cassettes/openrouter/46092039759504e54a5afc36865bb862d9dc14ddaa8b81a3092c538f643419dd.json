@@ -1,0 +1,56 @@
+{
+ "request_hash": "46092039759504e54a5afc36865bb862d9dc14ddaa8b81a3092c538f643419dd",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Claim:\nMy policy number is OMI-6038873 and I have comprehensive cover, valid until 6 Sep 2026. On 9 May 2026 I hit another car in Dammam. The other driver, Yousef, is claiming against my policy. I have attached the traffic police accident report, the other car's registration (istimara), the at-fault driver's licence copy, photos of the damage to the other car and the Taqdeer assessment of the other car. The traffic police attended and issued report TP-81202793, which puts me at 100% fault. I have been your csutomer for 8 years. The other car's damage has been assessed at SR 48,500 in the assessment report. I'm writing on 2026-06-15 with an update on my claim. The driver's licence expired on 2026-03-14 and was renewed on 12 Jun 2026. I first reported this claim to you on 2026-05-20.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "complex",
+    "probabilities": {
+     "simple": 0.02,
+     "moderate": 0.12,
+     "complex": 0.86
+    },
+    "confidence": 0.79
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.86
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.7
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 698,
+  "output_tokens": 78,
+  "cost_usd": 0.000029316,
+  "latency_ms": 293.0
+ },
+ "recorded_at": "2026-10-31T00:19:10.804379Z"
+}

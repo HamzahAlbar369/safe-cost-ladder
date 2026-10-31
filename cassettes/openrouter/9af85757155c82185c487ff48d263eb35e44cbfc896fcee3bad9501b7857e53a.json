@@ -1,0 +1,56 @@
+{
+ "request_hash": "9af85757155c82185c487ff48d263eb35e44cbfc896fcee3bad9501b7857e53a",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Claim:\nI'm insured with you under policy OMI-8629273 (comprehensive (COMP)), which runs until 2026-04-21. On 11 Mar 2026 I hit another car in Buraidah. The other driver, Sara, is claiming against my policy. The Najm report number is NJ-27736647 and it gives me 25% of the liability. The damage assessment report for the other car comes to SR 56,100. I'm filing the claim today, 2026-03-17. I have attached the Najm report, the claimant's vehicle registration, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.04,
+     "moderate": 0.58,
+     "complex": 0.38
+    },
+    "confidence": 0.37
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.95
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.8
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 639,
+  "output_tokens": 79,
+  "cost_usd": 0.000026838,
+  "latency_ms": 286.1
+ },
+ "recorded_at": "2026-10-31T00:20:18.565100Z"
+}

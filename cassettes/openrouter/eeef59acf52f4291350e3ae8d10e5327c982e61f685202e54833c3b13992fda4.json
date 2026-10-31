@@ -1,0 +1,56 @@
+{
+ "request_hash": "eeef59acf52f4291350e3ae8d10e5327c982e61f685202e54833c3b13992fda4",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "[Web form submission]\nPolicy number: OMI-3320084\nCover type: comprehensive (COMP)\nExpiry date: 6 Mar 2026\nClaim type: third-party claim against me\nOther party: identified, insured\nDate of accident: 10 Feb 2026\nReoprting authority: Najm\nAccident report number: NJ-02966248\nMy fault share: 100%\nOther party's damage per assessment report: 2,100 SAR\nDate submitted: 2026-02-22\nDescription: On 10 Feb 2026 I was involved in an accident in Khobar and the other party, Omar, has filed a claim against me. I have attached the Najm report, the claimant's vehicle registration, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car. Thank God nobody was hurt.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.3,
+     "moderate": 0.51,
+     "complex": 0.19
+    },
+    "confidence": 0.26
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.89
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.52
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 673,
+  "output_tokens": 79,
+  "cost_usd": 0.000028266,
+  "latency_ms": 299.1
+ },
+ "recorded_at": "2026-10-31T00:19:23.544781Z"
+}

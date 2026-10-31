@@ -1,0 +1,56 @@
+{
+ "request_hash": "f8b51f90b65e9b914aadadddc4d0080ead9d0aff35265a5126a38c9de730cfa8",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "[Online claim form]\nPolicy number: OMI-3025539\nCover type: third-party (TPL)\nExpiry date: 8 Dec 2026\nClaim type: own damage\nOther party: identified, insured\nDate of accident: 11 Apr 2026\nReporting authority: Najm\nAccident report number: NJ-60555378\nMy fault share: 75%\nRepair cost per assessment report: 6,800 SAR\nDate submitted: 2026-04-19\nDescription: On 11 Apr 2026 another car hit mine in Taif. I have attached the Najm report, the vehicle registration, a copy of the driving licence, photos of the damage and the damage assessment report. My phone number is 0512668573, ya akhi.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.03,
+     "moderate": 0.66,
+     "complex": 0.31
+    },
+    "confidence": 0.49
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.89
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.69
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 646,
+  "output_tokens": 79,
+  "cost_usd": 0.000027132,
+  "latency_ms": 285.4
+ },
+ "recorded_at": "2026-10-31T00:19:53.577057Z"
+}

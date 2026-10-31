@@ -1,0 +1,56 @@
+{
+ "request_hash": "ff26bee5ca2ec7db604e384fae222fd58ce26ed9edd5829f7ff73b3662a27051",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "I need to tell you what happened.\nanyway, I'm insured with you under policy OMI-7233875 (comprehensive), which runs until 6 September 2026. On 4 July 2026 I was involved in an accident in Madinah and the other party, Yousef, has filed a claim against me. The Najm report number is NJ-92313699 and it gives me 100% of the liability. The damage assessment report for the other car comes to 40,300 SAR. The licence had expired (16 May 2026); it was renewed on 24 August 2026. The claim was filed with you on 8 July 2026. I'm writing on 25 August 2026 with an update on my claim. Attached are the Najm accident report, the other car's registration (istimara), the at-fault driver's licence copy, photos of the damage to the other car and the Taqdeer assessment of the other car. My phone number is 0533499301. Thank God nobody was hurt.\nWhat happens now?",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "complex",
+    "probabilities": {
+     "simple": 0.01,
+     "moderate": 0.06,
+     "complex": 0.93
+    },
+    "confidence": 0.89
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.85
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.75
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 714,
+  "output_tokens": 78,
+  "cost_usd": 0.000029988,
+  "latency_ms": 352.8
+ },
+ "recorded_at": "2026-10-31T00:19:44.424504Z"
+}

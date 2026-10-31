@@ -1,0 +1,56 @@
+{
+ "request_hash": "cb8b588f52deac1fe6ff09be380d9f833fcafa70b6ced13e88473ddb922da2e5",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "مساء الخير\nوثيقتي عندكم رقمها OMI-7619841 (شامل)، وتنتهي 29/12/2026.\nيوم 19/09/2026 انصدمت سيارتي في المدينة المنورة صدم وهروب، والصادم مجهول.\nتقدير قيّم تصليح سيارتي بـ 5,000 ريال.\nالمرور جا وطلّع تقرير رقم TP-40457852.\nمرفق ورقة المرور، استمارة السيارة، نسخة الرخصة، صور الصدمة وورقة التقدير.\nالحمد لله ما أحد تضرر.\nأرفع المطالبة اليوم 1 أكتوبر 2026.\nمبلغ التأمين في الجدول 127,000 ريال.\nابي رد بسرعة",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.21,
+     "moderate": 0.47,
+     "complex": 0.32
+    },
+    "confidence": 0.2
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.77
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.46
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 739,
+  "output_tokens": 79,
+  "cost_usd": 0.000031038,
+  "latency_ms": 295.4
+ },
+ "recorded_at": "2026-10-31T00:20:15.964799Z"
+}

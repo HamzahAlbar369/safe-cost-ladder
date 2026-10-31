@@ -1,0 +1,56 @@
+{
+ "request_hash": "25f8b7d8d8990709e0b55c89ca35f4ee4c117b1bca6e3ae357e6b285412b3325",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "[Web form submission]\nPolicy number: OMI-7054579\nCover type: comprehensive (COMP)\nExpiry date: 2026-10-17\nClaim type: third-party claim against me\nOther party: identified, insured\nDate of accident: 6 Feb 2026\nReporting authority: Najm\nAccident report number: NJ-08095920\nMy fault share: 75%\nOther party's damage per assessment report: 37,500 SAR\nDate submitted: 2026-02-19\nDescription: On 6 Feb 2026 I hit another car in Dammam. The other driver, Nasser, is claiming against my policy. The driver's licence expired on 2025-12-30 and was renewed on 3 Apr 2026. I'm writing on 8 Apr 2026 with an update on my claim. I have attached the Najm report, the claimant's vehicle registration, a copy of the at-fault driver's licence, photos of the claimant's car damage and the damage assessment report for the claimant's car. My phone number is 0579978763. The other driver was polite about the whole thing.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "complex",
+    "probabilities": {
+     "simple": 0.01,
+     "moderate": 0.12,
+     "complex": 0.87
+    },
+    "confidence": 0.8
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.9
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.7
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 740,
+  "output_tokens": 78,
+  "cost_usd": 0.00003108,
+  "latency_ms": 297.7
+ },
+ "recorded_at": "2026-10-31T00:19:34.524309Z"
+}

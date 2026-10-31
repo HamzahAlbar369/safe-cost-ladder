@@ -1,0 +1,56 @@
+{
+ "request_hash": "44867fc3693baa9194ec7f0169bc1e3e54c3e7def5bc05153eaf745c8e9f1e84",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "Call note: customer Maha phoned the claims line.\n- Policy: OMI-1077152\n- Cover: comprehensive (COMP)\n- Policy end: 11 Jan 2027\n- Claim type: own damage\n- Other party: identified, insured\n- Accident date: 21/06/2026\n- Report by: the traffic police\n- Report no.: TP-75413364\n- Fault share: 0%\n- Assessed repair cost: SAR 42,200\n- Sum insured: SAR 159,000\n- Claim filed: 3 Jul 2026\n- Customer says: On 21/06/2026 another car hit mine in Buraidah. The car was being driven by my sponsored driver Maha. I have attached the traffic police accident report, the istimara, the licence copy, the damage photos and the Taqdeer assessment. My claim reference from the app is CLM-50763.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "complex",
+    "probabilities": {
+     "simple": 0.1,
+     "moderate": 0.26,
+     "complex": 0.64
+    },
+    "confidence": 0.46
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.85
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.42
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 681,
+  "output_tokens": 78,
+  "cost_usd": 0.000028602,
+  "latency_ms": 280.0
+ },
+ "recorded_at": "2026-10-31T00:19:54.884325Z"
+}

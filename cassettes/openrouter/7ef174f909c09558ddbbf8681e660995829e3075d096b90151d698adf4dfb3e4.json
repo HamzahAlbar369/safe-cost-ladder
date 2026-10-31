@@ -1,0 +1,56 @@
+{
+ "request_hash": "7ef174f909c09558ddbbf8681e660995829e3075d096b90151d698adf4dfb3e4",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "ملاحظة مكالمة: اتصال من بندر على خط المطالبات.\n- الوثيقة: OMI-9739768\n- التغطية: تأمين شامل (COMP)\n- انتهاء الوثيقة: 2027/02/24\n- نوع المطالبة: مطالبة طرف ثالث ضدي\n- الطرف الآخر: معروف ومؤمَّن عليه\n- تاريخ الحادث: 2026/08/13\n- جهة التقرير: المرور\n- رقم التقرير: TP-76140646\n- نسبة الخطأ: 25%\n- أضرار الطرف الثالث (مقيّمة): 39,400 ريال سعودي\n- تاريخ تقديم المطالبة: 2026/08/17\n- إفادة العميل: بتاريخ 2026/08/13 صدمتُ سيارة أخرى في الدمام، وقدّم الطرف الآخر ناصر مطالبة على وثيقتي. يذكر التقرير أن السيارة كانت تفحّط وقت الحادث. أرفقتُ تقرير الحادث من المرور، رخصة سير مركبة الطرف الآخر (الاستمارة)، نسخة من رخصة السائق المتسبب، صور تلفيات سيارة الطرف الآخر وتقرير تقدير (Taqdeer) لسيارة الطرف الآخر. رقم مرجع المطالبة في التطبيق CLM-42503.",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "moderate",
+    "probabilities": {
+     "simple": 0.04,
+     "moderate": 0.66,
+     "complex": 0.3
+    },
+    "confidence": 0.49
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.86
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.56
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 894,
+  "output_tokens": 79,
+  "cost_usd": 0.000037548,
+  "latency_ms": 346.8
+ },
+ "recorded_at": "2026-10-31T00:19:14.055165Z"
+}

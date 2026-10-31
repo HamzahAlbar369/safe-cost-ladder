@@ -1,0 +1,56 @@
+{
+ "request_hash": "1e0d7353428bb5c05627b83b5efc4e5f5855054408c0620fc4ffed609522d369",
+ "provider": "openrouter",
+ "request": {
+  "model": "typesafe/jev-1.14",
+  "state": "[رسالة صوتية مفرغة] السلام عليكم، طيب\nوثيقتي عندكم رقمها OMI-8133744 (تأمين شامل (COMP))، وتنتهي 6 يونيو 2026. يوم 4 فبراير 2026 صار لي حادث في تبوك، والطرف الثاني تركي يطالب بالتعويض من وثيقتي. رقم تقرير نجم NJ-45782846، والنسبة علي 25%. يعني سيارة الطرف الثاني مقيّمة بتقرير التقييم بـ 30,200 ريال. التقرير يقول الحادث مقصود. اليوم 10 فبراير 2026 قاعد أقدّم المطالبة. أرفقت لكم ورقة نجم، استمارة سيارته، نسخة رخصة اللي تسبب وورقة تقدير سيارته. باقي صور صدمة سيارته ما خلص.\nوبس، كلموني",
+  "questions": {
+   "complexity": {
+    "type": "choice",
+    "instructions": "A customer ticket asks a motor-insurance claims desk to decide a claim (approve, partial, deny or need more information) and the payout. How hard is it to decide this claim correctly?",
+    "criteria": {
+     "simple": "one clear situation; a single rule decides it; at most one simple calculation",
+     "moderate": "a payout calculation with a deductible or a fault share, or one exclusion to check",
+     "complex": "several interacting conditions: exclusions or licence/authorisation questions, caps or total loss, conflicting or missing documents or amounts, late reporting, unusual parties"
+    }
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "instructions": "Does deciding this claim require calculating a payout amount?"
+   },
+   "missing_information": {
+    "type": "noul",
+    "instructions": "Is information or a document needed to decide this claim missing?"
+   }
+  },
+  "repeat": 0
+ },
+ "response": {
+  "answers": {
+   "complexity": {
+    "type": "choice",
+    "choice": "complex",
+    "probabilities": {
+     "simple": 0,
+     "moderate": 0.04,
+     "complex": 0.96
+    },
+    "confidence": 0.94
+   },
+   "needs_calculation": {
+    "type": "noul",
+    "noul": 0.87
+   },
+   "missing_information": {
+    "type": "noul",
+    "noul": 0.92
+   }
+  },
+  "served_model": "typesafe/jev-1.14-20261014",
+  "input_tokens": 776,
+  "output_tokens": 78,
+  "cost_usd": 0.000032592,
+  "latency_ms": 520.1
+ },
+ "recorded_at": "2026-10-31T00:19:39.127425Z"
+}

@@ -710,3 +710,17 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
 - **Evidence:** `reports/phase4/scenarios.txt` (at `9462210`): Opus price 2x, Haiku outage, adjudicate budget 6.0 s,
   floors 2 pts lower. Example (dev, headline): under a Haiku outage the controller moves faq/intent/extract to
   Sonnet and adjudicate to opus-low alone; O1 still meets every floor and CPST rises from $0.00276 to $0.02617.
+
+### D4.5 · `engine final` built and frozen with the code (not run)
+- **Guard before data:** `final.guard()` refuses unless the tree has no code changes (D2.6 output paths excepted) and
+  HEAD carries a `freeze-*` tag; only its token unlocks `load_heldout`, which checks the sealed sha256 from
+  MANIFEST. `load_split("heldout")` still raises. Tested without reading held-out (`tests/test_final.py`: the
+  loader is replaced by a sentinel that fails the test if called, and the held-out path points at a missing file).
+- **Run order:** estimate printed first; `--yes` and a cap at or above the estimate (and at most the ledger
+  remaining) are required. O1 runs live first (`policy/live.py`; epoch `--repeat 2`, so nothing is replayed from the
+  matrix), then the 9-config held-out matrix (`--repeat 1`, resumable), then `reports/final/heldout.txt`. A partial
+  O1 live run is reported as such, never re-run.
+- **Expected size:** O1 live about $0.32 on 400 tickets (estimator run on dev with a dummy tag); the held-out matrix
+  is about the dev matrix's size (dev: $10.53, D2.8), so the total is above the $5 ask threshold: needs Hamzah's OK.
+- **Prompts frozen:** no commit has touched `src/engine/tasks/` or `data/rules/` since `97600fb` (the dev matrix
+  commit); config hash v1 `1201126a080c897a` unchanged, v1+v2 `5f376c36936b754d` = the shifted run's manifest.

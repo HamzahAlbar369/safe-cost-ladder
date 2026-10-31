@@ -207,7 +207,8 @@ All JSONL; one record per line; never mutate a committed run file (write a new r
 ### §6.1 Request flow
 1. **Tier 0 (no model)**: language detection; deterministic regex extraction when unambiguous (e.g. exactly one
    policy-number pattern); FAQ lookup when the question exactly matches a canonical FAQ key; reject empty or
-   duplicate tickets. Steps aside on any ambiguity.
+   duplicate tickets. Steps aside on any ambiguity. As built: it answered 0/400 dev and 0/200 shifted tickets, so the
+   pre-registered rule D3.6 removed it from the final policy before freeze-v1 (D4.3; kept as an ablation row).
 2. **Router** (variant per policy): predicts the cheapest sufficient rung and a confidence. Confident → start at that
    rung. Unsure (below threshold) → start the cascade at the bottom rung.
 3. **Ladder**: the Pareto-efficient subset of the 9 configs for that task, ordered by cost (dominated configs removed
@@ -292,7 +293,9 @@ A task is a success iff the grader marks it correct AND total latency ≤ that t
 Baselines: B1 always-best (most accurate config) · B2 always-cheapest (`haiku-low`) · B3 static rules by task type ·
 B4 cheapest single config meeting every floor · B5 naive cascade (`haiku-low` → most accurate config on V0 failure).
 Ours: O1 Tier 0 + ladder cascade + risk-tiered verification + caching · O2 = O1 + local router · O3 = O1 + Jev router ·
-(O4 extract-then-compute: cut, D3.7). Result: O2 and O3 dropped by §7.7 (D3.4); O1 is the chosen policy.
+(O4 extract-then-compute: cut, D3.7). Result: O2 and O3 dropped by §7.7 (D3.4); O1 is the chosen policy, without
+Tier 0 (D4.3). Every choice O1 and the baselines make is derived once from dev (`policy/frozen.py`) and applied
+unchanged to shifted and held-out.
 
 ### §7.4 Counterfactual replay
 Record all 9 configs on every dev and shifted ticket once (`engine matrix`). Any policy is then evaluated by lookup:
@@ -316,6 +319,11 @@ scenario switcher.
 Held-out is evaluated exactly once, by `engine final`, at a clean commit tagged `freeze-*`: it records the 9-config
 matrix on held-out (for baselines/oracle via replay) and runs the chosen final policy live. Results are committed in a
 new run; no further changes to prompts, ladder, thresholds or code paths affecting outputs.
+As built (Phase 4, `src/engine/final.py`): the guard (no code changes, HEAD tagged `freeze-*`) runs before anything
+reads held-out, and only its token unlocks the loader, which checks the sealed sha256. The cost estimate is printed
+first; spending needs `--yes` and a cap. O1 runs live first (`policy/live.py`: real parallel calls, wall-clock
+latency, same checks as the replay, a separate recording epoch so no call is served from the matrix cassettes), then
+the 9-config held-out matrix, then `reports/final/heldout.txt` (baselines, simulated O1, simulated vs live).
 
 ### §7.7 Pre-registered keep/drop rule for routers (do not edit after Phase 2)
 A router is kept iff, on BOTH dev (out-of-fold) and shifted:
@@ -328,10 +336,15 @@ Also report: misroute rates in both directions and a collapse check (share of ti
 
 ## §8 Robustness
 - **Shifted split** (§4.3): headline metrics re-reported; floor breaches explained or fixed without touching held-out.
+  As built: `reports/phase4/shifted.txt` (run `matrix-shifted-full-1`); the frozen O1 breaches the faq and adjudicate
+  floors on shifted, diagnosed in D4.2 (no code bug, nothing retuned).
 - **Policy-change scenario**: 40 shifted items generated under `rules_v2.yaml`; the system is pointed at the v2 policy
-  document via config only (no code change). Success = floors still met.
+  document via config only (no code change). Success = floors still met. As built: each request's policy document is
+  chosen by the ticket's `rules_version` (a one-time matrix-runner fix, D4.1); prompt code is unchanged.
 - **Scenario switcher** (`engine scenario`, replay-based, instant): accuracy floors ±, latency budgets ±, price
   multipliers per model, model outage (remove configs), router on/off. At least 3 scenarios in the report.
+  As built (D4.4): price, outage, budget and floor-delta scenarios; the controller re-picks configs on dev only;
+  router on/off is not offered (both routers dropped, D3.4). Presets: `reports/phase4/scenarios.txt`.
 - Failure behaviour: API errors retried at most once per call (retry budget in policy.yaml), then escalate; all retries billed.
 
 ---

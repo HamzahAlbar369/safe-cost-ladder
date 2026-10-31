@@ -1,9 +1,11 @@
 """Accuracy floors and latency budgets per task (SPEC §7.2), derived from dev baselines.
 
 floor  = accuracy of the most accurate single config on dev for that task, minus a tolerance
-         (adjudicate 1 pt; extract, intent, faq 2 pts). Ties for "most accurate" go to the lower
-         Cost without caching (headline) (Hamzah).
-budget = p95 latency of that same config on dev, rounded up to 0.5 s ("never slower than always-premium").
+         (adjudicate 1 pt; extract, intent, faq 2 pts). Ties at the top accuracy do not change the floor.
+budget = p95 latency on dev of the reference config, rounded up to 0.5 s ("never slower than always-premium").
+         Frozen rule (D2.9, config/policy.yaml `budget_rule: premium`): the reference is the MOST expensive
+         config tied for the top accuracy (by Cost without caching (headline)). `budget_rule="cheapest"` (the
+         earlier tie-break, the cheapest tied config) is kept only to reproduce reports/phase2/*_cheapest.txt.
 """
 
 from __future__ import annotations

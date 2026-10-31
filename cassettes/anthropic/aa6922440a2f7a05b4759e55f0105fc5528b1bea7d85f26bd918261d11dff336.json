@@ -1,0 +1,53 @@
+{
+ "request_hash": "aa6922440a2f7a05b4759e55f0105fc5528b1bea7d85f26bd918261d11dff336",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nsalam, hi\nQuick question about policy OMI-7963835.\nUp to how much is towing covered outside the city, ya akhi?\npls help\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":1000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 71,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 10,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1578.6,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:44:48.929914Z"
+}

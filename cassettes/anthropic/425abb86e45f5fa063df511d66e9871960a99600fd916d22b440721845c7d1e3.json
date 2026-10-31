@@ -1,0 +1,53 @@
+{
+ "request_hash": "425abb86e45f5fa063df511d66e9871960a99600fd916d22b440721845c7d1e3",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nالسادة فريق المطالبات في واحة لتأمين المركبات المحترمين، السلام عليكم ورحمة الله وبركاته،\nاسمي ناصر وأقود سيارة GMC Yukon 2020. كم يوم عمل حتى يصدر تقرير الخسارة الكلية بعد اكتمال المستندات؟\nوتفضلوا بقبول فائق الاحترام،\nناصر\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 7}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 170,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 53,
+   "thinking_tokens": 43
+  },
+  "latency_ms": 1053.9,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:51:29.533733Z"
+}

@@ -1,0 +1,53 @@
+{
+ "request_hash": "2eb714812f7cd7058a74975fcfec1aa638779a0921dadc79ee9a8f70ea245fdf",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nDear Oasis claims team,\nhonestly, quick question about policy OMI-4772001. I'm thinking about my cover before a trip to Tabuk. For TPL, how many days' grace is there to renew an expired licence after an accident?\nThank you,\nAbeer\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":50}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 112,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 37,
+   "thinking_tokens": 28
+  },
+  "latency_ms": 3237.2,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:53:50.202708Z"
+}

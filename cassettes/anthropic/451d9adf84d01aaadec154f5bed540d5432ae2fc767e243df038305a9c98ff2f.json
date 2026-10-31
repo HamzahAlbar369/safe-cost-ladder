@@ -1,0 +1,53 @@
+{
+ "request_hash": "451d9adf84d01aaadec154f5bed540d5432ae2fc767e243df038305a9c98ff2f",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\n[Online claim form]\nQuestion: I'm thinking about my cover before a trip to Riyadh. Quick question about policy OMI-3265490. For a small claim under 2,000 riyals, how quickly is it settled, in working days?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":5}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 99,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 9,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 824.8,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:46:21.573354Z"
+}

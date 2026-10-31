@@ -1,0 +1,93 @@
+{
+ "request_hash": "7167bf871ffc756be9fa6ed62dff4a608dcf68abdbf2c6e94d0f134e7d5c3946",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\nملخص الموظف - مكالمة من فيصل.\n- الوثيقة: OMI-8736570\n- التغطية: شامل\n- انتهاء الوثيقة: 2026/05/16\n- تاريخ الحادث: 4 يناير 2026\n- تاريخ تقديم المطالبة: 10 يناير 2026\n- إفادة العميل: في 4 يناير 2026 تعرضتُ لحادث تصادم مع مركبة أخرى في تبوك. رقم مرجع المطالبة في التطبيق CLM-16594. أتعامل معكم منذ 4 سنوات. سويت مطالبة سابقة في 2023 وانتهت دون مشكلة.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-8736570\",\"accident_date\":\"2026-01-04\",\"report_number\":null,\"damage_amount_sar\":null,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 264,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 161,
+   "thinking_tokens": 104
+  },
+  "latency_ms": 1283.8,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:46:35.410835Z"
+}

@@ -1,0 +1,53 @@
+{
+ "request_hash": "843169c9c92ee3343d8dfbf95452b5b97762d6e48d894031623b945245c1eed7",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\n[طلب عبر الموقع]\nالسؤال: أراجع تغطيتي قبل رحلة إلى الرياض. بنسبة خطأ 25%، ما مبلغ التحمل المطبَّق على إصلاح سيارتي؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 250}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 110,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 98,
+   "thinking_tokens": 88
+  },
+  "latency_ms": 1246.2,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:49:54.729209Z"
+}

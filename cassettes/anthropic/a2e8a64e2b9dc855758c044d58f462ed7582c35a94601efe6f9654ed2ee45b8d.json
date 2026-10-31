@@ -1,0 +1,53 @@
+{
+ "request_hash": "a2e8a64e2b9dc855758c044d58f462ed7582c35a94601efe6f9654ed2ee45b8d",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nالسادة فريق المطالبات في واحة لتأمين المركبات المحترمين، السلام عليكم ورحمة الله وبركاته،\nأراجع تغطيتي قبل رحلة إلى المدينة المنورة. إذا باشر المرور الحادث بدل نجم، هل يُقبل تقريره؟\nوتفضلوا بقبول فائق الاحترام،\nنورة\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 162,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 12,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1324.2,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:57:00.530876Z"
+}

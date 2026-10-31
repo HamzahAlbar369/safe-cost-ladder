@@ -1,0 +1,53 @@
+{
+ "request_hash": "da027ebcfb5938407992b0feb2c3daeb3ea5a940a830ee8d810ebfcffa49fc46",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\n[نموذج مطالبة إلكتروني]\nالسؤال: مرحبًا، معكم عمر. اسمي عمر وأقود سيارة Chevrolet Tahoe 2021. هل تخصمون شيئًا من التعويض مقابل عمر السيارة أو استخدامها السابق؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"no\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 131,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 11,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 705.9,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:50:01.790462Z"
+}

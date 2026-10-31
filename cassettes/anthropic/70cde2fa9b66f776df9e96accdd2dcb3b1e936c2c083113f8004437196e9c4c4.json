@@ -1,0 +1,93 @@
+{
+ "request_hash": "70cde2fa9b66f776df9e96accdd2dcb3b1e936c2c083113f8004437196e9c4c4",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\n[Online claim form]\nPolicy number: OMI-4638918\nCover type: comprehensive\nExpiry date: 2026-09-28\nDate of accident: 2026-07-13\nRepair cost per assessment report: 33,600 SAR\nDate submitted: 2026-07-22\nDescription: On 2026-07-13 someone hit my parked car in Abha and drove off. It was a hit-and-run. I have been your customer for 3 years. My car is a Kia K5 2023. My phone number is 0523999179.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-4638918\",\"accident_date\":\"2026-07-13\",\"report_number\":null,\"damage_amount_sar\":33600,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 193,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 978.7,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:50:55.955338Z"
+}

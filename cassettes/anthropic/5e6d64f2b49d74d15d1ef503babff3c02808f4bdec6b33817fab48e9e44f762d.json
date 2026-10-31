@@ -1,0 +1,93 @@
+{
+ "request_hash": "5e6d64f2b49d74d15d1ef503babff3c02808f4bdec6b33817fab48e9e44f762d",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\nAgent summary - caller Maha.\n- Policy: OMI-4922896\n- Accident date: 27/04/2026\n- Fault share: 75%\n- Claim filed: 29/04/2026\n- Customer says: On 27/04/2026 I was in a collision with another vehicle in Khobar. My previous claim in 2023 was settled without any problem. It was raining a little that evening.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-4922896\",\"accident_date\":\"2026-04-27\",\"report_number\":null,\"damage_amount_sar\":null,\"fault_share\":75}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 150,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 57,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1909.5,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:55:17.113478Z"
+}

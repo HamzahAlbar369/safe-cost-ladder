@@ -1,0 +1,53 @@
+{
+ "request_hash": "b346660c186bcf12777c8eb4d3afb9f6a350f7234cd73d1b36af6051ae75e27a",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nsalam, hi\nHi, Turki here.\nI'm a customer in Khobar.\nHow much is the fixed deductible on own-damage claims?\npls help\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":1000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 75,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 10,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 878.5,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T06:51:19.627510Z"
+}

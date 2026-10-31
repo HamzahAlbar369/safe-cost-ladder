@@ -1,0 +1,93 @@
+{
+ "request_hash": "204eca492f5a2b46d20efd4889fe86ce54df8297fcb6ebaf61855431547d8884",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\nAgent summary - caller Bandar.\n- Policy: OMI-7577164\n- Accident date: 22/05/2026\n- Report by: the traffic police\n- Report no.: TP-87183651\n- Assessed repair cost: SAR 13,900\n- Customer says: On 22/05/2026 someone hit my parked car in Khobar and drove off. It was a hit-and-run. My car is a Lexus ES 2022.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-7577164\",\"accident_date\":\"2026-05-22\",\"report_number\":\"TP-87183651\",\"damage_amount_sar\":13900,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 164,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 138,
+   "thinking_tokens": 75
+  },
+  "latency_ms": 1063.5,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:54:04.028729Z"
+}

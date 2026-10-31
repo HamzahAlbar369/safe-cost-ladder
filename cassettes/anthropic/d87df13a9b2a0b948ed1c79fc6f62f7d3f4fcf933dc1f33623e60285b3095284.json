@@ -1,0 +1,53 @@
+{
+ "request_hash": "d87df13a9b2a0b948ed1c79fc6f62f7d3f4fcf933dc1f33623e60285b3095284",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\n[رسالة صوتية مفرغة] السلام عليكم، طيب\nمعك عبدالله وسيارتي Kia K5 2023. كم يوم عندي أبلغكم بالمطالبة بعد الحادث؟\nوبس، كلموني\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":15}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 112,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 9,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1220.5,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T06:50:27.484961Z"
+}

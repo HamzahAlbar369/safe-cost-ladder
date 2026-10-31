@@ -1,0 +1,53 @@
+{
+ "request_hash": "61aaee32711bdc9c4b8fc5ca7317a6b78a7214670a3a78564c0003305e60e11b",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\n[Online claim form]\nQuestion: My name is Noura and I drive a Kia K5 2023. Under comprehensive cover, is my brother covered if he was driving my car?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 79,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 12,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1636.1,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:49:33.373285Z"
+}

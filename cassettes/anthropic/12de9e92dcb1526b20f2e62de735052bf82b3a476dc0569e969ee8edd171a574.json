@@ -1,0 +1,52 @@
+{
+ "request_hash": "12de9e92dcb1526b20f2e62de735052bf82b3a476dc0569e969ee8edd171a574",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "low",
+  "user": "Task: intent\n\n<ticket>\nHi -\nMy name is Saad. Please find attached the damage photos for my existing claim CLM-74762.\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"document_submission\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 59,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 14,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1051.6,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T06:53:14.338595Z"
+}

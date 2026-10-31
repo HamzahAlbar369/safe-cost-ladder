@@ -1,0 +1,93 @@
+{
+ "request_hash": "38ede061f46c3a7ff3c0c3e088c8e80ddc4582a0c23fcc20e4a40b8c22d7450c",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\nملخص الموظف - مكالمة من هيا.\n- الوثيقة: OMI-7319652\n- تاريخ الحادث: 1 أبريل 2026\n- جهة التقرير: المرور\n- رقم التقرير: TP-13769120\n- إفادة العميل: في 1 أبريل 2026 انزلقت سيارتي واصطدمت بعمود إنارة في حائل، وكانت سيارتي وحدها. رقم جوالي 0501067061.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-7319652\",\"accident_date\":\"2026-04-01\",\"report_number\":\"TP-13769120\",\"damage_amount_sar\":null,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 188,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 153,
+   "thinking_tokens": 91
+  },
+  "latency_ms": 1338.7,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:45:06.021956Z"
+}

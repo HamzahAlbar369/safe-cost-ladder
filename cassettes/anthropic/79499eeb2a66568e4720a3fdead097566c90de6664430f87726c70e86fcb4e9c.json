@@ -1,0 +1,53 @@
+{
+ "request_hash": "79499eeb2a66568e4720a3fdead097566c90de6664430f87726c70e86fcb4e9c",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nHello,\nHi, Bandar here. If I am 25% at fault, how much deductible do I pay on my own-damage claim?\nThank you,\nBandar\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 2,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 250}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 78,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 94,
+   "thinking_tokens": 84
+  },
+  "latency_ms": 1285.5,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:38:01.550399Z"
+}

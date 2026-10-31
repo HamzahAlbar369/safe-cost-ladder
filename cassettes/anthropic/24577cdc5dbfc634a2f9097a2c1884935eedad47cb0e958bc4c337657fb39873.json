@@ -1,0 +1,93 @@
+{
+ "request_hash": "24577cdc5dbfc634a2f9097a2c1884935eedad47cb0e958bc4c337657fb39873",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\n[Online claim form]\nPolicy number: OMI-8194733\nCover type: comprehensive (COMP)\nExpiry date: 6 Nov 2026\nDate of accident: 2026-05-17\nReporting authority: Najm\nAccident report number: NJ-15947394\nMy fault share: 75%\nRepair cost per assessment report: 33,300 SAR\nDate submitted: 2026-05-31\nDescription: On 2026-05-17 another car hit mine in Khobar. It was raining a little that evening. My previous claim in 2023 was settled without any problem.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 2,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-8194733\",\"accident_date\":\"2026-05-17\",\"report_number\":\"NJ-15947394\",\"damage_amount_sar\":33300,\"fault_share\":75}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 211,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 64,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1366.9,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:42:04.208687Z"
+}

@@ -1,0 +1,52 @@
+{
+ "request_hash": "615520d59928d87bb583e811537333c18688fbb56a2fdaf5092469bdede3bcef",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: intent\n\n<ticket>\nhi\nPolicy OMI-5575305.\nMy claim CLM-21616 was approved but the payout has not arrived in my bank account.\nthx\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"payment_issue\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 70,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 15,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1236.5,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:57:16.361643Z"
+}

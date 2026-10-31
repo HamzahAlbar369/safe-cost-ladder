@@ -1,0 +1,53 @@
+{
+ "request_hash": "9f2d1ec5ba19010a6ff4ef481122c6a9357199a71b32d765e4dd319f2629ae83",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nأود أن أشرح ما حدث.\nمرحبًا، معكم فيصل. أنا من عملائكم في الطائف. خلال كم يوم عمل تبلغونني بنقص المستندات؟\nأرجو إفادتي.\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 2,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":3}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 107,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 9,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 878.0,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:39:25.655159Z"
+}

@@ -1,0 +1,53 @@
+{
+ "request_hash": "1463eb90b306516263fdb6f3f6ed76f9e21d986727b7e314ccf9ec92193d939b",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nتحية طيبة وبعد،\nللعلم، أخبرني صديقي بشيء مختلف فأردت التأكد. أراجع تغطيتي قبل رحلة إلى الدمام. هل يوجد خصم استهلاك من تعويض الأرضار الذاتية؟\nشاكرةً لكم،\nحصة\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"no\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 139,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 72,
+   "thinking_tokens": 61
+  },
+  "latency_ms": 900.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:47:34.887243Z"
+}

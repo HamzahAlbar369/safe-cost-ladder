@@ -1,0 +1,71 @@
+run: matrix-heldout-freeze-v1 + o1-live-heldout-freeze-v1 | split: heldout | tag: freeze-v1 | git: d1a764ab03f3d33d9dac8f2fef4b5233c583977a
+
+Held-out (n=400; live O1 outcomes: 400). Configs, floors and budgets frozen on dev.
+
+Policies on heldout (n=400), configs and floors frozen on dev. CPST = cost / successes.
+    policy                                                            acc  success  p95 s  CPST headline  CPST cached  floors
+    B1: always-best (opus-low)                                      0.998    0.983   4.12        0.03441      0.00447  all met
+    B2: always-cheapest (haiku-low)                                 0.990    0.983   5.71        0.00100      0.00029  all met
+    B3: best static config per task (chosen on dev)                 0.993    0.988   4.11        0.01788      0.00314  all met
+    B4: cheapest single config meeting every floor on dev (opus-low)  0.998    0.983   4.12        0.03441      0.00447  all met
+    B5: naive cascade (haiku-low -> B1 on V0 failure)               0.990    0.983   5.71        0.00100      0.00029  all met
+    O1 (frozen)                                                     0.990    0.980   6.00        0.00182      0.00061  all met
+    Oracle: cheapest correct config within budget                   1.000    1.000   5.41        0.00120      0.00032  all met
+
+O1 simulated (replay of the held-out matrix)
+    correct 396/400  accuracy 0.990  success 0.980  p50 1.32s  p95 6.00s  meets every floor: yes
+    CPST, Cost without caching (headline):  $0.00182 [0.00157, 0.00221]
+        vs B1: $0.03441 -> $0.00182  saving +94.7% [+93.6%, +95.4%]
+        vs B3: $0.01788 -> $0.00182  saving +89.8% [+87.7%, +91.1%]
+    CPST, Cost with caching (actual):       $0.00061 [0.00053, 0.00072]
+        vs B1: $0.00447 -> $0.00061  saving +86.4% [+84.3%, +87.8%]
+        vs B3: $0.00314 -> $0.00061  saving +80.6% [+77.7%, +82.5%]
+
+Simulated vs live O1 (SPEC 7.5; live = real calls, real parallelism, wall-clock latency)
+                    n     acc  success   p95 s  CPST headline  CPST cached
+    simulated     400   0.990    0.980    6.00        0.00182      0.00061
+    live          400   0.993    0.917    7.19        0.00194      0.00064
+    same correctness on 395/400 tickets; same path on 396/400
+
+Per task (O1 live)
+    task          n  correct    acc  floor  success   p95 s  budget s
+    faq         100       99  0.990  0.980    0.780    3.44       2.5
+    intent       60       59  0.983  0.980    0.983    2.82       4.5
+    extract      60       60  1.000  0.980    0.967    3.13       3.5
+    adjudicate  180      179  0.994  0.984    0.956    8.05       8.5
+    language en: n=280  accuracy 0.993  success 0.918
+    language ar: n=120  accuracy 0.992  success 0.917
+
+O1 live: CPST by subset (CI = 95% bootstrap over the subset's tickets; saving vs B1 paired)
+    overall                n=400  acc 0.993  success 0.917
+        CPST headline      $0.00194 [0.00168, 0.00230]  saving vs B1 +94.4% [+93.3%, +95.1%]
+        CPST with caching  $0.00064 [0.00057, 0.00072]  saving vs B1 +85.6% [+84.2%, +86.9%]
+    task faq               n=100  acc 0.990  success 0.780
+        CPST headline      $0.00096 [0.00087, 0.00107]  saving vs B1 +96.9% [+96.5%, +97.3%]
+        CPST with caching  $0.00013 [0.00011, 0.00014]  saving vs B1 +94.1% [+93.3%, +94.8%]
+    task intent            n= 60  acc 0.983  success 0.983
+        CPST headline      $0.00076 [0.00074, 0.00079]  saving vs B1 +97.4% [+97.3%, +97.5%]
+        CPST with caching  $0.00010 [0.00009, 0.00011]  saving vs B1 +95.3% [+95.0%, +95.5%]
+    task extract           n= 60  acc 1.000  success 0.967
+        CPST headline      $0.00083 [0.00080, 0.00088]  saving vs B1 +97.4% [+97.2%, +97.5%]
+        CPST with caching  $0.00014 [0.00013, 0.00015]  saving vs B1 +96.1% [+95.7%, +96.3%]
+    task adjudicate        n=180  acc 0.994  success 0.956
+        CPST headline      $0.00316 [0.00266, 0.00392]  saving vs B1 +91.8% [+89.9%, +93.1%]
+        CPST with caching  $0.00123 [0.00112, 0.00138]  saving vs B1 +81.9% [+79.8%, +83.5%]
+    language en            n=280  acc 0.993  success 0.918
+        CPST headline      $0.00172 [0.00159, 0.00185]  saving vs B1 +95.0% [+94.6%, +95.3%]
+        CPST with caching  $0.00059 [0.00053, 0.00066]  saving vs B1 +86.4% [+85.4%, +87.4%]
+    language ar            n=120  acc 0.992  success 0.917
+        CPST headline      $0.00245 [0.00166, 0.00362]  saving vs B1 +93.0% [+89.7%, +95.2%]
+        CPST with caching  $0.00075 [0.00057, 0.00098]  saving vs B1 +83.9% [+79.5%, +87.1%]
+
+Caveats (read with every number above)
+- Parallel timing is MODELLED: haiku-low and haiku-medium were recorded as separate matrix calls, not sent
+  together; O1's adjudicate latency is computed from those recorded latencies (max / deadline arithmetic).
+  Contention from truly concurrent calls is not in the replay; `engine final` measures O1 live on held-out.
+- Oracle rule for unsolvable tickets: a ticket that no config answers correctly within its budget is charged
+  the cheapest config's cost (lowest mean headline cost) and counts as a failure for the oracle too.
+- Router thresholds were chosen IN-SAMPLE on dev (the local router's probabilities are out-of-fold, but the
+  threshold was picked on the same dev tickets that score it; Jev is zero-shot). This favours the routers,
+  so their negative result (D3.4) is conservative.
+- Replayed results are simulated from recorded calls (SPEC 6.5); costs and latencies are the recorded ones.

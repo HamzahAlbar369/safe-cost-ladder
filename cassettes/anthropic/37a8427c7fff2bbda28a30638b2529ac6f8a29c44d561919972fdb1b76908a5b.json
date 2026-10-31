@@ -1,0 +1,53 @@
+{
+ "request_hash": "37a8427c7fff2bbda28a30638b2529ac6f8a29c44d561919972fdb1b76908a5b",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\n[Online claim form]\nQuestion: Can I use a traffic police report instead of a Najm report?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": \"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 54,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 90,
+   "thinking_tokens": 78
+  },
+  "latency_ms": 1105.6,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:52:53.343026Z"
+}

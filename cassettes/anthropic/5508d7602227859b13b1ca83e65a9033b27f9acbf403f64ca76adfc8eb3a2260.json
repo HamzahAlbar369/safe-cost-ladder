@@ -1,0 +1,52 @@
+{
+ "request_hash": "5508d7602227859b13b1ca83e65a9033b27f9acbf403f64ca76adfc8eb3a2260",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: intent\n\n<ticket>\n[تفريغ مكالمة] هلا، اسمع\nأنا من أبها. أرسلت لكم صور الضرر للمطالبة المفتوحة CLM-86312.\nوبس، كلموني\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"document_submission\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 95,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 14,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 850.6,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T06:48:20.778191Z"
+}

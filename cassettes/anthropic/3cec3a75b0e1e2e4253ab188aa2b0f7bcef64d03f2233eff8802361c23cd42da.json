@@ -1,0 +1,53 @@
+{
+ "request_hash": "3cec3a75b0e1e2e4253ab188aa2b0f7bcef64d03f2233eff8802361c23cd42da",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nهذه تفاصيل حالتي.\nسؤال سريع عن الوثيقة OMI-1168178. أخبرني صديقي بشيء مختلف فأردت التأكد. تحت أي مبلغ تُسوّى المطالبة خلال 5 أيام عمل؟\nما الإجراء التالي؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 2000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 136,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 66,
+   "thinking_tokens": 55
+  },
+  "latency_ms": 1099.3,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:54:33.541087Z"
+}

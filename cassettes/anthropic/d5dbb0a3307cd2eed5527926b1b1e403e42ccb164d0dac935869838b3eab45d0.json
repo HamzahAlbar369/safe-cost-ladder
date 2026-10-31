@@ -1,0 +1,52 @@
+{
+ "request_hash": "d5dbb0a3307cd2eed5527926b1b1e403e42ccb164d0dac935869838b3eab45d0",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "user": "Task: intent\n\n<ticket>\nhi\nI drive a Chevrolet Tahoe 2021.\nI'm writing from Hail.\nMy claim CLM-73315 was approved but the payout has not arrived in my bank account, ya akhi.\npls help\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"payment_issue\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 96,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 15,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 924.3,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T06:46:19.795396Z"
+}

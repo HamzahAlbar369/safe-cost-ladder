@@ -1,0 +1,53 @@
+{
+ "request_hash": "ead3dfa8013ddc56db5ef5256ad587ab87c522de78a81ae04c7ba79ec3775d2e",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nالسادة فريق المطالبات في واحة لتأمين المركبات المحترمين، السلام عليكم ورحمة الله وبركاته،\nسؤال سريع عن الوثيقة OMI-2912104. للعلم، أراجع تغطيتي قبل رحلة إلى أبها. هل تخصمون التحمل من تعويض الخسارة الكلية؟\nشاكرًا لكم،\nفيصل\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 170,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 75,
+   "thinking_tokens": 63
+  },
+  "latency_ms": 956.6,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:49:25.554375Z"
+}

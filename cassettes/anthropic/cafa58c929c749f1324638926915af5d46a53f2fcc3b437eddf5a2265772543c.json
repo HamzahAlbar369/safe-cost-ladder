@@ -1,0 +1,93 @@
+{
+ "request_hash": "cafa58c929c749f1324638926915af5d46a53f2fcc3b437eddf5a2265772543c",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\n[Web form submission]\nPolicy number: OMI-5390859\nCover type: comprehensive\nExpiry date: 12 Oct 2026\nDate of accident: 2026-01-23\nReporting authority: the traffic police\nAccident report number: TP-63353735\nRepair cost per assessment report: 44,200 SAR\nDate submitted: 2026-01-27\nDescription: On 2026-01-23 someone hit my parked car in Hail and drove off. It was a hit-and-run. It was raining a little that evening.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-5390859\",\"accident_date\":\"2026-01-23\",\"report_number\":\"TP-63353735\",\"damage_amount_sar\":44200,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 195,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 185,
+   "thinking_tokens": 122
+  },
+  "latency_ms": 1224.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:55:51.937046Z"
+}

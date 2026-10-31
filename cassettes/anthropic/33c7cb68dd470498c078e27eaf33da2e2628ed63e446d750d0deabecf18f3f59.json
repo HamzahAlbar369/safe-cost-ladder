@@ -1,0 +1,53 @@
+{
+ "request_hash": "33c7cb68dd470498c078e27eaf33da2e2628ed63e446d750d0deabecf18f3f59",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\n[Online claim form]\nQuestion: I'm thinking about my cover before a trip to Dammam. How many documents are required to submit a claim?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":5}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 68,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 28,
+   "thinking_tokens": 19
+  },
+  "latency_ms": 1614.0,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:45:44.316214Z"
+}

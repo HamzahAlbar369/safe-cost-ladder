@@ -1,0 +1,93 @@
+{
+ "request_hash": "576b9a27c83ba69ac3fad87bfaec27aa59d0b7d9f5c3a3b76509fbbae52d4ff0",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\n[Web form submission]\nPolicy number: OMI-9926678\nCover type: comprehensive (COMP)\nExpiry date: 2027-02-18\nDate of accident: 7 Sep 2026\nReporting authority: the traffic police\nAccident report number: TP-26376339\nRepair cost per assessment report: 15,800 SAR\nDate submitted: 12 Sep 2026\nDescription: On 7 Sep 2026 someone hit my parked car in Madinah and drove off. It was a hit-and-run. My claim reference from the app is CLM-94816. My previous claim in 2023 was settled without any problem. I have been your customer for 3 years.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-9926678\",\"accident_date\":\"2026-09-07\",\"report_number\":\"TP-26376339\",\"damage_amount_sar\":15800,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 241,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 63,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1647.5,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T06:57:03.703554Z"
+}

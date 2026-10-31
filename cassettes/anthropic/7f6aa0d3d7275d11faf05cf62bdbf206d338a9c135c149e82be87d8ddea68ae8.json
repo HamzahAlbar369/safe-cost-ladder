@@ -1,0 +1,93 @@
+{
+ "request_hash": "7f6aa0d3d7275d11faf05cf62bdbf206d338a9c135c149e82be87d8ddea68ae8",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nتحية طيبة وبعد،\nرقم وثيقتي OMI-2948524 ونوع التغطية شامل، وهي سارية حتى 11 مايو 2027. في 19 أغسطس 2026 انزلقت سيارتي واصطدمت بعمود إنارة في جدة، وكانت سيارتي وحدها. أُبلغ المرور بالحادث، ورقم التقرير TP-16617834. قدّر تقرير تقييم الأضرار تكلفة إصلاح سيارتي بمبلغ 6,600 ريال. رقم جوالي 0521857737. الحمد لله لم يُصب أحد. سيارتي من نوع Toyota Land Cruiser 2018.\nشاكرةً لكم،\nسارة\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-2948524\",\"accident_date\":\"2026-08-19\",\"report_number\":\"TP-16617834\",\"damage_amount_sar\":6600,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 286,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 63,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 2048.3,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:54:15.837911Z"
+}

@@ -1,0 +1,93 @@
+{
+ "request_hash": "6fd64357df7e9e4fc0afa46163cd1b6ae850cbb306398af72cc47017cdb6fbf6",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\nAgent summary - caller Khalid.\n- Accident date: 3 Jul 2026\n- Report by: Najm\n- Report no.: NJ-01957227\n- Fault share: 100%\n- Assessed repair cost: SAR 26,800\n- Claim filed: 17/07/2026\n- Customer says: On 3 Jul 2026 another car hit mine in Khobar. My claim reference from the app is CLM-40766. It was raining a little that evening.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":null,\"accident_date\":\"2026-07-03\",\"report_number\":\"NJ-01957227\",\"damage_amount_sar\":26800,\"fault_share\":100}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 175,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 224,
+   "thinking_tokens": 166
+  },
+  "latency_ms": 1746.0,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:45:51.697566Z"
+}

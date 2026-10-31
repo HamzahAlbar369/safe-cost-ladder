@@ -1,0 +1,52 @@
+{
+ "request_hash": "bf20f6dd28b86110dec85d75f94fa9c4f1ef88d1f2d8b25a04cdf3dcb47ae827",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: intent\n\n<ticket>\n[Online claim form]\nMessage: I drive a Nissan Patrol 2022. I'm writing from Buraidah. If my brother drives my car and has an accident, is he covreed?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 2,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"coverage_question\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 83,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 49,
+   "thinking_tokens": 34
+  },
+  "latency_ms": 983.0,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:39:15.613572Z"
+}

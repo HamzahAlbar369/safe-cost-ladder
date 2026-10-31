@@ -1,0 +1,93 @@
+{
+ "request_hash": "d4ba0f6e2565621359486431ec6fc84b84115cfe3d03c4f8644771bc85409590",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nClaim:\nMy policy number is OMI-4800550 and I have comprehensive cover, valid until 2026-07-26. On 4 May 2026 someone hit my parked car in Hail and drove off. It was a hit-and-run. The damage assessment report puts the repair cost for my car at SR 33,400. like, I am reporting this claim to you on 10 May 2026. Thank God nobody was hurt. My previuos claim in 2023 was settled without any problem.\n</ticket>",
+  "max_tokens": 64,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1793429063,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-4800550\",\"accident_date\":\"2026-05-04\",\"report_number\":null,\"damage_amount_sar\":33400,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 177,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 914.7,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:44:27.095714Z"
+}

@@ -1,0 +1,52 @@
+{
+ "request_hash": "ace73e5be925bd2eb51eb05bfac8536127cba2f9302f128ad46bf3d0ec5f8c3b",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: intent\n\n<ticket>\nالسادة فريق المطالبات في واحة لتأمين المركبات المحترمين، السلام عليكم ورحمة الله وبركاته،\nالوثيقة OMI-7619644. إذا قاد أخي سيارتي ووقع حادث، فهل يشمله التأمين؟\nشاكرةً لكم،\nنورة\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 2,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"coverage_question\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 139,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 96,
+   "thinking_tokens": 81
+  },
+  "latency_ms": 1043.6,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:43:39.976075Z"
+}

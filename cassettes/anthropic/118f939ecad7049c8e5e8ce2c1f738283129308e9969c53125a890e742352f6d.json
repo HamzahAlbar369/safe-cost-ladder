@@ -1,0 +1,53 @@
+{
+ "request_hash": "118f939ecad7049c8e5e8ce2c1f738283129308e9969c53125a890e742352f6d",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\n[تفريغ مكالمة] هلا، اسمع\nقبل لا أسافر الرياض أبي أتأكد من تأميني. سؤال سريع عن وثيقتي OMI-9979679. معك خالد وسيارتي Hyundai Accent 2019. مطالبة أقل من 2,000 ريال تنصرف خلال كم يوم عمل؟\nيعطيكم العافية\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":5}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 163,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 52,
+   "thinking_tokens": 43
+  },
+  "latency_ms": 1096.3,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:57:12.694391Z"
+}

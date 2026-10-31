@@ -1,0 +1,53 @@
+{
+ "request_hash": "22c2f2b4ad25fbab88f4f8e145ed72bf36512b94d45732837e953c5bc833f948",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nHi -\nMy name is Maha and I drive a Lexus ES 2022. I'm thinking about my cover before a trip to Riyadh. If I am 25% at fault, how much deductible do I pay on my own-damage claim?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":250}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 99,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 32,
+   "thinking_tokens": 23
+  },
+  "latency_ms": 1609.2,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:45:02.370852Z"
+}

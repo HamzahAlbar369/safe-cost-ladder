@@ -1,0 +1,52 @@
+{
+ "request_hash": "f2f44d6a3bc9ff42fef27d2e2f6c6ab95463bef3ce200d2bbbf17c6bae71d82e",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: intent\n\n<ticket>\n[Online claim form]\nMessage: My name is Yousef. I had an accident on 3 Apr 2026 and I want to open a claim. Nothing has been filed yet.\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"new_claim\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 79,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 14,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 2382.1,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:48:34.537107Z"
+}

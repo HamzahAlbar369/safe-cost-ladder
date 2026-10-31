@@ -1,0 +1,53 @@
+{
+ "request_hash": "d2159b5fb65abb61421c78c911e51ca521457fa3e30e0b74d771fc834dbad46d",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nhi\nI'm thinking about my cover before a trip to Buraidah.\nQuick question about policy OMI-5107153, ya akhi.\nFor comprehensive own-damage claims, within how many business days after the accident must an expired licence be renewed?\nthanks\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 50}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 108,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 79,
+   "thinking_tokens": 69
+  },
+  "latency_ms": 1056.0,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:52:39.352328Z"
+}

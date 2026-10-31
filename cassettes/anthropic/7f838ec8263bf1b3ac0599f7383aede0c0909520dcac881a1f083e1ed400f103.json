@@ -1,0 +1,93 @@
+{
+ "request_hash": "7f838ec8263bf1b3ac0599f7383aede0c0909520dcac881a1f083e1ed400f103",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\n[Online claim form]\nPolicy number: OMI-4371529\nCover type: comprehensive\nExpiry date: 2026-08-28\nDate of accident: 10 Mar 2026\nRepair cost per assessment report: 33,400 SAR\nDescription: On 10 Mar 2026 another car hit mine in Tabuk. It was raining a little that evening. My car is a Lexus ES 2022. My claim reference from the app is CLM-87848.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-4371529\",\"accident_date\":\"2026-03-10\",\"report_number\":null,\"damage_amount_sar\":33400,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 173,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1197.2,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T06:50:25.549382Z"
+}

@@ -1,0 +1,93 @@
+{
+ "request_hash": "8777b9081d21f4515f512dd7d79b99246fbbc4208cce603686c3cab20bf9fba1",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\n[Online claim form]\nPolicy number: OMI-4310352\nCover type: comprehensive\nExpiry date: 11 Oct 2026\nDate of acicdent: 2026-08-30\nReporting authority: Najm\nAccident report number: NJ-91130391\nRepair cost per assessment report: 21,000 SAR\nDate submitted: 6 Sep 2026\nDescription: On 2026-08-30 I lost control and hit a barrier in Jeddah. No other vehicle was involved. It was raining a little that evening.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-4310352\",\"accident_date\":\"2026-08-30\",\"report_number\":\"NJ-91130391\",\"damage_amount_sar\":21000,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 199,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 64,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1868.2,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:44:51.774418Z"
+}

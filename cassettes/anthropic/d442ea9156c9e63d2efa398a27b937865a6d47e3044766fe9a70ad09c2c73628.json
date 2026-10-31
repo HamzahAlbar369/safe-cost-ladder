@@ -1,0 +1,93 @@
+{
+ "request_hash": "d442ea9156c9e63d2efa398a27b937865a6d47e3044766fe9a70ad09c2c73628",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\n[Web form submission]\nPolicy number: OMI-5807485\nCover type: comprehensive (COMP)\nExpiry date: 6 Aug 2026\nDate of accident: 5 Apr 2026\nRepair cost per assessment report: 41,100 SAR\nDate submitted: 2026-04-17\nDescription: On 5 Apr 2026 I lost control and hit a barrier in Dammam. No other vehicle was involved. It was raining a little that evening. My previous claim in 2023 was settled without any problem. My phone number is 0524050099, inshallah.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-5807485\",\"accident_date\":\"2026-04-05\",\"report_number\":null,\"damage_amount_sar\":41100,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 212,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 161,
+   "thinking_tokens": 103
+  },
+  "latency_ms": 1255.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:45:32.076535Z"
+}

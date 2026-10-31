@@ -1,0 +1,93 @@
+{
+ "request_hash": "02bd874c228b28543c248b5e4e83ac6802b12a1645373d455f3a109413e52c45",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\nتحية طيبة وبعد،\nرقم وثيقتي OMI-2796148 ونوع التغطية تأمين شامل (COMP)، وهي سارية حتى 8 أكتوبر 2026. بتاريخ 22 أبريل 2026 صدمت سيارةٌ أخرى سيارتي في حائل. باشر نجم الحادث وأصدر التقرير رقم NJ-35337941. قدّر تقرير تقييم الأضرار تكلفة إصلاح سيارتي بمبلغ 9,200 ريال. أرفع المطالبة اليوم 3 مايو 2026. الحمد لله لم يُصب أحد. أتعامل معكم منذ 4 سنوات. سويت مطالبة سابقة في 2023 وانتهت دون مشكلة.\nشاكرًا لكم،\nعمر\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-2796148\",\"accident_date\":\"2026-04-22\",\"report_number\":\"NJ-35337941\",\"damage_amount_sar\":9200,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 319,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 141,
+   "thinking_tokens": 77
+  },
+  "latency_ms": 1422.8,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:48:10.160047Z"
+}

@@ -1,0 +1,52 @@
+{
+ "request_hash": "018bd3a86645e0d3efc0c4bbd6712eb86e66caa82bbba225c25c4b0686420503",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: intent\n\n<ticket>\nأود أن أشرح ما حدث.\nهل تغطي وثيقتي الشاملة أضرار حادث الصدم والهروب؟\nأرجو إفادتي.\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 2,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"coverage_question\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 84,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 170,
+   "thinking_tokens": 155
+  },
+  "latency_ms": 1491.6,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:42:53.687531Z"
+}

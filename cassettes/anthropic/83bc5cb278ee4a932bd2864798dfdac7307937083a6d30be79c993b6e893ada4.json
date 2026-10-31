@@ -1,0 +1,93 @@
+{
+ "request_hash": "83bc5cb278ee4a932bd2864798dfdac7307937083a6d30be79c993b6e893ada4",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nمساء الخير\nرقم وثيقتي OMI-0362436 وتأميني شامل، وتخلص 31/10/2026.\nيوم 1 يونيو 2026 واحد صدمني في أبها وطلع ما عنده تأمين.\nالنسبة اللي علي 75%.\nتقرير التقييم قدّر تصليح سيارتي بـ 28,800 ريال.\nاليوم 11 يونيو 2026 قاعد أقدّم المطالبة.\nسيارتي Hyundai Sonata 2020.\nجوالي 0542420702.\nأتعامل معكم من 8 سنين.\nوشكرًا\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-0362436\",\"accident_date\":\"2026-06-01\",\"report_number\":null,\"damage_amount_sar\":28800,\"fault_share\":75}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 243,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1910.5,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:55:28.832248Z"
+}

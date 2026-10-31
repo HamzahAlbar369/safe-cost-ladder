@@ -1,0 +1,93 @@
+{
+ "request_hash": "c9b68286dcd364a35cb54473ed02501819f8941d9407f20740ab73c591fa2531",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\n[Online claim form]\nPolicy number: OMI-3309862\nReporting authority: Najm\nAccident report number: NJ-18632489\nMy fault share: 25%\nDescription: A few days ago I was in a collision with another vehicle in Madinah. Thank God nobody was hurt.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-3309862\",\"accident_date\":null,\"report_number\":\"NJ-18632489\",\"damage_amount_sar\":null,\"fault_share\":25}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 117,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 2001.4,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:47:50.746670Z"
+}

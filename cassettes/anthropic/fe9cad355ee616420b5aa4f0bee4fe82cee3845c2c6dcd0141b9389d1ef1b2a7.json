@@ -1,0 +1,53 @@
+{
+ "request_hash": "fe9cad355ee616420b5aa4f0bee4fe82cee3845c2c6dcd0141b9389d1ef1b2a7",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nتحية طيبة وبعد،\nأخبرني صديقي بشيء مختلف فأردت التأكد. اسمي سارة وأقود سيارة Hyundai Accent 2019. إذا كانت نسبة خطئي 25%، فكم مبلغ التحمل في مطالبة الأضرار الذاتية؟\nوتفضلوا بقبول فائق الاحترام،\nسارة\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":250}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 163,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 64,
+   "thinking_tokens": 55
+  },
+  "latency_ms": 1168.0,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T06:55:34.066699Z"
+}

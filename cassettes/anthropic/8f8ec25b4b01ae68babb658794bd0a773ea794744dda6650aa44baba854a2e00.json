@@ -1,0 +1,93 @@
+{
+ "request_hash": "8f8ec25b4b01ae68babb658794bd0a773ea794744dda6650aa44baba854a2e00",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\n[طلب عبر الموقع]\nرقم الوثيقة: OMI-9247023\nنوع التغطية: تأمين شامل (COMP)\nتاريخ الانتهاء: 2026-08-22\nجهة الإبلاغ: المرور\nرقم تقرير الحادث: TP-45028128\nتكلفة الإصلاح حسب تقرير التقييم: 17,800 ريال\nتاريخ الإرسال: 2026-07-23\nوصف الحادث: قبل أيام صدمت سيارةٌ أخرى سيارتي في المدينة المنورة، وتبيّن أن سائقها غير مؤمَّن عليه. سيارتي من نوع Hyundai Accent 2019.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-9247023\",\"accident_date\":null,\"report_number\":\"TP-45028128\",\"damage_amount_sar\":17800,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 271,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 154,
+   "thinking_tokens": 96
+  },
+  "latency_ms": 1251.4,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:45:34.897293Z"
+}

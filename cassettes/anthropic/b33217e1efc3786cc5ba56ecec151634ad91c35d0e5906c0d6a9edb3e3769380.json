@@ -1,0 +1,93 @@
+{
+ "request_hash": "b33217e1efc3786cc5ba56ecec151634ad91c35d0e5906c0d6a9edb3e3769380",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\nHello,\nOn 7 June 2026 another car hit mine in Tabuk. The Najm report number is NJ-82620863 and it gives me 75% of the liability. I'm filing the claim today, 9 June 2026. Thank God nobody was hurt. My previous claim in 2023 was settled without any problem. My car is a Mazda 6 2019.\nThank you,\nOmar\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":null,\"accident_date\":\"2026-06-07\",\"report_number\":\"NJ-82620863\",\"damage_amount_sar\":null,\"fault_share\":75}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 151,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 57,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1507.2,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T06:53:27.008413Z"
+}

@@ -1,0 +1,52 @@
+{
+ "request_hash": "8e4af99b41d728abf5682d8345c2373a18bcd92dc1d88aede2e8fb23a792f3ce",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: intent\n\n<ticket>\n[نموذج مطالبة إلكتروني]\nنص الطلب: أكتب إليكم من بريدة. هل تغطي وثيقتي الشاملة أضرار حادث الصدم والهروب؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "intent",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "intent": {
+     "type": "string",
+     "enum": [
+      "new_claim",
+      "claim_status",
+      "coverage_question",
+      "document_submission",
+      "complaint",
+      "policy_change",
+      "payment_issue",
+      "fault_dispute",
+      "other"
+     ]
+    }
+   },
+   "required": [
+    "intent"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"intent\":\"coverage_question\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 97,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7236,
+   "output_tokens": 129,
+   "thinking_tokens": 114
+  },
+  "latency_ms": 1365.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:45:41.522313Z"
+}

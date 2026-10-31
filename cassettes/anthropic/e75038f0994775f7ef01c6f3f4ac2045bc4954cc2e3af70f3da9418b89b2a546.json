@@ -1,0 +1,93 @@
+{
+ "request_hash": "e75038f0994775f7ef01c6f3f4ac2045bc4954cc2e3af70f3da9418b89b2a546",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\n[Online claim form]\nPolicy number: OMI-2615076\nCover type: comprehensive\nExpiry date: 6 Mar 2027\nDate of accident: 2026-05-13\nReporting authority: Najm\nAccident report number: NJ-69871621\nMy fault share: 0%\nRepair cost per assessment report: 4,800 SAR\nDescription: On 2026-05-13 another car hit mine in Khobar. My phone number is 0559880125.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-2615076\",\"accident_date\":\"2026-05-13\",\"report_number\":\"NJ-69871621\",\"damage_amount_sar\":4800,\"fault_share\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 175,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 64,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1121.2,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T06:50:21.941598Z"
+}

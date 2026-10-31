@@ -1,0 +1,53 @@
+{
+ "request_hash": "1e74bb8495b8f4d4acf9c62a1140309eaff30f909e48bc6a124a1415d74b3ddd",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nI need to tell you what happened.\nMy name is Noura and I drive a Chevrolet Tahoe 2021. What deductible applies when I hold 0% of the liability?\nWhat happens now?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 85,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 73,
+   "thinking_tokens": 63
+  },
+  "latency_ms": 1651.2,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:57:41.832062Z"
+}

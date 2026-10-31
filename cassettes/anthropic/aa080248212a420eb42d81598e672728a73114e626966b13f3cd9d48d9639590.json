@@ -1,0 +1,53 @@
+{
+ "request_hash": "aa080248212a420eb42d81598e672728a73114e626966b13f3cd9d48d9639590",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nمساء الخير\nقبل لا أسافر تبوك أبي أتأكد من تأميني.\nخويي قال لي شي ثاني وأبي أتأكد.\nهلا، معك لمى.\nكم يوم عمل لين يطلع تقرير التوتال لوس؟\nوشكرًا\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": 7}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 128,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 64,
+   "thinking_tokens": 54
+  },
+  "latency_ms": 872.9,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:57:26.015825Z"
+}

@@ -1,0 +1,53 @@
+{
+ "request_hash": "f940845d30d3732b3f1f0fc64575bf0ccc917311f71065f18859d1a1e95aaf84",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "user": "Task: faq\n\n<ticket>\nملاحظة مكالمة: اتصال من فيصل على خط المطالبات.\nأخبرني صديقي بشيء مختلف فأردت التأكد.\nكم الحد الأقصى لتغطية السحب خارج المدينة؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":1000}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 109,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 10,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1123.2,
+  "served_model": "claude-sonnet-5-5"
+ },
+ "recorded_at": "2026-10-31T06:56:22.221129Z"
+}

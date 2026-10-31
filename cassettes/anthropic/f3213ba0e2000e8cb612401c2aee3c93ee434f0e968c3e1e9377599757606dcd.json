@@ -1,0 +1,53 @@
+{
+ "request_hash": "f3213ba0e2000e8cb612401c2aee3c93ee434f0e968c3e1e9377599757606dcd",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\n[Online claim form]\nQuestion: Hi, Saad here. My friend told me something different, so I want to check. My name is Saad and I drive a GMC Yukon 2020. If I only have TPL, will you repair my car after an accident, ya akhi?\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 2,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":\"no\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 105,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 11,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 756.1,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:40:35.415095Z"
+}

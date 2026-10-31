@@ -1,0 +1,93 @@
+{
+ "request_hash": "7aae80f98bc7e867f150bd503ff94c68f356e6625c67948fba4f34c5ed3c63fb",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nCall note: customer Yousef phoned the claims line.\n- Policy: OMI-6349119\n- Cover: comprehensive (COMP)\n- Policy end: 8 Aug 2026\n- Accident date: 18/07/2026\n- Report by: Najm\n- Report no.: NJ-00799130\n- Customer says: On 18/07/2026 I was in a collision with another vehicle in Buraidah. Thank God nobody was hurt. My phone number is 0521382851. My car is a Mazda 6 2019.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-6349119\",\"accident_date\":\"2026-07-18\",\"report_number\":\"NJ-00799130\",\"damage_amount_sar\":null,\"fault_share\":null}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 196,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 63,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 901.0,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:47:51.020605Z"
+}

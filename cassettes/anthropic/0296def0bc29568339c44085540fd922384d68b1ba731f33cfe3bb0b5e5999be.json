@@ -1,0 +1,93 @@
+{
+ "request_hash": "0296def0bc29568339c44085540fd922384d68b1ba731f33cfe3bb0b5e5999be",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "high",
+  "user": "Task: extract\n\n<ticket>\nتحية طيبة وبعد،\nفي 3 مايو 2026 اصطدمتُ بسيارة في بريدة، والطرف الآخر ليس لديه تأمين. أتقدم بهذه المطالبة بتاريخ 10 مايو 2026. كان الطرف الآخر متعاونًا. سويت claim سابقة في 2023 وانتهت دون مشكلة. باشر نجم الحادث وأصدر التقرير رقم NJ-17794265، وحُمّلت فيه نسبة خطأ 0%. الحمد لله لم يُصب أحد.\nوتفضلوا بقبول فائق الاحترام،\nتركي\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":null,\"accident_date\":\"2026-05-03\",\"report_number\":\"NJ-17794265\",\"damage_amount_sar\":null,\"fault_share\":0}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 253,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 57,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1440.0,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:45:46.338744Z"
+}

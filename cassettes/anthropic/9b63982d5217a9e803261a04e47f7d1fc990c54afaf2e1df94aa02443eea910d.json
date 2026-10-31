@@ -1,0 +1,93 @@
+{
+ "request_hash": "9b63982d5217a9e803261a04e47f7d1fc990c54afaf2e1df94aa02443eea910d",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "low",
+  "user": "Task: extract\n\n<ticket>\nHere is my situation.\nMy policy number is OMI-6333314 and I have comprehensive cover, valid until 21 November 2026. On 6 March 2026 I was in a collision with another vehicle in Jeddah. I was given 100% of the liability. The damage assessment report puts the repair cost for my car at 43,400 SAR. I'm filing the claim today, 18 March 2026. My phone number is 0599141398. My claim reference from the app is CLM-71486. The other driver was polite about the whole thing.\nPlease advise.\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 2,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-6333314\",\"accident_date\":\"2026-03-06\",\"report_number\":null,\"damage_amount_sar\":43400,\"fault_share\":100}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 198,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 58,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 832.4,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:42:16.499118Z"
+}

@@ -1,0 +1,53 @@
+{
+ "request_hash": "3874e400a7ff591ff94bd5271bb4f5745591ef7b3c26656ae895c50b6505b12f",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-haiku-5-5",
+  "effort": "medium",
+  "user": "Task: faq\n\n<ticket>\nأود أن أشرح ما حدث.\nمرحبًا، معكم محمد. سؤال سريع عن الوثيقة OMI-7976951. على أي حال، هل أستطيع استخدام تقرير المرور بدلًا من تقرير نجم؟\nما الإجراء التالي؟\n</ticket>",
+  "max_tokens": 2048,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\": \"yes\"}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 128,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7219,
+   "output_tokens": 85,
+   "thinking_tokens": 73
+  },
+  "latency_ms": 1124.4,
+  "served_model": "claude-haiku-5-5"
+ },
+ "recorded_at": "2026-10-31T06:54:13.037904Z"
+}

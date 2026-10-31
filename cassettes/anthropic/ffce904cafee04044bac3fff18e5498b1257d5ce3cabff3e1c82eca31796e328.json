@@ -1,0 +1,53 @@
+{
+ "request_hash": "ffce904cafee04044bac3fff18e5498b1257d5ce3cabff3e1c82eca31796e328",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "low",
+  "user": "Task: faq\n\n<ticket>\nتحية طيبة وبعد،\nمرحبًا، معكم محمد. مطالبة صغيرة أقل من ألفي ريال، خلال كم يوم عمل تُسوّى؟\nوتفضلوا بقبول فائق الاحترام،\nمحمد\n</ticket>",
+  "max_tokens": 64,
+  "schema_name": "faq",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "answer": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "string",
+       "enum": [
+        "no",
+        "out_of_scope",
+        "yes"
+       ]
+      }
+     ]
+    }
+   },
+   "required": [
+    "answer"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1793429063,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"answer\":5}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 117,
+   "cache_creation_tokens": 7219,
+   "cache_read_tokens": 0,
+   "output_tokens": 9,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1545.2,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:44:25.806360Z"
+}

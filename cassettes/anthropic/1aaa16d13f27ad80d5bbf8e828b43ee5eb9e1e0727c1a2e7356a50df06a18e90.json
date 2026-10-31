@@ -1,0 +1,93 @@
+{
+ "request_hash": "1aaa16d13f27ad80d5bbf8e828b43ee5eb9e1e0727c1a2e7356a50df06a18e90",
+ "provider": "anthropic",
+ "request": {
+  "model": "claude-opus-5-5",
+  "effort": "medium",
+  "user": "Task: extract\n\n<ticket>\nالسادة فريق المطالبات في واحة لتأمين المركبات المحترمين، السلام عليكم ورحمة الله وبركاته،\nوثيقتي لديكم رقمها OMI-4747437 (شامل)، وتنتهي في 25 مايو 2027. بتاريخ 13 أغسطس 2026 صدمت سيارةٌ أخرى سيارتي في المدينة المنورة. باشر نجم الحادث وأصدر التقرير رقم NJ-33370006، وحُمّلت فيه نسبة خطأ 25%. قدّر تقرير تقييم الأضرار تكلفة إصلاح سيارتي بمبلغ 13,900 ريال. أتقدم بهذه المطالبة بتاريخ 21 أغسطس 2026. رقم مرجع المطالبة في التطبيق CLM-66296.\nوتفضلوا بقبول فائق الاحترام،\nريم\n</ticket>",
+  "max_tokens": 3072,
+  "schema_name": "extract",
+  "output_schema": {
+   "type": "object",
+   "properties": {
+    "policy_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "accident_date": {
+     "anyOf": [
+      {
+       "type": "string",
+       "format": "date"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "report_number": {
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "damage_amount_sar": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    },
+    "fault_share": {
+     "anyOf": [
+      {
+       "type": "integer"
+      },
+      {
+       "type": "null"
+      }
+     ]
+    }
+   },
+   "required": [
+    "policy_number",
+    "accident_date",
+    "report_number",
+    "damage_amount_sar",
+    "fault_share"
+   ],
+   "additionalProperties": false
+  },
+  "thinking": "adaptive",
+  "cache": true,
+  "repeat": 1,
+  "system_sha256": "ee2b79c561d997e563d39c66342306666808d7bb1b859c86a33d4393fae74d28"
+ },
+ "response": {
+  "text": "{\"policy_number\":\"OMI-4747437\",\"accident_date\":\"2026-08-13\",\"report_number\":\"NJ-33370006\",\"damage_amount_sar\":13900,\"fault_share\":25}",
+  "stop_reason": "end_turn",
+  "usage": {
+   "input_tokens": 349,
+   "cache_creation_tokens": 0,
+   "cache_read_tokens": 7450,
+   "output_tokens": 64,
+   "thinking_tokens": 0
+  },
+  "latency_ms": 1989.0,
+  "served_model": "claude-opus-5-5"
+ },
+ "recorded_at": "2026-10-31T06:54:56.133290Z"
+}

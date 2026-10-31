@@ -1,4 +1,4 @@
-run: matrix-dev-full-1 | split: dev | git: 83dc593d3263413c60bf01ab2b42340ce701fd23 | config_hash: 1201126a080c897a
+run: matrix-dev-full-1 | split: dev | git: 5cc73aa69e6d982dcac0e36b628ac39956d909f8 | config_hash: 1201126a080c897a
 
 Ablations: one O1 layer off at a time, paired against O1 on the same 400 dev tickets
 'saving' > 0 = the ablation is cheaper per successful task than O1 (the layer costs money and is kept only
@@ -69,7 +69,7 @@ drop V2 (V0-V1 + V3 only)
     language en: n=280  accuracy 0.989  success 0.975
     language ar: n=120  accuracy 0.983  success 0.967
 
-drop Tier 0
+add Tier 0 (removed from O1 by D3.6, D4.3)
     correct 396/400  accuracy 0.990  success 0.968  p50 1.56s  p95 6.41s  meets every floor: yes
     CPST, Cost without caching (headline):  $0.00276 [0.00210, 0.00351]
         vs O1: $0.00276 -> $0.00276  saving +0.0% [+0.0%, +0.0%]
@@ -78,7 +78,7 @@ drop Tier 0
     adjudicate: accuracy delta +0.000 [+0.000, +0.000]  success delta +0.000 [+0.000, +0.000]  correct 178 vs 178
     overall: accuracy delta +0.000 [+0.000, +0.000]  success delta +0.000 [+0.000, +0.000]  correct 396 vs 396
     adjudicate floor 0.984444 x 180 needs >= 178 correct; this ablation has 178: floor met
-    per task (drop Tier 0)
+    per task (add Tier 0 (removed from O1 by D3.6, D4.3))
     task          n  correct    acc  floor  success   p95 s  budget s
     faq         100       99  0.990  0.980    0.980    1.79       2.5
     intent       60       60  1.000  0.980    1.000    1.41       4.5

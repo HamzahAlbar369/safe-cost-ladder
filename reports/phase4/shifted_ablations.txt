@@ -1,4 +1,4 @@
-run: matrix-shifted-full-1 | split: shifted | frozen choices from: matrix-dev-full-1 | git: 83dc593d3263413c60bf01ab2b42340ce701fd23 | config_hash: 5f376c36936b754d
+run: matrix-shifted-full-1 | split: shifted | frozen choices from: matrix-dev-full-1 | git: 5cc73aa69e6d982dcac0e36b628ac39956d909f8 | config_hash: 5f376c36936b754d
 
 Ablations: one O1 layer off at a time, paired against O1 on the same 200 shifted tickets
 'saving' > 0 = the ablation is cheaper per successful task than O1 (the layer costs money and is kept only
@@ -69,7 +69,7 @@ drop V2 (V0-V1 + V3 only)
     language en: n=140  accuracy 0.921  success 0.900
     language ar: n=60  accuracy 0.850  success 0.850
 
-drop Tier 0
+add Tier 0 (removed from O1 by D3.6, D4.3)
     correct 182/200  accuracy 0.910  success 0.880  p50 1.32s  p95 6.69s  meets every floor: NO
     CPST, Cost without caching (headline):  $0.00373 [0.00242, 0.00529]
         vs O1: $0.00373 -> $0.00373  saving +0.0% [+0.0%, +0.0%]
@@ -78,7 +78,7 @@ drop Tier 0
     adjudicate: accuracy delta +0.000 [+0.000, +0.000]  success delta +0.000 [+0.000, +0.000]  correct 80 vs 80
     overall: accuracy delta +0.000 [+0.000, +0.000]  success delta +0.000 [+0.000, +0.000]  correct 182 vs 182
     adjudicate floor 0.984444 x 90 needs >= 89 correct; this ablation has 80 vs O1 80: O1 itself is short by 9, so the floor is missed either way; the layer changes adjudicate correct by +0
-    per task (drop Tier 0)
+    per task (add Tier 0 (removed from O1 by D3.6, D4.3))
     task          n  correct    acc  floor  success   p95 s  budget s
     faq          50       42  0.840  0.980    0.840    1.86       2.5  FLOOR BREACH
     intent       30       30  1.000  0.980    1.000    1.26       4.5

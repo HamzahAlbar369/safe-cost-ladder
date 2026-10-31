@@ -1,10 +1,10 @@
-run: matrix-dev-full-1 | split: dev | git: 83dc593d3263413c60bf01ab2b42340ce701fd23 | config_hash: 1201126a080c897a
+run: matrix-dev-full-1 | split: dev | git: 5cc73aa69e6d982dcac0e36b628ac39956d909f8 | config_hash: 1201126a080c897a
 
 O1 = per-task cheapest config meeting the floor + risk-tiered verification on adjudicate (SPEC 7.3)
     faq/intent/extract: faq haiku-low, intent haiku-high, extract haiku-low (no verification)
     adjudicate: haiku-low || haiku-medium in parallel; wait for haiku-medium at most 6.0s; accept haiku-low iff V0-V2 pass and the two agree (decision, payout +-1 SAR); if haiku-medium is late, iff haiku-low passes V0-V2; else escalate to opus-low. If haiku-low fails V0-V2, opus-low starts the moment haiku-low returns (D3.5; haiku-medium still charged in full)
     floors and budgets: config/policy.yaml (frozen, budget rule premium)
-    Tier 0 in front of every task: empty reject, exact-duplicate reuse, FAQ table (empty by default)
+    Tier 0: removed (D3.6 rule applied in Phase 4, D4.3: it answered no dev and no shifted item)
 
 Adjudicate: correct 178/180  success 171/180  escalated 11/180 (6.1%)  V3 coverage 143/180
     escalation reasons: first failed checks 6, disagree 3, second failed checks 2
@@ -62,8 +62,8 @@ V3 coverage = adjudicate tickets whose second opinion arrived in time (by max(ha
 Tier 0 on dev (n=400): answered without a model 0/400 (0.0%); pass 400
     language detection agrees with the ticket label on 400/400
     dev has no empty tickets and no exact duplicates by construction (Phase 1 QA), and no FAQ table exists;
-    Tier 0 is kept for robustness (shifted adversarial / near-empty items), not for dev savings. Pre-registered
-    rule (D3.6): if Tier 0 answers no shifted item correctly in Phase 4, it is removed before freeze-v1.
+    Pre-registered rule (D3.6): if Tier 0 answers no shifted item correctly in Phase 4, it is removed before
+    freeze-v1. It answered none (reports/phase4/shifted.txt), so it is removed from O1 (D4.3).
 
 Remaining failures (wrong, or correct but over the task's latency budget)
     dev-0018  adjudicate over budget   9.60s / 8.5s  path haiku-low > haiku-medium > opus-low

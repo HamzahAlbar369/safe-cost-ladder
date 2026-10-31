@@ -724,3 +724,31 @@ Checker result before these fixes: 50/50 blind agreement with gold, 0 label erro
   is about the dev matrix's size (dev: $10.53, D2.8), so the total is above the $5 ask threshold: needs Hamzah's OK.
 - **Prompts frozen:** no commit has touched `src/engine/tasks/` or `data/rules/` since `97600fb` (the dev matrix
   commit); config hash v1 `1201126a080c897a` unchanged, v1+v2 `5f376c36936b754d` = the shifted run's manifest.
+
+### D4.6 · Audit-and-recalibrate loop (`engine recalibrate`, replay only, no spend) — RECALIBRATION ANALYSIS; the held-out run uses the dev-frozen O1
+- **Phase 4 review (Hamzah, 2026-10-31):** O1 frozen as on dev; shifted breaches reported as a robustness finding
+  (D4.2); the 4 suspect shifted tickets stay in the data and are a documented limitation; Tier 0 removal (D4.3) and
+  the D4.1 runner fix approved. The loop below was requested before freeze-v1 and does NOT change the final policy.
+- **Built (`src/engine/eval/recalibrate.py`):** on a labelled audit sample, (a) drift = the frozen O1's per-task
+  accuracy on the sample against the frozen floor, by two detectors: naive (point estimate below the floor) and
+  binomial (one-sided exact test rejects "accuracy >= floor" at alpha 0.05; the binomial detector was added after
+  the naive one showed high false alarms on dev); (b) the controller's selection rule re-applied to the sample
+  (cheapest config meeting the floor; adjudicate `top` = that pick; the cascade kept only if it meets the floor on
+  the sample); (c) no config meets the floor -> most accurate config, flagged "floor unreachable on this traffic".
+- **Evidence (`reports/phase4/recalibration.txt` at `caf9342`; 2 folds on shifted stratified by task x language,
+  audit on one, score the other, swap):**
+  - Drift detection fired for adjudicate on both folds (naive and binomial) and for faq on both folds (naive);
+    binomial fired for faq on fold A only (fold B audit: faq 0.960 on 25 tickets, not significant).
+  - **Recalibration did not help (negative result).** Pooled over both scored folds: faq frozen O1 0.840 ->
+    recalibrated 0.860 (floor 0.980 missed by both); adjudicate 0.889 -> 0.867 (missed; B1 0.956 also misses).
+    Cause: with ~45 adjudicate tickets per fold no config meets the floor, and the "most accurate" fallback breaks
+    accuracy ties toward a cheaper config (haiku-medium, sonnet-high) that does worse on the other fold; for faq one
+    fold re-picks opus-low, the other haiku-high (25/25 on its audit, 0.72 on the scored fold). Cost per successful
+    task rises (overall headline $0.00373 -> $0.01063).
+  - **Audit size (500 stratified resamples):** with the binomial detector, a 100-ticket audit detects the shifted
+    drift (faq or adjudicate) in 99.8% of samples with 0.0% false alarms on dev; 40 tickets: 81.6% vs 1.0%; 20:
+    38.4% vs 0.2%. The naive detector false-alarms on dev in 14.4% / 24.0% / 61.8% of 20 / 40 / 100-ticket samples.
+- **Reading:** a ~100-ticket labelled audit is a cheap, reliable drift MONITOR; automatic re-picking on that
+  sample is NOT reliable at this size (selection is noisier than detection). Recommended product action on a
+  binomial alarm: escalate the drifted task to the most accurate config on the larger pooled audit or to human
+  review, not a per-sample re-pick. Not built (would be a new rule chosen after seeing shifted).

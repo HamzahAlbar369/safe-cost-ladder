@@ -1,0 +1,89 @@
+runs: matrix-dev-full-1, matrix-shifted-full-1 | git: caf9342b9023c3bd647c8591d0b940491eaeaf38
+
+RECALIBRATION ANALYSIS; the held-out run uses the dev-frozen O1
+
+Audit-and-recalibrate on shifted, 2 folds stratified by task x language (seed 20261031): audit fold A -> score fold B, then swap; every ticket is scored once, by the policy calibrated on
+the OTHER fold. Floors and budgets are the frozen ones. Selection rules: src/engine/eval/recalibrate.py.
+
+  fold A audits (n=100), fold B is scored (n=100)
+    drift detection (frozen O1 on the audit sample vs frozen floor): faq 0.720 naive FIRED / binomial FIRED, intent 1.000 naive ok / binomial ok, extract 1.000 naive ok / binomial ok, adjudicate 0.911 naive FIRED / binomial FIRED
+    re-picked: faq haiku-low->opus-low, intent haiku-high->haiku-low, extract haiku-low->haiku-low, adjudicate opus-low->haiku-medium (floor unreachable on this traffic)
+    adjudicate ladder: cascade dropped (missed the floor on the sample), top haiku-medium
+  fold B audits (n=100), fold A is scored (n=100)
+    drift detection (frozen O1 on the audit sample vs frozen floor): faq 0.960 naive FIRED / binomial ok, intent 1.000 naive ok / binomial ok, extract 1.000 naive ok / binomial ok, adjudicate 0.867 naive FIRED / binomial FIRED
+    re-picked: faq haiku-low->haiku-high, intent haiku-high->haiku-low, extract haiku-low->haiku-low, adjudicate opus-low->sonnet-high (floor unreachable on this traffic)
+    adjudicate ladder: cascade dropped (missed the floor on the sample), top sonnet-high
+
+Per task, pooled over both scored folds (CI = 95% bootstrap; 'vs B1' = CPST saving vs B1, paired)
+  faq (n=50)
+      frozen O1              acc 0.840 [0.720, 0.940]  floor 0.980 MISSED  success 0.840
+          CPST headline $0.00089 [0.00080, 0.00103]  vs B1 +97.1% [+96.6%, +97.5%]
+          CPST cached   $0.00012 [0.00011, 0.00014]  vs B1 +94.5% [+93.6%, +95.1%]
+      recalibrated           acc 0.860 [0.760, 0.940]  floor 0.980 MISSED  success 0.840
+          CPST headline $0.01802 [0.01356, 0.02255]  vs B1 +41.3% [+26.6%, +55.9%]
+          CPST cached   $0.00130 [0.00100, 0.00161]  vs B1 +39.0% [+24.9%, +53.2%]
+      B1                     acc 1.000 [1.000, 1.000]  floor 0.980 met     success 0.960
+          CPST headline $0.03071 [0.02946, 0.03277]  vs B1 +0.0% [+0.0%, +0.0%]
+          CPST cached   $0.00214 [0.00203, 0.00230]  vs B1 +0.0% [+0.0%, +0.0%]
+  intent (n=30)
+      frozen O1              acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
+          CPST headline $0.00075 [0.00074, 0.00075]  vs B1 +97.5% [+97.5%, +97.5%]
+          CPST cached   $0.00010 [0.00009, 0.00010]  vs B1 +95.4% [+95.2%, +95.6%]
+      recalibrated           acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
+          CPST headline $0.00074 [0.00074, 0.00074]  vs B1 +97.5% [+97.5%, +97.5%]
+          CPST cached   $0.00009 [0.00009, 0.00009]  vs B1 +95.8% [+95.7%, +95.8%]
+      B1                     acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
+          CPST headline $0.02956 [0.02952, 0.02961]  vs B1 +0.0% [+0.0%, +0.0%]
+          CPST cached   $0.00207 [0.00202, 0.00211]  vs B1 +0.0% [+0.0%, +0.0%]
+  extract (n=30)
+      frozen O1              acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
+          CPST headline $0.00081 [0.00080, 0.00082]  vs B1 +97.5% [+97.4%, +97.5%]
+          CPST cached   $0.00014 [0.00013, 0.00015]  vs B1 +96.0% [+95.7%, +96.3%]
+      recalibrated           acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
+          CPST headline $0.00081 [0.00080, 0.00082]  vs B1 +97.5% [+97.4%, +97.5%]
+          CPST cached   $0.00014 [0.00013, 0.00015]  vs B1 +96.0% [+95.7%, +96.3%]
+      B1                     acc 1.000 [1.000, 1.000]  floor 0.980 met     success 1.000
+          CPST headline $0.03178 [0.03171, 0.03186]  vs B1 +0.0% [+0.0%, +0.0%]
+          CPST cached   $0.00347 [0.00340, 0.00355]  vs B1 +0.0% [+0.0%, +0.0%]
+  adjudicate (n=90)
+      frozen O1              acc 0.889 [0.822, 0.944]  floor 0.984 MISSED  success 0.822
+          CPST headline $0.00772 [0.00466, 0.01188]  vs B1 +80.9% [+71.0%, +88.3%]
+          CPST cached   $0.00250 [0.00169, 0.00361]  vs B1 +66.8% [+53.5%, +76.4%]
+      recalibrated           acc 0.867 [0.789, 0.933]  floor 0.984 MISSED  success 0.833
+          CPST headline $0.01437 [0.01174, 0.01739]  vs B1 +64.5% [+58.1%, +70.7%]
+          CPST cached   $0.00446 [0.00363, 0.00546]  vs B1 +40.6% [+29.2%, +51.1%]
+      B1                     acc 0.956 [0.911, 0.989]  floor 0.984 MISSED  success 0.956
+          CPST headline $0.04052 [0.03877, 0.04296]  vs B1 +0.0% [+0.0%, +0.0%]
+          CPST cached   $0.00751 [0.00684, 0.00832]  vs B1 +0.0% [+0.0%, +0.0%]
+  overall (n=200)
+      frozen O1              acc 0.910  success 0.880  CPST headline $0.00373  cached $0.00112
+      recalibrated           acc 0.905  success 0.885  CPST headline $0.01063  cached $0.00224
+      B1                     acc 0.980  success 0.970  CPST headline $0.03505  cached $0.00472
+
+Audit sample size vs drift detection (500 stratified resamples per size). On shifted a firing is
+a DETECTION (the drift is real, D4.2); on dev it is a FALSE ALARM (O1 meets every floor on dev).
+Detectors on frozen O1's per-task result in the sample: naive = sample accuracy below the frozen floor;
+binomial = one-sided exact binomial test rejects 'accuracy >= floor' at alpha 0.05.
+    split        n  faq n  adj n  detector    faq fires  adj fires  either fires
+    shifted     20      5      9  naive           59.4%      66.8%         86.0%
+    shifted     20      5      9  binomial        14.4%      27.4%         38.4%
+    shifted     40     10     18  naive           83.2%      90.8%         98.8%
+    shifted     40     10     18  binomial        49.4%      64.0%         81.6%
+    shifted    100     25     45  naive           99.6%     100.0%        100.0%
+    shifted    100     25     45  binomial        88.2%      97.0%         99.8%
+    shifted    150     38     68  naive          100.0%     100.0%        100.0%
+    shifted    150     38     68  binomial        99.8%      99.8%        100.0%
+    shifted    200     50     90  naive          100.0%     100.0%        100.0%
+    shifted    200     50     90  binomial       100.0%     100.0%        100.0%
+    dev         20      5      9  naive            4.2%      11.0%         14.4%
+    dev         20      5      9  binomial         0.0%       0.2%          0.2%
+    dev         40     10     18  naive            8.2%      17.4%         24.0%
+    dev         40     10     18  binomial         0.0%       1.0%          1.0%
+    dev        100     25     45  naive           27.0%      46.6%         61.8%
+    dev        100     25     45  binomial         0.0%       0.0%          0.0%
+    dev        150     37     68  naive           36.4%      14.0%         45.4%
+    dev        150     37     68  binomial         0.0%       0.0%          0.0%
+    dev        200     50     90  naive            0.0%      24.4%         24.4%
+    dev        200     50     90  binomial         0.0%       0.0%          0.0%
+
+RECALIBRATION ANALYSIS; the held-out run uses the dev-frozen O1

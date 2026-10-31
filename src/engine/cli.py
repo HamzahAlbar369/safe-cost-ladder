@@ -181,7 +181,7 @@ def probe(
 
 @app.command()
 def matrix(
-    split: str = typer.Option("dev", help="dev (held-out is sealed; shifted is recorded in Phase 4)"),
+    split: str = typer.Option("dev", help="dev | shifted (held-out is sealed: only `engine final`)"),
     subset: str = typer.Option("all", help="pilot (40 stratified items) | all"),
     mode: str = typer.Option("auto", help="auto (replay if recorded) | live | replay"),
     run_id: str = typer.Option("", help="Run id; pass an existing one to resume it."),
@@ -202,9 +202,6 @@ def matrix(
 
     if split not in ("dev", "shifted"):
         raise typer.BadParameter("split must be dev or shifted (held-out is only run by `engine final`)")
-    if split == "shifted":
-        typer.echo("shifted is recorded in Phase 4, not now.")
-        raise typer.Exit(2)
     tickets = load_split(split)
     if subset == "pilot":
         tickets = stratified_subset(tickets)
@@ -213,7 +210,7 @@ def matrix(
     cells = [c for c in M.plan_cells(tickets) if (c[0].id, pricebook().config_id(c[1], c[2])) not in done]
     live = M.pending_live(cells, CassetteStore(), done, repeat)
     est = E.estimate_requests(
-        [(t.task_type, M.build_request(t, m, e, repeat=repeat)) for t, m, e in live],
+        [(c[0].task_type, M.cell_request(c, repeat)) for c in live],
         concurrency=3 * concurrency,
     )
     typer.echo(
@@ -377,12 +374,13 @@ def audit_names() -> None:
 def replay_check(
     run_id: str = typer.Option("matrix-dev-full-1"),
     repeat: int = typer.Option(1, help="the run's recording epoch (--repeat it was recorded with)"),
+    split: str = typer.Option("dev", help="dev | shifted"),
 ) -> None:
     """Replay a recorded matrix with no key and confirm it reproduces the live metrics exactly."""
     from engine.eval import replay
     from engine.eval.data import load_split
 
-    problems = replay.compare(run_id, load_split("dev"), repeat)
+    problems = replay.compare(run_id, load_split(split), repeat)
     for p in problems[:20]:
         typer.echo(f"MISMATCH {p}")
     typer.echo("replay reproduces the live run exactly" if not problems else f"{len(problems)} mismatches")

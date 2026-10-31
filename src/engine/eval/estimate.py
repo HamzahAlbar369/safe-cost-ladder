@@ -64,9 +64,8 @@ def estimate_requests(
     items: list[tuple[TaskType, LLMRequest]], *, concurrency: int, prices: PriceBook | None = None
 ) -> Estimate:
     prices = prices or pricebook()
-    warmed: set[tuple[str, str]] = (
-        set()
-    )  # the schema is part of the cached prefix: one cache per (model, task)
+    # the schema and the policy document are in the cached prefix: one cache per (model, task, system block)
+    warmed: set[tuple[str, str, int]] = set()
     with_cache = no_cache = worst = 0.0
     per_model: dict[str, float] = defaultdict(float)
     seconds = 0.0
@@ -75,8 +74,9 @@ def estimate_requests(
         prefix = math.ceil(len(req.system.encode("utf-8")) / PREFIX_BYTES_PER_TOKEN)
         user = estimate_tokens(req.user)
         out = expected_output_tokens(req.model, task, req.effort) * p.output
-        write = (req.model, task) not in warmed
-        warmed.add((req.model, task))
+        key = (req.model, task, hash(req.system))
+        write = key not in warmed
+        warmed.add(key)
         c = (prefix * (p.cache_write_5m if write else p.cache_read) + user * p.input + out) / PER_MTOK
         with_cache += c
         no_cache += ((prefix + user) * p.input + out) / PER_MTOK
@@ -93,7 +93,7 @@ def estimate_requests(
         assumptions={
             "input_tokens": "static prefix 2.6 bytes/token (measured), ticket 2 bytes/token (worst case: 2)",
             "output_tokens": "measured means per model/task/effort from matrix-dev-pilot-1 (incl. thinking)",
-            "cache": "one write per (model, task): the schema is in the cached prefix (D2.3); TTL ignored",
+            "cache": "one write per (model, task, policy version): the cached prefix (D2.3); TTL ignored",
             "latency": f"assumed {EXPECTED_LATENCY_S} s/call, divided by concurrency {concurrency}",
             "worst": "no cache reads, every call hits max_tokens",
         },

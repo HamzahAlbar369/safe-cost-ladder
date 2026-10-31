@@ -25,7 +25,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from engine.contracts import Effort, ModelCall, RunManifest, TaskType, Ticket
+from engine.contracts import Effort, LLMRequest, ModelCall, RunManifest, TaskType, Ticket
 from engine.datagen.rules import load_version
 from engine.eval.pacer import Pacer
 from engine.llm.client import BudgetExceeded, CassetteStore, Ledger, LLMClient, Mode, RunBudget, request_hash
@@ -60,10 +60,23 @@ def runs_dir(run_id: str) -> Path:
     return ROOT / "runs" / run_id
 
 
-def config_hash(version: str = "v1") -> str:
-    """Hash of everything that determines a request besides the ticket: prompts, caps, prices file."""
-    parts = [system_prompt(version), json.dumps(MAX_TOKENS, sort_keys=True), MODELS_YAML.read_text("utf-8")]
+def config_hash(versions: tuple[str, ...] = ("v1",)) -> str:
+    """Hash of everything that determines a request besides the ticket: prompts, caps, prices file. A split
+    that mixes rules versions (shifted: v1 + v2) hashes every system prompt it uses; v1 alone is unchanged."""
+    prompts = [system_prompt(v) for v in versions]
+    parts = [*prompts, json.dumps(MAX_TOKENS, sort_keys=True), MODELS_YAML.read_text("utf-8")]
     return hashlib.sha256("\n".join(parts).encode("utf-8")).hexdigest()[:16]
+
+
+def split_versions(tickets: list[Ticket]) -> tuple[str, ...]:
+    return tuple(sorted({t.rules_version for t in tickets}))
+
+
+def cell_request(cell: Cell, repeat: int = 0) -> LLMRequest:
+    """The request for one cell. The ticket's rules version picks the policy document the model reads
+    (SPEC §8 policy change: v2 tickets get the v2 document, a separate cached prefix; same prompt code)."""
+    ticket, model, effort = cell
+    return build_request(ticket, model, effort, version=ticket.rules_version, repeat=repeat)
 
 
 def plan_cells(tickets: list[Ticket]) -> list[Cell]:
@@ -82,7 +95,7 @@ def pending_live(
         c
         for c in cells
         if (c[0].id, prices.config_id(c[1], c[2])) not in done
-        and store.get("anthropic", request_hash(build_request(*c, repeat=repeat))) is None
+        and store.get("anthropic", request_hash(cell_request(c, repeat))) is None
     ]
 
 
@@ -142,7 +155,7 @@ def run_matrix(
         return LLMClient(m, run_id, ledger=ledger, store=store, run_budget=budget, sdk_client=sdk_client)
 
     client = make_client(mode)
-    rules = load_version("v1")
+    rules = {v: load_version(v) for v in split_versions(tickets)}
     pacers = {m: Pacer(per_model_concurrency) for m, _, _ in configs()}
     sink = _Sink(calls_path)
     live_cells = pending_live(cells, store, done, repeat) if mode != "replay" else []
@@ -162,10 +175,12 @@ def run_matrix(
         if stop.is_set():
             return
         ticket, model, effort = cell
-        req = build_request(ticket, model, effort, repeat=repeat)
+        req = cell_request(cell, repeat)
 
         def valid(text: str) -> bool:
-            return check_format(ticket.task_type, text, rules, stop_reason="end_turn").passed
+            return check_format(
+                ticket.task_type, text, rules[ticket.rules_version], stop_reason="end_turn"
+            ).passed
 
         call = None
         for _ in range(MAX_ATTEMPTS):
@@ -227,7 +242,7 @@ def run_matrix(
     manifest = RunManifest(
         run_id=run_id,
         git_sha=git_sha,
-        config_hash=config_hash(),
+        config_hash=config_hash(split_versions(tickets)),
         split=split,
         policies=["matrix"],
         spend_usd={"anthropic": summary.spend_usd},
@@ -242,20 +257,21 @@ def run_matrix(
 
 
 def _warm_up(live_cells: list[Cell], client: LLMClient, sink: _Sink, progress: Callable[[str], None]) -> None:
-    """One real, tiny request per (model, task) with live work pending, sequential per model. A fresh `repeat`
-    makes the key unique so it is always sent (never replayed) and never collides with a matrix cassette."""
-    first: dict[tuple[str, TaskType], Cell] = {}
+    """One real, tiny request per (model, task, rules version) with live work pending, sequential per model
+    (each version's policy document is its own cached prefix). A fresh `repeat` makes the key unique so it is
+    always sent (never replayed) and never collides with a matrix cassette."""
+    first: dict[tuple[str, TaskType, str], Cell] = {}
     for cell in live_cells:
-        first.setdefault((cell[1], cell[0].task_type), cell)
+        first.setdefault((cell[1], cell[0].task_type, cell[0].rules_version), cell)
     repeat = int(time.time())
-    progress(f"  warming {len(first)} (model, task) caches")
+    progress(f"  warming {len(first)} (model, task, version) caches")
     by_model: dict[str, list[Cell]] = {}
-    for (model, _task), cell in first.items():
+    for (model, _task, _version), cell in first.items():
         by_model.setdefault(model, []).append(cell)
 
     def warm(cells: list[Cell]) -> None:
         for ticket, model, _effort in cells:
-            req = build_request(ticket, model, "low").model_copy(
+            req = cell_request((ticket, model, "low")).model_copy(
                 update={"max_tokens": WARMUP_MAX_TOKENS, "repeat": repeat}
             )
             sink.write(client.call(req, ticket_id=ticket.id, role="probe").call)

@@ -6,8 +6,8 @@ from __future__ import annotations
 from engine.contracts import ModelCall, Ticket
 from engine.datagen.rules import load_version
 from engine.eval.cells import Cell, cells_from_calls, read_calls
+from engine.eval.matrix import cell_request
 from engine.llm.client import CassetteStore, LLMClient
-from engine.tasks.request import build_request
 from engine.verify.v0 import check_format
 
 CALL_FIELDS = (
@@ -39,16 +39,16 @@ def replay_calls(
     """Re-issue every recorded answer call of the run in replay mode (a miss raises ReplayMiss)."""
     client = LLMClient("replay", run_id + "-replay", store=store)
     by_id = {t.id: t for t in tickets}
-    rules = load_version("v1")
+    rules = {v: load_version(v) for v in ("v1", "v2")}
     out = []
     for live in read_calls(run_id):
         if live.role != "answer":
             continue
         ticket = by_id[live.ticket_id]
-        req = build_request(ticket, live.model, live.effort, repeat=repeat)  # type: ignore[arg-type]
+        req = cell_request((ticket, live.model, live.effort), repeat)  # type: ignore[arg-type]
 
-        def valid(text: str, task=ticket.task_type) -> bool:
-            return check_format(task, text, rules, stop_reason="end_turn").passed
+        def valid(text: str, task=ticket.task_type, r=rules[ticket.rules_version]) -> bool:
+            return check_format(task, text, r, stop_reason="end_turn").passed
 
         out.append((run_id, client.call(req, ticket_id=ticket.id, validate=valid).call))
     return out

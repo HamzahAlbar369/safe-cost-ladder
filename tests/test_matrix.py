@@ -188,3 +188,23 @@ def test_epoch_repeat_changes_every_cassette_key_and_connections_are_prewarmed(
     fake.models = Models()
     run(tmp_path, tmp_store, tmp_ledger, t, fake)
     assert fake.models.n == 2 * 3  # per-model concurrency x 3 models, once per run
+
+
+def test_v2_tickets_read_the_v2_policy_and_warm_their_own_prefix(tmp_path, tmp_store, tmp_ledger):
+    """SPEC §8 policy change: same prompt code, the ticket's rules version picks the policy document."""
+    from engine.tasks.prompts import system_prompt
+
+    shifted = load_split("shifted")
+    v1 = next(t for t in shifted if t.task_type == "faq" and t.rules_version == "v1")
+    v2 = next(t for t in shifted if t.task_type == "faq" and t.rules_version == "v2")
+    r1 = M.cell_request((v1, "claude-haiku-5-5", "low"))
+    r2 = M.cell_request((v2, "claude-haiku-5-5", "low"))
+    assert r1.system == system_prompt("v1") and r2.system == system_prompt("v2")
+    assert r1.system != r2.system
+    assert M.config_hash(("v1",)) == M.config_hash() != M.config_hash(("v1", "v2"))
+    fake = FakeAnthropic(text='{"answer": "yes"}')
+    run(tmp_path, tmp_store, tmp_ledger, [v1, v2], fake)
+    warm = [c for c in read_calls(tmp_path) if c.role == "probe"]
+    assert len(warm) == 3 * 2  # one per (model, task, version): faq under v1 and under v2
+    systems = {p["system"][0]["text"] for p in fake.calls}
+    assert systems == {system_prompt("v1"), system_prompt("v2")}

@@ -162,7 +162,7 @@
       {{ 'cheaper' if b2_cheaper else 'more expensive' }} than O1 ({{ m(H ~ ".B2.cpst_nocache", "usd5") }} vs O1 {{ T.LIVE }} {{ m(H ~ ".O1_live.cpst_nocache", "usd5") }}),
       but it {{ 'breached' if not v(D ~ ".B2.meets_floors") else 'met' }} the floors on dev (accuracy {{ m(D ~ ".B2.acc", "f3") }})
       and {{ 'breached' if not v(S ~ ".B2.meets_floors") else 'met' }} them on shifted (accuracy {{ m(S ~ ".B2.acc", "f3") }}).
-      O1 was chosen on dev, where B2 was not an option.</p>
+      O1 was chosen on dev, where B2 missed the floors.</p>
     <p style="margin:6px 0 0">{{ T.LIVE | capitalize }} p95 latency {{ 'exceeded' if v(H ~ ".O1_live.p95_s") > v(H ~ ".O1.p95_s") else 'stayed within' }}
       the {{ T.SIMULATED }} value ({{ m(H ~ ".O1_live.p95_s", "s2") }} vs {{ m(H ~ ".O1.p95_s", "s2") }}){% if over %};{% for t in over %} {{ t }} ran over its latency budget {{ T.LIVE }} (p95 {{ m(H ~ ".O1_live.per_task." ~ t ~ ".p95_s", "s2") }} vs budget {{ m("floors." ~ t ~ ".budget_s", "s1") }}){{ "," if not loop.last }}{% endfor %},
       so {{ T.LIVE }} success is {{ m(H ~ ".O1_live.success", "f3") }} vs {{ m(H ~ ".O1.success", "f3") }} {{ T.SIMULATED }}{% endif %}.</p>

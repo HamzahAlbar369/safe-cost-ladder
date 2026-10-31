@@ -53,7 +53,7 @@ the task's latency budget.
 - **Simulated vs live latency gap.** Live p95 7.19 s vs 6.00 s simulated; success 0.917 vs 0.980; faq ran over its latency budget live (p95 3.44 s vs 2.5 s). Correctness agreed on 395 of 400 tickets.
 - **Shifted traffic** (simulated): O1 still costs 89.4% less than B1, but accuracy 0.910 vs B1 0.980; floors breached: faq, adjudicate. Fail-safe analysis (added after observing shifted): accuracy 0.945.
 
-Source: `reports/metrics.json` (runs matrix-dev-full-1, matrix-shifted-full-1, matrix-heldout-freeze-v1, o1-live-heldout-freeze-v1, heldout-outcomes-freeze-v1; built at git `706310b812e8`). Full report: `reports/report.html`.
+Source: `reports/metrics.json` (runs matrix-dev-full-1, heldout-outcomes-freeze-v1, o1-live-heldout-freeze-v1, matrix-heldout-freeze-v1, matrix-shifted-full-1; built at git `a0b0532c41b8`). Full report: `reports/report.html`.
 <!-- results:end -->
 
 Figures with their claims and sources: `reports/figures/INDEX.md`. Decisions with evidence: `docs/DECISIONS.md`.
@@ -71,7 +71,8 @@ uv sync && uv run engine demo --replay
 - `--pause` waits for Enter between tickets, for recording.
 - **The report:** `uv run engine report` rebuilds `reports/report.html`, `reports/figures/*.png` and this README's
   results block. **On Windows, run `engine report` from PowerShell, not Git Bash: kaleido (the PNG exporter) hangs
-  under Git Bash.** Use `--no-png` to skip the PNGs.
+  under Git Bash.** Use `--no-png` to skip the PNGs. If the PNG export ever stalls (kaleido can hang), stop it
+  and run `uv run engine report --no-collect` to re-export from the saved `reports/metrics.json`.
 - `uv run engine check` runs ruff, pytest, replay integrity and gitleaks.
 
 Python 3.11+ (developed on 3.13), dependencies pinned in `uv.lock`. PNG export needs a local Chrome (kaleido).
